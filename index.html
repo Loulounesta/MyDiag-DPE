@@ -1873,7 +1873,7 @@ let chaufs  = JSON.parse(_get('pppt_chaufs', '[]'));
 let ecss    = JSON.parse(_get('pppt_ecss',   '[]'));
 let photos  = JSON.parse(_get('pppt_photos', '{}'));
 let portes    = JSON.parse(_get('pppt_portes',  '[]'));
-    let refs = JSON.parse(_get('pppt_refs') || '[]');
+    let refs  = JSON.parse(_get('pppt_refs', '[]'));
 let dtgPhotos = JSON.parse(_get('pppt_dtg',     '[]'));
 let vmc     = JSON.parse(_get('pppt_vmc',    '{}'));
 let copro   = JSON.parse(_get('pppt_copro',  '{}'));
@@ -2348,8 +2348,7 @@ function editAppt(id){
   editId=id;
   document.getElementById('ed-apt-num').value     = a.num;
   document.getElementById('ed-apt-etage').value   = a.etage||'';
-  document.getElementById('ed-4696
-  ').value  = a.niveau||'';
+      document.getElementById('ed-4696').value  = a.niveau||'';
   document.getElementById('ed-apt-pos').value     = a.pos||'';
   document.getElementById('ed-apt-surf').value    = a.surf||'';
   document.getElementById('ed-apt-occupant').value= a.occupant||'';
@@ -4067,8 +4066,7 @@ async function ouvrirDTGHtml(){
 // ══════════════════════════════════════════════
 // Nomenclature chauffage — générateurs par énergie
 // ══════════════════════════════════════════════
-const CHAUF_GEN_MAP = {"Electrique":["4003
-Pompe à chaleur Air/Eau","Pompe à chaleur Eau/Eau","Pompe à chaleur Eau glycolé/Eau","Pompe à chaleur Géothermie","Pompe à chaleur Air/Air","Convecteur électrique NFC","Convecteur électrique NF**","Convecteur électrique NF***","Panneau rayonnant électrique NFC","Panneau rayonnant électrique NF**","Panneau rayonnant électrique NF***","Radiateur électrique NFC","Radiateur électrique NF**","Radiateur électrique NF***","Autres émetteurs à effet joule","Plancher rayonnant électrique","Plafond rayonnant électrique","Radiateur électrique à accumulation","Chaudière électrique","Convecteur bi-jonction","Installation collective unique multi bâtiment"],"Gaz naturel":["Radiateur gaz à ventouse","Radiateur gaz sur conduits de fumée","Générateur d'air chaud","Chaudière basse température","Chaudière standard","Chaudière classique","Chaudière condensation","Chaudière PAC hybride","Installation collective unique multi bâtiment"],"GPL":["Poêle GPL","Générateur d'air chaud","Chaudière basse température","Chaudière standard","Chaudière classique","Chaudière condensation","Chaudière PAC hybride","Installation collective unique multi bâtiment","Radiateur gaz à ventouse","Radiateur gaz sur conduits de fumée"],"Fioul":["Poêle fioul","Générateur d'air chaud","Chaudière basse température","Chaudière standard","Chaudière classique","Chaudière condensation","Chaudière PAC hybride","Installation collective unique multi bâtiment"],"Bois":["Cuisinière","Poêle à granulés","Chaudière bois","Chaudière à granulés","Poêle à bois bouilleur","Installation collective unique multi bâtiment","Foyer fermé","Poêle bûche","Insert","Poêle à bois bouilleur granulés"],"Charbon":["Chaudière atmosphérique charbon","Cuisinière","Foyer fermé","Poêle","Insert","Installation collective unique multi bâtiment"],"Réseau de chaleur":["Installation collective unique multi bâtiment"]};
+const CHAUF_GEN_MAP = {"Electrique":["4003Pompe à chaleur Air/Eau","Pompe à chaleur Eau/Eau","Pompe à chaleur Eau glycolé/Eau","Pompe à chaleur Géothermie","Pompe à chaleur Air/Air","Convecteur électrique NFC","Convecteur électrique NF**","Convecteur électrique NF***","Panneau rayonnant électrique NFC","Panneau rayonnant électrique NF**","Panneau rayonnant électrique NF***","Radiateur électrique NFC","Radiateur électrique NF**","Radiateur électrique NF***","Autres émetteurs à effet joule","Plancher rayonnant électrique","Plafond rayonnant électrique","Radiateur électrique à accumulation","Chaudière électrique","Convecteur bi-jonction","Installation collective unique multi bâtiment"],"Gaz naturel":["Radiateur gaz à ventouse","Radiateur gaz sur conduits de fumée","Générateur d'air chaud","Chaudière basse température","Chaudière standard","Chaudière classique","Chaudière condensation","Chaudière PAC hybride","Installation collective unique multi bâtiment"],"GPL":["Poêle GPL","Générateur d'air chaud","Chaudière basse température","Chaudière standard","Chaudière classique","Chaudière condensation","Chaudière PAC hybride","Installation collective unique multi bâtiment","Radiateur gaz à ventouse","Radiateur gaz sur conduits de fumée"],"Fioul":["Poêle fioul","Générateur d'air chaud","Chaudière basse température","Chaudière standard","Chaudière classique","Chaudière condensation","Chaudière PAC hybride","Installation collective unique multi bâtiment"],"Bois":["Cuisinière","Poêle à granulés","Chaudière bois","Chaudière à granulés","Poêle à bois bouilleur","Installation collective unique multi bâtiment","Foyer fermé","Poêle bûche","Insert","Poêle à bois bouilleur granulés"],"Charbon":["Chaudière atmosphérique charbon","Cuisinière","Foyer fermé","Poêle","Insert","Installation collective unique multi bâtiment"],"Réseau de chaleur":["Installation collective unique multi bâtiment"]};
 const INSTALL_TYPES_CHAUF = [];
 
 function fillGenSelect(selId, energie){
@@ -4578,7 +4576,6 @@ renderAccueil();
 /* ============================================================
    MYDIAG v2.1 — JS ADDITIONNEL
    ============================================================ */
-if(typeof refs==='undefined'){var refs=JSON.parse(localStorage.getItem('pppt_refs')||'[]');}
 
 // Patch save
 const _savOrig=typeof save==='function'?save:null;
