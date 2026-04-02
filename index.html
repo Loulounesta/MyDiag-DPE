@@ -3,11 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>ORFIT PPPT v2.1 [DÉMO]</title>
+<title>MyDiag [DÉMO]</title>
   <!-- PWA / iOS Safari -->
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="ORFIT PPPT">
+  <meta name="apple-mobile-web-app-title" content="MyDiag">
   <meta name="theme-color" content="#2C3830">
   <meta name="mobile-web-app-capable" content="yes">
   <link rel="manifest" href="data:application/json;base64,ewogICJuYW1lIjogIk9SRklUIFBQUFQgdjIuMCIsCiAgInNob3J0X25hbWUiOiAiT1JGSVQiLAogICJkZXNjcmlwdGlvbiI6ICJSZWxldsOpIHRlcnJhaW4gUFBQVCAvIERQRSBjb3Byb3ByacOpdMOpIOKAlCBFVEkiLAogICJzdGFydF91cmwiOiAiLiIsCiAgImRpc3BsYXkiOiAic3RhbmRhbG9uZSIsCiAgIm9yaWVudGF0aW9uIjogInBvcnRyYWl0IiwKICAiYmFja2dyb3VuZF9jb2xvciI6ICIjNDM1NDU5IiwKICAidGhlbWVfY29sb3IiOiAiIzQzNTQ1OSIsCiAgImljb25zIjogWwogICAgeyJzcmMiOiAiZGF0YTppbWFnZS9zdmcreG1sO2Jhc2U2NCxQSE4yWnlCNGJXeHVjejBpYUhSMGNEb3ZMM2QzZHk1M015NXZjbWN2TWpBd01DOXpkbWNpSUhacFpYZENiM2c5SWpBZ01DQXhPVElnTVRreUlqNEtJQ0E4Y21WamRDQjNhV1IwYUQwaU1Ua3lJaUJvWldsbmFIUTlJakU1TWlJZ2NuZzlJalF3SWlCbWFXeHNQU0lqTkRNMU5EVTVJaTgrQ2lBZ1BISmxZM1FnZUQwaU1UWWlJSGs5SWpnNElpQjNhV1IwYUQwaU9EQWlJR2hsYVdkb2REMGlPQ0lnWm1sc2JEMGlJMEUwUWpoQ1JTSXZQZ29nSUR4eVpXTjBJSGc5SWpFMklpQjVQU0l4TmlJZ2QybGtkR2c5SWpnaUlHaGxhV2RvZEQwaU1UWXdJaUJtYVd4c1BTSWpRVFJDT0VKRklpOCtDaUFnUEhSbGVIUWdlRDBpTXpRaUlIazlJakV5TlNJZ1ptOXVkQzFtWVcxcGJIazlJa0Z5YVdGc0xITmhibk10YzJWeWFXWWlJR1p2Ym5RdGMybDZaVDBpTnpJaUlHWnZiblF0ZDJWcFoyaDBQU0k1TURBaUlHWnBiR3c5SWlORU1qY3dNME1pUGs4OEwzUmxlSFErQ2lBZ1BIUmxlSFFnZUQwaU9UWWlJSGs5SWpFeU5TSWdabTl1ZEMxbVlXMXBiSGs5SWtGeWFXRnNMSE5oYm5NdGMyVnlhV1lpSUdadmJuUXRjMmw2WlQwaU16Z2lJR1p2Ym5RdGQyVnBaMmgwUFNJM01EQWlJR1pwYkd3OUlpTkZPRUkyT1VNaVBsSkdTVlE4TDNSbGVIUStDaUFnUEhSbGVIUWdlRDBpTXpRaUlIazlJakUxT0NJZ1ptOXVkQzFtWVcxcGJIazlJa0Z5YVdGc0xITmhibk10YzJWeWFXWWlJR1p2Ym5RdGMybDZaVDBpTWpnaUlHWnZiblF0ZDJWcFoyaDBQU0kyTURBaUlHWnBiR3c5SWlOQk5FSTRRa1VpUGxCUVVGUWdkakk4TDNSbGVIUStDand2YzNablBnPT0iLCAic2l6ZXMiOiAiMTkyeDE5MiIsICJ0eXBlIjogImltYWdlL3N2Zyt4bWwifSwKICAgIHsic3JjIjogImRhdGE6aW1hZ2Uvc3ZnK3htbDtiYXNlNjQsUEhOMlp5QjRiV3h1Y3owaWFIUjBjRG92TDNkM2R5NTNNeTV2Y21jdk1qQXdNQzl6ZG1jaUlIWnBaWGRDYjNnOUlqQWdNQ0F4T1RJZ01Ua3lJajRLSUNBOGNtVmpkQ0IzYVdSMGFEMGlNVGt5SWlCb1pXbG5hSFE5SWpFNU1pSWdjbmc5SWpRd0lpQm1hV3hzUFNJak5ETTFORFU1SWk4K0NpQWdQSEpsWTNRZ2VEMGlNVFlpSUhrOUlqZzRJaUIzYVdSMGFEMGlPREFpSUdobGFXZG9kRDBpT0NJZ1ptbHNiRDBpSTBFMFFqaENSU0l2UGdvZ0lEeHlaV04wSUhnOUlqRTJJaUI1UFNJeE5pSWdkMmxrZEdnOUlqZ2lJR2hsYVdkb2REMGlNVFl3SWlCbWFXeHNQU0lqUVRSQ09FSkZJaTgrQ2lBZ1BIUmxlSFFnZUQwaU16UWlJSGs5SWpFeU5TSWdabTl1ZEMxbVlXMXBiSGs5SWtGeWFXRnNMSE5oYm5NdGMyVnlhV1lpSUdadmJuUXRjMmw2WlQwaU56SWlJR1p2Ym5RdGQyVnBaMmgwUFNJNU1EQWlJR1pwYkd3OUlpTkVNamN3TTBNaVBrODhMM1JsZUhRK0NpQWdQSFJsZUhRZ2VEMGlPVFlpSUhrOUlqRXlOU0lnWm05dWRDMW1ZVzFwYkhrOUlrRnlhV0ZzTEhOaGJuTXRjMlZ5YVdZaUlHWnZiblF0YzJsNlpUMGlNemdpSUdadmJuUXRkMlZwWjJoMFBTSTNNREFpSUdacGJHdzlJaU5GT0VJMk9VTWlQbEpHU1ZROEwzUmxlSFErQ2lBZ1BIUmxlSFFnZUQwaU16UWlJSGs5SWpFMU9DSWdabTl1ZEMxbVlXMXBiSGs5SWtGeWFXRnNMSE5oYm5NdGMyVnlhV1lpSUdadmJuUXRjMmw2WlQwaU1qZ2lJR1p2Ym5RdGQyVnBaMmgwUFNJMk1EQWlJR1pwYkd3OUlpTkJORUk0UWtVaVBsQlFVRlFnZGpJOEwzUmxlSFErQ2p3dmMzWm5QZz09IiwgInNpemVzIjogIjUxMng1MTIiLCAidHlwZSI6ICJpbWFnZS9zdmcreG1sIn0KICBdCn0=">
@@ -15,7 +15,8 @@
   <link rel="apple-touch-startup-image" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxOTIgMTkyIj4KICA8cmVjdCB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiIgcng9IjQwIiBmaWxsPSIjNDM1NDU5Ii8+CiAgPHJlY3QgeD0iMTYiIHk9Ijg4IiB3aWR0aD0iODAiIGhlaWdodD0iOCIgZmlsbD0iI0E0QjhCRSIvPgogIDxyZWN0IHg9IjE2IiB5PSIxNiIgd2lkdGg9IjgiIGhlaWdodD0iMTYwIiBmaWxsPSIjQTRCOEJFIi8+CiAgPHRleHQgeD0iMzQiIHk9IjEyNSIgZm9udC1mYW1pbHk9IkFyaWFsLHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iNzIiIGZvbnQtd2VpZ2h0PSI5MDAiIGZpbGw9IiNEMjcwM0MiPk88L3RleHQ+CiAgPHRleHQgeD0iOTYiIHk9IjEyNSIgZm9udC1mYW1pbHk9IkFyaWFsLHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMzgiIGZvbnQtd2VpZ2h0PSI3MDAiIGZpbGw9IiNFOEI2OUMiPlJGSVQ8L3RleHQ+CiAgPHRleHQgeD0iMzQiIHk9IjE1OCIgZm9udC1mYW1pbHk9IkFyaWFsLHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMjgiIGZvbnQtd2VpZ2h0PSI2MDAiIGZpbGw9IiNBNEI4QkUiPlBQUFQgdjI8L3RleHQ+Cjwvc3ZnPg==">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-<style>
+<style>1873
+
 :root{
   /* Fond et surface */
   --bg:#ECEEED;--sur:#FFFFFF;--bor:rgba(60,80,70,.13);
@@ -331,7 +332,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display',sans-serif;ba
   <div style="display:flex;align-items:center;gap:12px">
     
     <div style="border-left:1.5px solid rgba(164,184,190,.35);padding-left:12px">
-      <div style="font-size:15px;font-weight:700;color:#fff;letter-spacing:-.2px;line-height:1.15">ORFIT PPPT</div>
+      <div style="font-size:15px;font-weight:700;color:#fff;letter-spacing:-.2px;line-height:1.15">MyDiag</div>
       <div style="font-size:10px;color:var(--clr-soft);font-weight:600;letter-spacing:.7px;text-transform:uppercase;line-height:1.2">v2.0 — Relevé terrain</div>
     </div>
   </div>
@@ -363,7 +364,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display',sans-serif;ba
 
   <!-- ── Hero copro ── -->
   <div class="acc-hero" id="acc-hero">
-    <div class="acc-hero-title">ORFIT PPPT <span style="color:var(--clr-soft)">v2.0</span></div>
+    <div class="acc-hero-title">MyDiag <span style="color:var(--clr-soft)">v2.0</span></div>
     <div class="acc-hero-sub">Relevé terrain copropriété</div>
     <div id="acc-copro-name" class="acc-copro-name">—</div>
     <div id="acc-copro-meta" class="acc-copro-meta">Aucune copropriété saisie</div>
@@ -487,7 +488,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display',sans-serif;ba
 <div id="vw-aide" class="vw">
 
   <div class="aide-intro">
-    <div class="aide-tagline">ORFIT, c'est ton carnet technique numérique ! 📋</div>
+    <div class="aide-tagline">MyDiag, c'est ton carnet technique numérique ! 📋</div>
     <p>Saisis tout sur place — murs, fenêtres, chauffage, photos DTG — et rentre au bureau avec un dossier béton.</p>
     <div class="aide-compat">
       <span class="aide-compat-badge">🍎 iPhone / iPad — Safari</span>
@@ -513,13 +514,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display',sans-serif;ba
       <li>Ouvrez <strong>Safari</strong> et tapez l'URL de l'appli</li>
       <li>Appuyez sur l'icône <strong>Partager ↑</strong> (bas de l'écran)</li>
       <li>Appuyez sur <strong>« Sur l'écran d'accueil »</strong></li>
-      <li>Appuyez sur <strong>« Ajouter »</strong> → l'icône ORFIT apparaît 🎉</li>
+      <li>Appuyez sur <strong>« Ajouter »</strong> → l'icône MyDiag apparaît 🎉</li>
     </ol></div>
     <div class="aide-os-block" id="a-android"><ol class="aide-list">
       <li>Ouvrez <strong>Chrome</strong> et tapez l'URL de l'appli</li>
       <li>Appuyez sur les <strong>3 points ⋮</strong> en haut à droite</li>
       <li>Appuyez sur <strong>« Ajouter à l'écran d'accueil »</strong></li>
-      <li>Confirmez → l'icône ORFIT apparaît 🎉</li>
+      <li>Confirmez → l'icône MyDiag apparaît 🎉</li>
     </ol></div>
     <div class="aide-os-block" id="a-windows"><ol class="aide-list">
       <li>Ouvrez la page dans n'importe quel navigateur</li>
@@ -609,7 +610,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display',sans-serif;ba
       <div><div class="aide-step-title">💾 Sauvegarder pendant la visite</div>
       <div class="aide-step-sub">Bouton 💾 en haut à droite — toujours visible</div></div>
     </div>
-    <p>Génère un fichier <code>ORFIT_NomCopro_date.html</code> avec toutes les données et photos.</p>
+    <p>Génère un fichier <code>MyDiag_NomCopro_date.html</code> avec toutes les données et photos.</p>
     <div class="aide-alert">⚠️ <span>Sauvegardez <strong>après chaque appartement</strong>. En cas de batterie morte, rouvrez le fichier .html — tout est là.</span></div>
   </div>
 
@@ -621,7 +622,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display',sans-serif;ba
     </div>
     <table class="aide-table">
       <tr><th>Bouton</th><th>Usage</th></tr>
-      <tr><td>Export ORFIT (.xlsx)</td><td>Facilite la saisie dans ANNALYSSIMO</td></tr>
+      <tr><td>Export MyDiag (.xlsx)</td><td>Facilite la saisie dans ANNALYSSIMO</td></tr>
       <tr><td>⬇ ZIP photos PNG</td><td>Photos DTG nommées pour ANNALYSSIMO</td></tr>
       <tr><td>👁 Ouvrir DTG</td><td>Rapport photos imprimable en PDF</td></tr>
       <tr><td>💾 Sauvegarder projet</td><td>Archiver ou transmettre le dossier</td></tr>
@@ -657,7 +658,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display',sans-serif;ba
 
   <div class="aide-section-title">Questions fréquentes</div>
   <div class="aide-step"><div class="aide-faq-q">❓ J'ai fermé l'app — ai-je perdu mes données ?</div>
-  <div class="aide-faq-a">Non. Les données sont sauvegardées automatiquement. Rouvrez l'icône ORFIT.</div></div>
+  <div class="aide-faq-a">Non. Les données sont sauvegardées automatiquement. Rouvrez l'icône MyDiag.</div></div>
   <div class="aide-step"><div class="aide-faq-q">❓ L'installation ne fonctionne pas sur iPhone ?</div>
   <div class="aide-faq-a">Utilisez <strong>Safari</strong> (pas Chrome ni Firefox). Seul Safari permet d'installer une PWA sur iPhone.</div></div>
   <div class="aide-step"><div class="aide-faq-q">❓ Le bouton photo ne fonctionne pas sur tablette Windows ?</div>
@@ -668,7 +669,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display',sans-serif;ba
   <div class="aide-faq-a">Oui. Une fois installée, l'appli fonctionne entièrement hors-ligne.</div></div>
 
   <div class="aide-footer">
-    <p><strong>ORFIT PPPT v2.0</strong><br>
+    <p><strong>MyDiag v2.0</strong><br>
     Développé par <strong>Cyril LOUIS</strong> <br>
     </p>
   </div>
@@ -1589,7 +1590,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display',sans-serif;ba
   </div>
   <div class="sl">Exporter</div>
   <div style="display:flex;flex-direction:column;gap:10px">
-    <button class="btn btn-ok" onclick="exportOrfit()">Export format ORFIT (.xlsx)</button>
+    <button class="btn btn-ok" onclick="exportMyDiag()">Export format MyDiag (.xlsx)</button>
     <button class="btn btn-s" onclick="exportCSV()">Export CSV complet</button>
             <button class="btn btn-ok" onclick="exportDTGZip()">⬇ Exporter DTG photos ZIP</button>
     <div class="btn-row" style="margin-top:4px;gap:8px">
@@ -1606,7 +1607,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display',sans-serif;ba
     <button class="btn btn-d" style="margin-top:16px" onclick="resetTout()">Effacer toutes les données</button>
   </div>
   <div style="text-align:center;margin-top:24px;padding-top:16px;border-top:.5px solid var(--bor)">
-    <div style="font-size:18px;font-weight:700;color:var(--clr-dark);font-size:18px;font-weight:700">ORFIT PPPT <span style="color:var(--clr-accent)">v2.0</span></div>
+    <div style="font-size:18px;font-weight:700;color:var(--clr-dark);font-size:18px;font-weight:700">MyDiag <span style="color:var(--clr-accent)">v2.0</span></div>
     <div style="font-size:12px;color:var(--tx2);margin-top:4px">Outil de relevé terrain PPPT / DPE copropriété</div>
     <div style="font-size:12px;color:var(--tx2);margin-top:4px">Développé par <strong style="color:var(--clr-dark)">Cyril LOUIS</strong></div>
     
@@ -1871,6 +1872,7 @@ let chaufs  = JSON.parse(_get('pppt_chaufs', '[]'));
 let ecss    = JSON.parse(_get('pppt_ecss',   '[]'));
 let photos  = JSON.parse(_get('pppt_photos', '{}'));
 let portes    = JSON.parse(_get('pppt_portes',  '[]'));
+    let refs = JSON.parse(_get('pppt_refs') || '[]');
 let dtgPhotos = JSON.parse(_get('pppt_dtg',     '[]'));
 let vmc     = JSON.parse(_get('pppt_vmc',    '{}'));
 let copro   = JSON.parse(_get('pppt_copro',  '{}'));
@@ -1888,6 +1890,7 @@ function save(){
   _set('pppt_ecss',   JSON.stringify(ecss));
   _set('pppt_photos', JSON.stringify(photos));
   _set('pppt_portes', JSON.stringify(portes));
+    _set('pppt_refs', JSON.stringify(refs));
   _set('pppt_dtg',    JSON.stringify(dtgPhotos));
   _set('pppt_vmc',    JSON.stringify(vmc));
   _set('pppt_copro',  JSON.stringify(copro));
@@ -1906,8 +1909,10 @@ function goTab(name){
   document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('on', TAB_NAMES[i]===name));
   document.querySelectorAll('.vw').forEach(v=>v.classList.remove('on'));
   const elVw=document.getElementById('vw-'+name)||document.getElementById('idvw-'+name); if(elVw)elVw.classList.add('on');
-  if(name==='accueil')   renderAccueil();
-  if(name==='copro')     renderCoproRecap();
+  window._tabActif=name;
+        if(name==='accueil')   renderAccueil();        if(name==='aide')      renderAide();
+  window._tabActif=name;
+if(name==='copro')     { renderCoproRecap(); setTimeout(renderRecapAppts,50); }
   if(name==='appts')     renderApptsList();
   if(name==='murs')      renderMursView();
   if(name==='fen')       renderFenView();
@@ -1915,7 +1920,8 @@ function goTab(name){
   if(name==='plafonds')  renderPlfView();
   if(name==='portes')    renderPortesView();
   if(name==='totaux')    renderTotaux();
-  if(name==='dtg')       renderDTG();
+  if(name==='refends')   renderRefView();
+        if(name==='aide')      renderAide();
   if(name==='export')    updateExportView();
 }
 
@@ -3032,7 +3038,7 @@ function appliquerColEcs(){
 // ══════════════════════════════════════════════
 // Export
 // ══════════════════════════════════════════════
-function exportOrfit(){
+function exportMyDiag(){
   if(!appts.length){ toast('Aucune donnée à exporter'); return; }
   const wb=XLSX.utils.book_new();
   // Echantillons
@@ -3096,8 +3102,8 @@ function exportOrfit(){
     XLSX.utils.book_append_sheet(wb,wsDtg,'Photos DTG');
   }
   const ref=copro.nom||'chantier';
-  XLSX.writeFile(wb,'ORFIT_'+ref+'.xlsx');
-  toast('Export ORFIT généré ✓');
+  XLSX.writeFile(wb,'MyDiag_'+ref+'.xlsx');
+  toast('Export MyDiag généré ✓');
 }
 function exportCSV(){
   if(!murs.length&&!fens.length){ toast('Aucune donnée'); return; }
@@ -3132,9 +3138,9 @@ function resetTout(){
   if(!confirm('Effacer TOUTES les données de cette copropriété ?\nCette action est irréversible.')) return;
   // Proposer l'export avant suppression
   if(appts.length){
-    const doExport = confirm('Voulez-vous exporter les données en Excel (ORFIT) avant de tout effacer ?');
+    const doExport = confirm('Voulez-vous exporter les données en Excel (MyDiag) avant de tout effacer ?');
     if(doExport){
-      try { exportOrfit(); } catch(e){ /* export échoué, on continue */ }
+      try { exportMyDiag(); } catch(e){ /* export échoué, on continue */ }
       // Laisser le temps au téléchargement de démarrer
       setTimeout(()=>{
         _resetToutConfirme();
@@ -4307,7 +4313,7 @@ async function sauvegarderProjet(){
   toast('Préparation…');
   const ref  = (copro&&copro.nom) ? copro.nom.replace(/[^a-zA-Z0-9 ]/g,'-').trim() : 'chantier';
   const date = new Date().toLocaleDateString('fr-FR').replace(/\//g,'-');
-  const filename = 'ORFIT_' + ref + '_' + date + '.html';
+  const filename = 'MyDiag_' + ref + '_' + date + '.html';
 
   const blob = await _buildSaveBlob();
   const url  = URL.createObjectURL(blob);
@@ -4330,7 +4336,7 @@ async function partagerProjet(){
   toast('Préparation du partage…');
   const ref  = (copro&&copro.nom) ? copro.nom.normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-zA-Z0-9]+/g,'-').replace(/^-+|-+$/g,'') : 'Projet';
   const date = new Date().toLocaleDateString('fr-FR').replace(/\//g,'-');
-  const filename = 'ORFIT_' + ref + '_' + date + '.html';
+  const filename = 'MyDiag_' + ref + '_' + date + '.html';
 
   const blob = await _buildSaveBlob();
   const file = new File([blob], filename, {type:'text/html'});
@@ -4338,7 +4344,7 @@ async function partagerProjet(){
   if(navigator.share && navigator.canShare && navigator.canShare({files:[file]})){
     try {
       await navigator.share({
-        title: 'ORFIT — ' + (copro.nom||'Projet'),
+        title: 'MyDiag — ' + (copro.nom||'Projet'),
         text:  'Relevé terrain PPPT — ' + (copro.nom||''),
         files: [file]
       });
@@ -4373,7 +4379,7 @@ if('serviceWorker' in navigator){
   const swCode = `
 self.addEventListener('install', e=>{
   e.waitUntil(
-    caches.open('orfit-pppt-v2').then(cache=>cache.addAll([location.pathname]))
+    caches.open('MyDiag-pppt-v2').then(cache=>cache.addAll([location.pathname]))
   );
   self.skipWaiting();
 });
@@ -4386,8 +4392,8 @@ self.addEventListener('fetch', e=>{
   const blob = new Blob([swCode], {type:'application/javascript'});
   const swUrl = URL.createObjectURL(blob);
   navigator.serviceWorker.register(swUrl).then(()=>{
-    console.log('[ORFIT] Service Worker enregistré');
-  }).catch(e=>console.warn('[ORFIT] SW non disponible (fichier local):', e.message));
+    console.log('[MyDiag] Service Worker enregistré');
+  }).catch(e=>console.warn('[MyDiag] SW non disponible (fichier local):', e.message));
 }
 
 
@@ -4508,7 +4514,7 @@ function demanderVisite(){
     + lignesManquantes
     + '\nMerci de me contacter afin de planifier les rendez-vous manquants.\n\n'
     + 'Cordialement,\n'
-    + 'ORFIT PPPT'
+    + 'MyDiag'
   );
 
   window.location.href = 'mailto:c.louis@eti360.fr?subject=' + sujet + '&body=' + corps;
