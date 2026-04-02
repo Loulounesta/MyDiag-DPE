@@ -71,7 +71,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display',sans-serif;ba
 .btn{width:100%;padding:14px;border-radius:var(--r);border:none;font-size:15px;font-weight:600;cursor:pointer;transition:filter .15s,transform .1s;letter-spacing:.01em}
 .btn:active{filter:brightness(.9);transform:scale(.98)}
 .btn-p{background:var(--clr-accent);color:#fff;box-shadow:0 2px 8px rgba(37,99,235,.35)}
-.btn-s{background:#fff;color:var(--tx);border:1.5px solid rgba(30,41,59,.2);font-weight:600}
+    .btn-s{background:#CBD5E1;color:#0F172A;border:2px solid #94A3B8;font-weight:700}
 .btn-ok{background:var(--ok);color:#fff}
 .btn-d{background:var(--dan);color:#fff}
 .btn-row{display:flex;gap:8px;margin-top:8px}
@@ -197,6 +197,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display',sans-serif;ba
 .acc-hero-sub{font-size:12px;color:var(--clr-soft);font-weight:600;text-transform:uppercase;letter-spacing:.8px;margin-bottom:14px}
 .acc-copro-name{font-size:17px;font-weight:700;color:var(--clr-accent);margin-bottom:2px}
 .acc-copro-meta{font-size:12px;color:rgba(255,255,255,.65);line-height:1.7}
+.acc-copro-summary{background:#fff;border-radius:var(--r);border:1px solid rgba(30,41,59,.12);margin:0 16px 12px;padding:14px 16px;box-shadow:0 1px 4px rgba(30,41,59,.07)}
+.acc-summary-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid rgba(30,41,59,.07);font-size:14px}
+.acc-summary-row:last-child{border-bottom:none}
+.acc-summary-lbl{font-weight:600;color:#334155;font-size:13px}
+.acc-summary-val{color:#1E293B;font-weight:500;font-size:13px;text-align:right}
 
 .acc-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px}
 .acc-stat{background:var(--sur);border-radius:12px;padding:12px 8px;text-align:center;border:.5px solid var(--bor);cursor:pointer;transition:background .15s}
@@ -367,6 +372,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display',sans-serif;ba
     <div id="acc-copro-name" class="acc-copro-name">—</div>
     <div id="acc-copro-meta" class="acc-copro-meta">Aucune copropriété saisie</div>
   </div>
+      <!-- Résumé copropriété -->
+    <div id="acc-copro-summary" class="acc-copro-summary" style="display:none"></div>
 
   <!-- ── Stats ── -->
   <div class="acc-stats">
@@ -442,13 +449,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display',sans-serif;ba
       <span class="acc-quick-text">
         <span class="acc-quick-label">Appartements</span>
         <span class="acc-quick-sub">Saisir / consulter</span>
-      </span>
-    </button>
-    <button class="acc-quick-btn" onclick="goTab('dtg')">
-      <span class="acc-quick-icon">📷</span>
-      <span class="acc-quick-text">
-        <span class="acc-quick-label">Photos DTG</span>
-        <span class="acc-quick-sub">Ajouter des photos</span>
       </span>
     </button>
     <button class="acc-quick-btn" onclick="goTab('export')">
@@ -681,6 +681,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display',sans-serif;ba
     <div class="fr"><span class="fl">Adresse</span><input type="text" id="copro-adresse" placeholder="ex: 12 rue de la Paix, Lyon"></div>
     <div class="fr"><span class="fl">Année de construction</span><input type="number" id="copro-annee" placeholder="ex: 1975" inputmode="numeric" min="1800" max="2099"></div>
     <div class="fr"><span class="fl">Nbre de bâtiments</span><input type="number" id="copro-batiments" placeholder="ex: 3" inputmode="numeric" min="1" max="99" style="text-align:right"></div>
+              <div class="fr"><span class="fl">Référence dossier</span><input type="text" id="copro-ref" placeholder="N° dossier (5 chiffres min.)" pattern="[0-9]{5,}" inputmode="numeric"></div>
   </div>
   <div class="btn-row"><button class="btn btn-p" onclick="saveCopro()">Enregistrer</button></div>
 
@@ -817,6 +818,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display',sans-serif;ba
     <div class="fr"><span class="fl">Année</span><input type="number" id="col-chauf-annee" placeholder="ex: 2012" inputmode="numeric" min="1900" max="2099"></div>
     <div class="fr"><span class="fl">Puissance (kW)</span><input type="number" id="col-chauf-puissance" placeholder="ex: 180" inputmode="decimal" min="0" step="0.1"></div>
   </div>
+            <div style="display:flex;align-items:center;gap:8px;margin:8px 0 4px 0;flex-wrap:wrap">
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;background:var(--accent);color:#fff;border-radius:8px;padding:8px 14px;font-size:14px;font-weight:600" title="Ajouter des photos du chauffage collectif">
+              📷 Photos chauffage
+              <input type="file" accept="image/*" padding:0}
+multiple style="display:none" onchange="addColPhotoInList('col-chauf',this)">
+            </label>
+            <div id="col-thumbs-col-chauf" style="display:flex;flex-wrap:wrap;gap:4px;align-items:center"></div>
+          </div>
   <div class="btn-row">
     <button class="btn btn-s" style="flex:0 0 auto;padding:13px 16px" onclick="clearColChauf()">Effacer</button>
     <button class="btn btn-ok" style="flex:1" onclick="appliquerColChauf()">Appliquer à tous les échantillons</button><div style="margin-top:8px"><label style="display:flex;align-items:center;gap:8px;padding:10px 14px;background:var(--bg);border:.5px solid var(--bor);border-radius:var(--rs);cursor:pointer"><span style="font-size:20px">📷</span><span style="font-size:13px;font-weight:600;color:var(--acc)">Photo chauffage collectif</span><input type="file" accept="image/*" capture="environment" multiple style="display:none" onchange="ajouterPhotoCollectif('chauf_col',this)"></label><div id="chauf-col-photo-thumbs" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px"></div></div>
@@ -861,6 +870,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display',sans-serif;ba
       </select>
     </div>
   </div>
+            <div style="display:flex;align-items:center;gap:8px;margin:8px 0 4px 0;flex-wrap:wrap">
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;background:var(--accent);color:#fff;border-radius:8px;padding:8px 14px;font-size:14px;font-weight:600" title="Ajouter des photos de l'ECS collective">
+              📷 Photos ECS
+              <input type="file" accept="image/*" padding:0}
+multiple style="display:none" onchange="addColPhotoInList('col-ecs',this)">
+            </label>
+            <div id="col-thumbs-col-ecs" style="display:flex;flex-wrap:wrap;gap:4px;align-items:center"></div>
+          </div>
   <div class="btn-row">
     <button class="btn btn-s" style="flex:0 0 auto;padding:13px 16px" onclick="clearColEcs()">Effacer</button>
     <button class="btn btn-ok" style="flex:1" onclick="appliquerColEcs()">Appliquer à tous les échantillons</button><div style="margin-top:8px"><label style="display:flex;align-items:center;gap:8px;padding:10px 14px;background:var(--bg);border:.5px solid var(--bor);border-radius:var(--rs);cursor:pointer"><span style="font-size:20px">📷</span><span style="font-size:13px;font-weight:600;color:var(--acc)">Photo ECS collective</span><input type="file" accept="image/*" capture="environment" multiple style="display:none" onchange="ajouterPhotoCollectif('ecs_col',this)"></label><div id="ecs-col-photo-thumbs" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px"></div></div><div style="margin-top:8px"><label style="display:flex;align-items:center;gap:8px;padding:10px 14px;background:var(--bg);border:.5px solid var(--bor);border-radius:var(--rs);cursor:pointer"><span style="font-size:20px">📷</span><span style="font-size:13px;font-weight:600;color:var(--acc)">Photo ECS collective</span><input type="file" accept="image/*" capture="environment" multiple style="display:none" onchange="ajouterPhotoCollectif('ecs_col',this)"></label><div id="ecs-col-photo-thumbs" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px"></div></div>
@@ -1932,6 +1949,7 @@ function saveCopro(){
     adresse:  document.getElementById('copro-adresse').value.trim(),
     annee:    document.getElementById('copro-annee').value.trim(),
     batiments:document.getElementById('copro-batiments').value.trim(),
+        ref:      document.getElementById('copro-ref').value.trim(),
   };
   save();
   toast('Copropriété enregistrée ✓');
@@ -1939,7 +1957,7 @@ function saveCopro(){
 function loadCopro(){
   if(!copro.nom) return;
   const s=(id,v)=>{ const el=document.getElementById(id); if(el) el.value=v||''; };
-  s('copro-nom',copro.nom); s('copro-adresse',copro.adresse); s('copro-annee',copro.annee); s('copro-batiments',copro.batiments);
+  s('copro-nom',copro.nom); s('copro-adresse',copro.adresse); s('copro-annee',copro.annee); s('copro-batiments',copro.batiments); s('copro-ref',copro.ref);
 }
 
 // ══════════════════════════════════════════════
@@ -4192,6 +4210,48 @@ function clonerPlf(id){
 function clonerPorte(id){
   const p = portes.find(x=>String(x.id)===String(id));
   if(!p) return;
+
+  // === Photos chauffage collectif / ECS collective ===
+function addColPhotoInList(type, input){
+  if(!ifcBuf['copro']) ifcBuf['copro']={'col-chauf':[],'col-ecs':[]};
+  const files=Array.from(input.files);
+  let done=0;
+  files.forEach(file=>{
+    const r=new FileReader();
+    r.onload=e=>{
+      ifcBuf['copro'][type].push(e.target.result);
+      done++;
+      if(done===files.length) renderColThumbs(type);
+    };
+    r.readAsDataURL(file);
+  });
+  input.value='';
+}
+function renderColThumbs(type){
+  const arr=ifcBuf['copro']?ifcBuf['copro'][type]||[]:[]
+  const el=document.getElementById('col-thumbs-'+type);
+  if(el) el.innerHTML=arr.map((src,i)=>'<img src="'+src+'" style="width:44px;height:44px;object-fit:cover;border-radius:4px;cursor:pointer" onclick="removeColPhoto(\"'+type+'\",'+i+')">').join('');
+}
+function removeColPhoto(type, idx){
+  if(ifcBuf['copro']&&ifcBuf['copro'][type]) ifcBuf['copro'][type].splice(idx,1);
+  renderColThumbs(type);
+}
+function saveColPhotos(){
+  if(!ifcBuf['copro']) return;
+  const ch=ifcBuf['copro']['col-chauf']||[];
+  const ec=ifcBuf['copro']['col-ecs']||[];
+  if(ch.length){ photos['copro_col-chauf']=ch.slice(); }
+  if(ec.length){ photos['copro_col-ecs']=ec.slice(); }
+  save();
+  toast('Photos sauvegardées ✓');
+}
+function loadColPhotos(){
+  if(!ifcBuf['copro']) ifcBuf['copro']={'col-chauf':[],'col-ecs':[]};
+  ifcBuf['copro']['col-chauf']=photos['copro_col-chauf']||[];
+  ifcBuf['copro']['col-ecs']=photos['copro_col-ecs']||[];
+  renderColThumbs('col-chauf');
+  renderColThumbs('col-ecs');
+}
   const num = nextPorteNum();
   const clone = {...p, id:Date.now(), num, rep:'Porte '+num};
   portes.push(clone);
@@ -4470,6 +4530,9 @@ function renderAccueil(){
   const charge = (copro&&copro.charge) ? copro.charge : '';
   const ref = (copro&&copro.ref) ? copro.ref : '';
 
+    const chauf = (copro&&copro.chaufGen) ? copro.chaufGen : '';
+  const ecs = (copro&&copro.ecsGen) ? copro.ecsGen : '';
+  const venti = (copro&&copro.ventiType) ? copro.ventiType : '';
   // Hero
   const elName = document.getElementById('acc-copro-name');
   const elMeta = document.getElementById('acc-copro-meta');
@@ -4486,6 +4549,19 @@ function renderAccueil(){
     elMeta.textContent = meta.join('  ·  ') || 'Copropriété enregistrée';
     emptyState.style.display = 'none';
     progressWrap.style.display = '';
+        // Résumé copropriété dans l'accueil
+    const sumEl = document.getElementById('acc-copro-summary');
+    if(sumEl){
+      let rows = '';
+      if(copro.adresse) rows += `<div class="acc-summary-row"><span class="acc-summary-lbl">📍 Adresse</span><span class="acc-summary-val">${copro.adresse}</span></div>`;
+      if(ref) rows += `<div class="acc-summary-row"><span class="acc-summary-lbl">📁 Réf. dossier</span><span class="acc-summary-val">${ref}</span></div>`;
+      if(copro.annee) rows += `<div class="acc-summary-row"><span class="acc-summary-lbl">🏗 Année</span><span class="acc-summary-val">${copro.annee}</span></div>`;
+      if(chauf) rows += `<div class="acc-summary-row"><span class="acc-summary-lbl">🔥 Chauf. collectif</span><span class="acc-summary-val">${chauf}</span></div>`;
+      if(ecs) rows += `<div class="acc-summary-row"><span class="acc-summary-lbl">💧 ECS collective</span><span class="acc-summary-val">${ecs}</span></div>`;
+      if(venti) rows += `<div class="acc-summary-row"><span class="acc-summary-lbl">💨 Ventilation</span><span class="acc-summary-val">${venti}</span></div>`;
+      sumEl.innerHTML = rows;
+      sumEl.style.display = rows ? '' : 'none';
+    }
   } else {
     elName.textContent = '—';
     elMeta.textContent = 'Aucune copropriété saisie';
