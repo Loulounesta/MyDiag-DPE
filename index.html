@@ -39,13 +39,13 @@
   --clr-accent:#2563EB;
   --clr-accent2:#1D4ED8;
   --clr-soft:#BFDBFE;
-}
+  }
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display',sans-serif;background:var(--bg);color:var(--tx);min-height:100vh}
 
-.hd{background:var(--sur);border-bottom:.5px solid var(--bor);padding:11px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:20}
-.hd h1{font-size:17px;font-weight:600;letter-spacing:-.3px}
-.bdg{font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;background:var(--acc-l);color:var(--acc)}
+.hd{background:#0F172A;border-bottom:none;padding:10px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:20}
+.hd h1{font-size:16px;font-weight:700;letter-spacing:-.3px;color:#fff}
+.bdg{font-size:11px;font-weight:700;padding:4px 10px;border-radius:20px;background:#2563EB;color:#fff;border:none}
 
 .tabs{background:#0F172A;border-bottom:3px solid #2563EB;display:flex;overflow-x:auto;-webkit-overflow-scrolling:touch;position:sticky;top:45px;z-index:19}
 .tab{flex:0 0 auto;padding:10px 14px;font-size:13px;font-weight:500;color:rgba(255,255,255,.65);border-bottom:3px solid transparent;cursor:pointer;white-space:nowrap;transition:color .2s,border-color .2s}
@@ -53,17 +53,17 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display',sans-serif;ba
 .vw{display:none;padding:16px}
 .vw.on{display:block}
 
-.sl{font-size:11px;font-weight:700;letter-spacing:.6px;color:var(--clr-mid);text-transform:uppercase;margin:16px 0 6px;padding-left:8px;border-left:3px solid var(--clr-accent)}
+.sl{font-size:10.5px;font-weight:800;letter-spacing:.8px;color:#2563EB;text-transform:uppercase;margin:16px 0 4px;padding-left:2px}
 .sl:first-child{margin-top:0}
 .sl-note{font-weight:400;text-transform:none;letter-spacing:0;font-size:11px;color:var(--tx2)}
 
-.card{background:var(--sur);border-radius:var(--r);border:.5px solid var(--bor);overflow:hidden;margin-bottom:10px}
-.fr{display:flex;align-items:center;padding:0 14px;border-bottom:.5px solid var(--bor);min-height:44px;gap:8px}
+.card{background:#fff;border-radius:var(--r);border:1px solid rgba(30,41,59,.12);overflow:hidden;margin-bottom:12px;box-shadow:0 1px 4px rgba(30,41,59,.07)}
+.fr{display:flex;align-items:center;padding:0 14px;border-bottom:1px solid rgba(30,41,59,.1);min-height:50px}
 .fr:last-child{border-bottom:none}
 .fl{font-size:14px;color:var(--tx);min-width:110px;flex-shrink:0}
 .fr select,.fr input{flex:1;border:none;background:transparent;font-size:14px;color:var(--tx);text-align:right;outline:none;padding:10px 0;font-family:inherit;-webkit-appearance:none}
 .fr select{color:var(--acc)}
-.fr input::placeholder{color:#B0B0B0}
+.fr input::placeholder{color:#94A3B8}
 .dg{display:flex;gap:4px;flex:1;justify-content:flex-end;align-items:center}
 .dg input{max-width:68px;text-align:center;border:.5px solid var(--bor);border-radius:6px;padding:4px 6px;background:var(--bg);font-size:14px}
 .ds{color:var(--tx2);font-size:13px}
@@ -76,13 +76,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display',sans-serif;ba
 .btn-d{background:var(--dan);color:#fff}
 .btn-row{display:flex;gap:8px;margin-top:8px}
 /* ── Appartement card (collapsible) ── */
-.appt-card{background:var(--sur);border-radius:var(--r);border:.5px solid var(--bor);margin-bottom:10px;overflow:hidden}
-.appt-header{display:flex;align-items:center;padding:12px 14px;cursor:pointer;user-select:none;gap:10px}
+.appt-card{background:#fff;border-radius:var(--r);border:1px solid rgba(30,41,59,.13);overflow:hidden;margin-bottom:10px;box-shadow:0 2px 6px rgba(30,41,59,.08)}
+.appt-header{display:flex;align-items:center;padding:12px 16px;cursor:pointer;user-select:none;gap:10px;background:#F8FAFC;border-bottom:1px solid rgba(30,41,59,.08)}
 .appt-header:active{background:var(--bg)}
 .appt-chevron{font-size:12px;color:var(--tx2);transition:transform .2s;margin-left:auto;flex-shrink:0}
 .appt-chevron.open{transform:rotate(180deg)}
 .appt-num{font-size:15px;font-weight:600;color:var(--tx)}
-.appt-meta{font-size:12px;color:var(--tx2);margin-top:2px}
+.appt-num{font-size:16px;font-weight:700;color:#0F172A}
 .appt-status{display:flex;gap:4px;flex-wrap:wrap;margin-top:6px}
 .appt-body{display:none;border-top:.5px solid var(--bor)}
 .appt-body.open{display:block}
