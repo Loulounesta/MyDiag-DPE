@@ -3,40 +3,495 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>MyDiag DPE - Corporate Diagnostic v3.5</title>
+    <title>MyDiag DPE - Master Pro v3.5</title>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
 
     <style>
-        :root { --p: #1e40af; --acc: #2563eb; --acc-l: #eff6ff; --bg: #f8fafc; --tx: #0f172a; --tx-l: #64748b; --ok: #10b981; --err: #ef4444; }
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--tx); margin: 0; padding-bottom: 100px; line-height: 1.5; }
-        
-        /* UI Corporate */
-        .header { background: var(--p); color: white; padding: 12px 15px; position: sticky; top: 0; z-index: 1000; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        .sync-badge { font-size: 10px; background: rgba(255,255,255,0.2); padding: 2px 8px; border-radius: 10px; }
-        
-        .nav-tabs { display: flex; overflow-x: auto; background: white; border-bottom: 1px solid #e2e8f0; position: sticky; top: 48px; z-index: 999; white-space: nowrap; -webkit-overflow-scrolling: touch; }
-        .tab-btn { padding: 12px 20px; border: none; background: none; font-size: 13px; font-weight: 700; color: var(--tx-l); cursor: pointer; border-bottom: 3px solid transparent; }
-        .tab-btn.active { color: var(--acc); border-bottom-color: var(--acc); background: var(--acc-l); }
+        :root {
+            --primary: #2563eb; --primary-light: #dbeafe; --bg: #f8fafc;
+            --text: #0f172a; --text-light: #64748b;
+            --success: #10b981; --warn: #f59e0b; --danger: #ef4444;
+            --r: 12px;
+        }
 
-        .container { padding: 15px; max-width: 800px; margin: auto; }
-        .card { background: white; border-radius: 12px; padding: 16px; margin-bottom: 15px; border: 1px solid #e2e8f0; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
-        .sl { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; color: var(--tx-l); margin-bottom: 8px; display: flex; align-items: center; gap: 5px; }
+        body { font-family: -apple-system, system-ui, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding-bottom: 90px; }
         
-        /* Tiroirs Appts */
-        .appt-card { background: white; border-radius: 10px; border: 1px solid #e2e8f0; margin-bottom: 10px; overflow: hidden; }
-        .appt-header { padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; background: #fff; cursor: pointer; }
-        .appt-header:active { background: #f1f5f9; }
-        .appt-body { padding: 0 15px; max-height: 0; overflow: hidden; transition: all 0.3s ease-out; background: #fafafa; border-top: 0px solid #eee; }
-        .appt-body.open { padding: 15px; max-height: 2000px; border-top-width: 1px; }
+        /* Header & Navigation */
+        .header { background: var(--primary); color: white; padding: 12px 16px; position: sticky; top: 0; z-index: 1000; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .nav-tabs { display: flex; overflow-x: auto; background: white; border-bottom: 1px solid #e2e8f0; position: sticky; top: 48px; z-index: 999; white-space: nowrap; -webkit-overflow-scrolling: touch; }
+        .tab-btn { padding: 12px 18px; border: none; background: none; font-size: 0.85rem; font-weight: 600; color: var(--text-light); cursor: pointer; }
+        .tab-btn.active { color: var(--primary); border-bottom: 3px solid var(--primary); }
+
+        /* Conteneurs & Cartes */
+        .container { padding: 15px; max-width: 800px; margin: auto; }
+        .card { background: white; border-radius: var(--r); padding: 16px; margin-bottom: 15px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border: 1px solid #e2e8f0; }
         
         /* Formulaires */
-        .inp { width: 100%; padding: 12px; margin: 5px 0 15px 0; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 15px; box-sizing: border-box; }
-        .btn-p { background: var(--acc); color: white; border: none; padding: 14px; border-radius: 10px; font-weight: 700; width: 100%; cursor: pointer; }
-        .qbtn { background: white; border: 1px solid #cbd5e1; padding: 10px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; }
-        .quick-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 15px; }
+        h3 { margin: 0 0 12px 0; font-size: 1.1rem; color: var(--primary); display: flex; align-items: center; gap: 8px; }
+        input, select, textarea { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 1rem; box-sizing: border-box; }
+        .flex-row { display: flex; gap: 10px; }
 
-        /* Modales */
-        .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(2px); }
-        .modal-content { background: white; margin: 10% auto; padding: 20px; border-radius: 15
+        /* Boutons */
+        .btn { padding: 14px; border-radius: 10px; border: none; font-weight: 700; cursor: pointer; width: 100%; transition: 0.2s; font-size: 1rem; }
+        .btn-p { background: var(--primary); color: white; }
+        .btn-ia { background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%); color: white; }
+        .btn-s { background: var(--success); color: white; }
+        .btn-xs { padding: 8px; font-size: 0.75rem; border-radius: 6px; border: 1px solid #e2e8f0; background: #f8fafc; cursor: pointer; }
+
+        /* Système de Tiroirs (Appartements) */
+        .appt-card { background: white; border-radius: var(--r); border: 1px solid #e2e8f0; margin-bottom: 10px; overflow: hidden; }
+        .appt-header { padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; background: #fff; }
+        .appt-header:active { background: #f1f5f9; }
+        .appt-num { font-weight: 800; font-size: 1.1rem; }
+        .appt-chevron { font-size: 0.8rem; transition: transform 0.3s; color: var(--text-light); }
+        .appt-chevron.open { transform: rotate(180deg); }
+        .appt-drawer { display: none; padding: 12px 16px 20px; border-top: 1px solid #f1f5f9; background: #fafafa; }
+        .appt-drawer.open { display: block; }
+
+        /* Quick Actions dans Tiroir */
+        .quick-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 15px; }
+        .q-btn { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 10px 5px; border-radius: 10px; border: 1px solid #e2e8f0; background: white; font-size: 0.7rem; font-weight: 700; gap: 5px; color: var(--text); }
+        .q-btn:active { background: var(--primary-light); border-color: var(--primary); }
+
+        /* Calculateur Carrez */
+        .carrez-box { background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 10px; padding: 12px; margin-top: 10px; }
+        .room-row { display: grid; grid-template-columns: 1fr 50px 50px 50px 30px; gap: 5px; align-items: center; margin-bottom: 6px; }
+        .room-row input { padding: 6px; font-size: 0.8rem; margin: 0; text-align: center; }
+
+        /* Statuts */
+        .pill { padding: 3px 8px; border-radius: 20px; font-size: 0.65rem; font-weight: 800; color: white; text-transform: uppercase; }
+        .bg-ok { background: var(--success); }
+        .bg-wait { background: var(--warn); }
+        
+        .hidden { display: none; }
+        .loader { text-align: center; padding: 10px; color: var(--primary); font-weight: bold; font-size: 0.8rem; }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <div style="display:flex; align-items:center; gap:8px;">
+        <span style="font-weight:900; letter-spacing:-1px; font-size:1.3rem;">MYDIAG PRO</span>
+    </div>
+    <div id="sync-status" style="font-size:0.7rem; background: rgba(0,0,0,0.2); padding:4px 10px; border-radius:15px;">🟢 AUTO-SAVE</div>
+</div>
+
+<nav class="nav-tabs" id="main-nav">
+    <button class="tab-btn active" onclick="goTab('accueil')">🏠 Accueil</button>
+    <button class="tab-btn" onclick="goTab('copro')">🏢 Copro</button>
+    <button class="tab-btn" onclick="goTab('appts')">🚪 Appts</button>
+    <button class="tab-btn" onclick="goTab('murs')">🧱 Murs</button>
+    <button class="tab-btn" onclick="goTab('fen')">🪟 Fens</button>
+    <button class="tab-btn" onclick="goTab('export')">📤 Export</button>
+    <button class="tab-btn" onclick="goTab('aide')">❓ Aide</button>
+</nav>
+
+<div class="container">
+    <div id="tab-accueil" class="tab-content">
+        <div class="card">
+            <h3>🤖 IA Vision Terrain</h3>
+            <p style="font-size:0.85rem; color:var(--text-light);">Scanner un plan de masse ou d'étage pour pré-remplir la liste des appartements.</p>
+            <button class="btn btn-ia" onclick="triggerIA('plan')">📸 Scanner un Plan</button>
+            <div id="ia-loader" class="loader hidden">L'IA analyse le document...</div>
+        </div>
+        
+        <div class="card">
+            <h3>🏢 Projet Actuel</h3>
+            <div id="summary-name" style="font-weight:800; font-size:1.2rem;">-</div>
+            <div id="summary-stats" style="font-size:0.8rem; color:var(--text-light); margin-top:5px;">0 appartements · 0 parois</div>
+            <button class="btn btn-p" style="margin-top:15px;" onclick="goTab('appts')">Accéder aux Relevés</button>
+        </div>
+    </div>
+
+    <div id="tab-copro" class="tab-content hidden">
+        <div class="card">
+            <h3>🏢 Informations Copropriété</h3>
+            <input type="text" id="copro-nom" placeholder="Nom de la résidence" oninput="saveAll()">
+            <input type="text" id="copro-ref" placeholder="Réf Dossier ADN" oninput="saveAll()">
+            <input type="text" id="copro-adr" placeholder="Adresse" oninput="saveAll()">
+            <div class="flex-row">
+                <input type="number" id="copro-annee" placeholder="Année constr." oninput="saveAll()">
+                <input type="number" id="copro-lots" placeholder="Nb total lots" oninput="saveAll()">
+            </div>
+        </div>
+    </div>
+
+    <div id="tab-appts" class="tab-content hidden">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+            <h2 style="margin:0;">Logements</h2>
+            <button class="btn btn-p" style="width:auto; padding:10px 20px;" onclick="addAppt()">+ Nouveau</button>
+        </div>
+        <div id="list-appts">
+            </div>
+    </div>
+
+    <div id="tab-murs" class="tab-content hidden">
+        <div class="card">
+            <h3 id="mur-header">🧱 Mur (Sélectionnez un logement)</h3>
+            <div id="mur-inputs" class="hidden">
+                <select id="mur-forme" onchange="updateMurUI()">
+                    <option value="rect">Rectangle Standard</option>
+                    <option value="ramp">Pignon / Rampant (Trapèze)</option>
+                </select>
+                <div id="ui-rect" class="flex-row">
+                    <input type="number" id="mur-l" placeholder="Largeur (m)">
+                    <input type="number" id="mur-h" placeholder="Hauteur (m)">
+                </div>
+                <div id="ui-ramp" class="hidden">
+                    <input type="number" id="mur-l-ramp" placeholder="Largeur base">
+                    <div class="flex-row">
+                        <input type="number" id="mur-h1" placeholder="H. Basse">
+                        <input type="number" id="mur-h2" placeholder="H. Faîtage">
+                    </div>
+                </div>
+                <select id="mur-orient">
+                    <option value="Nord">Nord</option><option value="Sud">Sud</option>
+                    <option value="Est">Est</option><option value="Ouest">Ouest</option>
+                </select>
+                <button class="btn btn-p" onclick="saveMur()">Ajouter la paroi</button>
+            </div>
+            <div id="mur-warning" style="text-align:center; padding:20px; color:var(--text-light);">
+                ⚠️ Ouvrez un tiroir d'appartement dans l'onglet <strong>Appts</strong> pour ajouter des murs.
+            </div>
+        </div>
+        <div id="list-murs"></div>
+    </div>
+
+    <div id="tab-export" class="tab-content hidden">
+        <div class="card">
+            <h3>📊 Exports Métier</h3>
+            <button class="btn btn-s" style="margin-bottom:12px;" onclick="exportExcelADN()">📊 Excel ADN ANALYSIMMO</button>
+            <button class="btn btn-p" style="background:#e11d48;" onclick="exportPDF()">📄 Rapport Terrain PDF</button>
+        </div>
+        <div class="card" style="border: 2px dashed #cbd5e1;">
+            <h3>💾 Sauvegarde Critique</h3>
+            <p style="font-size:0.8rem; color:var(--text-light);">Fichier JSON complet (données + photos) pour restaurer le projet.</p>
+            <button class="btn btn-p" onclick="downloadBackup()">📥 Télécharger la Sauvegarde</button>
+        </div>
+    </div>
+
+    <div id="tab-aide" class="tab-content hidden">
+        <div class="card" id="aide-walkthrough"></div>
+    </div>
+</div>
+
+<script>
+// CONFIGURATION
+const API_KEY = 'AIzaSyALgB9zjGn0d7X7z5WeelO2vMEYTwwx-Fc'; // Clé utilisateur
+
+// DB MANAGER (IndexedDB)
+const db = {
+    _db: null,
+    async init() {
+        return new Promise(res => {
+            const req = indexedDB.open("MyDiag_DB_V4", 1);
+            req.onupgradeneeded = e => e.target.result.createObjectStore("store");
+            req.onsuccess = e => { this._db = e.target.result; res(); };
+        });
+    },
+    async set(k, v) {
+        const tx = this._db.transaction("store", "readwrite");
+        return new Promise(res => {
+            const req = tx.objectStore("store").put(v, k);
+            req.onsuccess = () => res();
+        });
+    },
+    async get(k, def) {
+        const tx = this._db.transaction("store", "readonly");
+        return new Promise(res => {
+            const req = tx.objectStore("store").get(k);
+            req.onsuccess = () => res(req.result !== undefined ? req.result : def);
+        });
+    }
+};
+
+// DATA STATE
+let appts = [], murs = [], copro = {}, carrez = {}, curApptId = null;
+let expanded = {}; // État des tiroirs
+
+// INITIALISATION
+async function init() {
+    await db.init();
+    appts = await db.get('appts', []);
+    murs = await db.get('murs', []);
+    copro = await db.get('copro', {});
+    carrez = await db.get('carrez', {});
+
+    // Charger Copro UI
+    document.getElementById('copro-nom').value = copro.nom || '';
+    document.getElementById('copro-ref').value = copro.ref || '';
+    document.getElementById('copro-adr').value = copro.adr || '';
+    document.getElementById('copro-annee').value = copro.annee || '';
+    document.getElementById('copro-lots').value = copro.lots || '';
+    
+    updateSummary();
+    renderApptsList();
+    renderAide();
+}
+
+async function saveAll() {
+    document.getElementById('sync-status').innerText = "⏳ Sauvegarde...";
+    
+    // Sync copro object
+    copro.nom = document.getElementById('copro-nom').value;
+    copro.ref = document.getElementById('copro-ref').value;
+    copro.adr = document.getElementById('copro-adr').value;
+    copro.annee = document.getElementById('copro-annee').value;
+    copro.lots = document.getElementById('copro-lots').value;
+
+    await db.set('appts', appts);
+    await db.set('murs', murs);
+    await db.set('copro', copro);
+    await db.set('carrez', carrez);
+    
+    updateSummary();
+    document.getElementById('sync-status').innerText = "🟢 AUTO-SAVE";
+}
+
+// NAVIGATION
+function goTab(id) {
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
+    document.getElementById('tab-' + id).classList.remove('hidden');
+    document.querySelectorAll('.tab-btn').forEach(b => {
+        b.classList.toggle('active', b.innerText.toLowerCase().includes(id));
+    });
+}
+
+// LOGIQUE APPARTEMENTS & TIROIRS
+function addAppt() {
+    const n = prompt("Nom ou N° de l'appartement (ex: E01) :");
+    if(!n) return;
+    const id = "apt_" + Date.now();
+    appts.push({ id, nom: n, niveau: 'Intermédiaire' });
+    carrez[id] = [];
+    expanded[id] = true;
+    saveAll();
+    renderApptsList();
+}
+
+function toggleAppt(id) {
+    expanded[id] = !expanded[id];
+    renderApptsList();
+}
+
+function selectAppt(id, nom) {
+    curApptId = id;
+    document.getElementById('mur-header').innerText = `🧱 Murs - ${nom}`;
+    document.getElementById('mur-inputs').classList.remove('hidden');
+    document.getElementById('mur-warning').classList.add('hidden');
+    goTab('murs');
+}
+
+function renderApptsList() {
+    const list = document.getElementById('list-appts');
+    if(!appts.length) {
+        list.innerHTML = `<div style="text-align:center; padding:40px; color:var(--text-light);">Aucun logement. Appuyez sur + Nouveau.</div>`;
+        return;
+    }
+
+    list.innerHTML = appts.map(a => {
+        const id = a.id;
+        const isExp = !!expanded[id];
+        const rooms = carrez[id] || [];
+        const totalSurf = rooms.reduce((s, r) => s + ((r.L * r.l) - r.ded), 0).toFixed(2);
+        const nm = murs.filter(m => m.aptId === id).length;
+
+        let drawerHtml = '';
+        if(isExp) {
+            drawerHtml = `
+                <div class="appt-drawer open">
+                    <div class="quick-grid">
+                        <button class="q-btn" onclick="selectAppt('${id}', '${a.nom}')"><span>🧱</span>MURS</button>
+                        <button class="q-btn" onclick="curApptId='${id}';goTab('fen')"><span>🪟</span>FENS</button>
+                        <button class="q-btn" onclick="triggerIA('plaque')"><span>🔥</span>SYST</button>
+                        <button class="q-btn" onclick="dupAppt('${id}')"><span>📋</span>CLONE</button>
+                        <button class="q-btn" onclick="suppAppt('${id}')" style="color:var(--danger)"><span>🗑️</span>SUPPR</button>
+                    </div>
+
+                    <div class="carrez-box">
+                        <div style="font-size:0.7rem; font-weight:800; color:var(--primary); margin-bottom:8px;">📏 CALCULATEUR CARREZ PIÈCE / PIÈCE</div>
+                        <div id="rooms-${id}">
+                            ${rooms.map((r, idx) => `
+                                <div class="room-row">
+                                    <input type="text" value="${r.nom}" onchange="updateRoom('${id}', ${idx}, 'nom', this.value)">
+                                    <input type="number" value="${r.L}" placeholder="L" onchange="updateRoom('${id}', ${idx}, 'L', this.value)">
+                                    <input type="number" value="${r.l}" placeholder="l" onchange="updateRoom('${id}', ${idx}, 'l', this.value)">
+                                    <input type="number" value="${r.ded}" placeholder="-1.8" onchange="updateRoom('${id}', ${idx}, 'ded', this.value)" style="background:#fee2e2;">
+                                    <button onclick="delRoom('${id}', ${idx})" style="border:none; background:none; color:var(--danger);">✕</button>
+                                </div>
+                            `).join('')}
+                        </div>
+                        <button class="btn-xs" style="width:100%; margin-top:5px;" onclick="addRoom('${id}')">+ Ajouter Pièce</button>
+                        <div style="text-align:right; font-weight:900; margin-top:10px; color:var(--primary);">
+                            Total : ${totalSurf} m²
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        return `
+            <div class="appt-card">
+                <div class="appt-header" onclick="toggleAppt('${id}')">
+                    <div>
+                        <div class="appt-num">${a.nom} <span class="pill bg-ok" style="margin-left:5px;">${totalSurf} m²</span></div>
+                        <div style="font-size:0.75rem; color:var(--text-light);">${nm} parois relevées</div>
+                    </div>
+                    <span class="appt-chevron ${isExp ? 'open' : ''}">▼</span>
+                </div>
+                ${drawerHtml}
+            </div>
+        `;
+    }).join('');
+}
+
+// LOGIQUE CARREZ
+function addRoom(aptId) {
+    if(!carrez[aptId]) carrez[aptId] = [];
+    carrez[aptId].push({ nom: 'Pièce', L: 0, l: 0, ded: 0 });
+    saveAll();
+    renderApptsList();
+}
+
+function updateRoom(aptId, idx, field, val) {
+    carrez[aptId][idx][field] = field === 'nom' ? val : parseFloat(val) || 0;
+    saveAll();
+}
+
+function delRoom(aptId, idx) {
+    carrez[aptId].splice(idx, 1);
+    saveAll();
+    renderApptsList();
+}
+
+// LOGIQUE MURS & RAMPANTS
+function updateMurUI() {
+    const f = document.getElementById('mur-forme').value;
+    document.getElementById('ui-rect').className = f === 'rect' ? 'flex-row' : 'hidden';
+    document.getElementById('ui-ramp').className = f === 'ramp' ? '' : 'hidden';
+}
+
+function saveMur() {
+    const f = document.getElementById('mur-forme').value;
+    let s = 0;
+    if(f === 'rect') {
+        s = document.getElementById('mur-l').value * document.getElementById('mur-h').value;
+    } else {
+        const l = parseFloat(document.getElementById('mur-l-ramp').value);
+        const h1 = parseFloat(document.getElementById('mur-h1').value);
+        const h2 = parseFloat(document.getElementById('mur-h2').value);
+        s = l * ((h1 + h2) / 2);
+    }
+    murs.push({ 
+        id: Date.now(), 
+        aptId: curApptId, 
+        surface: s.toFixed(2), 
+        orient: document.getElementById('mur-orient').value,
+        type: f === 'ramp' ? 'Pignon' : 'Standard'
+    });
+    saveAll();
+    renderMurs();
+}
+
+function renderMurs() {
+    const list = document.getElementById('list-murs');
+    const myMurs = murs.filter(m => m.aptId === curApptId);
+    list.innerHTML = myMurs.map(m => `
+        <div class="card" style="padding:10px; font-size:0.85rem; display:flex; justify-content:space-between;">
+            <span><strong>${m.orient}</strong> · ${m.type}</span>
+            <span>${m.surface} m²</span>
+        </div>
+    `).join('');
+}
+
+// IA VISION
+async function triggerIA(mode) {
+    const input = document.createElement('input');
+    input.type = 'file'; input.accept = 'image/*'; input.capture = 'environment';
+    input.onchange = async (e) => {
+        const file = e.target.files[0];
+        const base64 = await toBase64(file);
+        document.getElementById('ia-loader').classList.remove('hidden');
+        
+        let prompt = mode === 'plan' 
+            ? "Analyse ce plan. Liste les noms des appartements et leurs surfaces. JSON: { 'appts': [{ 'nom': 'T2', 'surf': 45 }] }"
+            : "Analyse cette plaque signalétique. Donne Marque, Modèle, Année. JSON: { 'marque': '', 'annee': '' }";
+
+        try {
+            const res = await callGemini(base64, prompt);
+            if(res && mode === 'plan') {
+                res.appts.forEach(a => {
+                    const id = "apt_" + Math.random();
+                    appts.push({ id, nom: a.nom });
+                    carrez[id] = [{ nom: 'Saisie IA', L: a.surf, l: 1, ded: 0 }];
+                });
+                saveAll(); renderApptsList();
+                alert("Plan importé !");
+            } else if(res) {
+                alert(`IA : ${res.marque} (${res.annee})`);
+            }
+        } catch(e) { console.error(e); }
+        document.getElementById('ia-loader').classList.add('hidden');
+    };
+    input.click();
+}
+
+async function callGemini(img, prompt) {
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
+    const body = { contents: [{ parts: [{ text: prompt }, { inline_data: { mime_type: "image/jpeg", data: img.split(',')[1] } }] }] };
+    const r = await fetch(url, { method: 'POST', body: JSON.stringify(body) });
+    const d = await r.json();
+    return JSON.parse(d.candidates[0].content.parts[0].text.replace(/```json|```/g, ""));
+}
+
+// EXPORT ADN ANALYSIMMO
+function exportExcelADN() {
+    const wb = XLSX.utils.book_new();
+    const agg = murs.reduce((acc, m) => {
+        const key = `${m.type === 'Pignon' ? 'Pignon' : 'Mur'} sur Ext ${m.orient}`;
+        if(!acc[key]) acc[key] = { label: key, s: 0 };
+        acc[key].s += parseFloat(m.surface);
+        return acc;
+    }, {});
+
+    const data = Object.values(agg).map((m, i) => ({
+        "Code ADN": `MUR_${i+1}`,
+        "Désignation": m.label,
+        "Surface Totale (m²)": m.s.toFixed(2)
+    }));
+
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(data), "ADN_MURS");
+    XLSX.writeFile(wb, `EXPORT_ADN_${copro.nom || 'CHANTIER'}.xlsx`);
+}
+
+// HELPERS
+const toBase64 = f => new Promise(res => { const r = new FileReader(); r.readAsDataURL(f); r.onload = () => res(r.result); });
+function updateSummary() {
+    document.getElementById('summary-name').innerText = copro.nom || 'Sans Nom';
+    document.getElementById('summary-stats').innerText = `${appts.length} appartements · ${murs.length} parois relevées`;
+}
+function downloadBackup() {
+    const data = { appts, murs, copro, carrez, ver: '3.5' };
+    const blob = new Blob([JSON.stringify(data)], { type: "application/json" });
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+    a.download = `SAUVEGARDE_MYDIAG_${copro.nom || 'PROJET'}.json`;
+    a.click();
+}
+
+function renderAide() {
+    const steps = [
+        "1. **Arrivée** : Scannez le plan de masse avec l'IA pour créer les logements.",
+        "2. **Tiroirs** : Ouvrez un tiroir d'appartement pour saisir ses murs et fenêtres.",
+        "3. **Carrez** : Utilisez le calculateur intégré par pièce pour fiabiliser la surface.",
+        "4. **ADN** : Exportez vers l'Excel aggloméré pour votre saisie au bureau."
+    ];
+    document.getElementById('aide-walkthrough').innerHTML = `<h3>💡 Walkthrough Terrain</h3>` + steps.map(s => `<p style="font-size:0.85rem;">${s}</p>`).join('');
+}
+
+window.onload = init;
+</script>
+</body>
+</html>
