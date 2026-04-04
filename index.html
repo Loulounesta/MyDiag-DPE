@@ -3,242 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>MyDiag DPE - Version Master Pro</title>
+    <title>MyDiag DPE - Corporate Diagnostic v3.5</title>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
 
     <style>
-        :root { --p: #2563eb; --bg: #f1f5f9; --txt: #0f172a; --s: #10b981; }
-        body { font-family: -apple-system, system-ui, sans-serif; background: var(--bg); margin: 0; padding-bottom: 120px; color: var(--txt); }
+        :root { --p: #1e40af; --acc: #2563eb; --acc-l: #eff6ff; --bg: #f8fafc; --tx: #0f172a; --tx-l: #64748b; --ok: #10b981; --err: #ef4444; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--tx); margin: 0; padding-bottom: 100px; line-height: 1.5; }
         
-        .header { background: var(--p); color: white; padding: 12px; position: sticky; top: 0; z-index: 1000; display: flex; justify-content: space-between; align-items: center; }
+        /* UI Corporate */
+        .header { background: var(--p); color: white; padding: 12px 15px; position: sticky; top: 0; z-index: 1000; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .sync-badge { font-size: 10px; background: rgba(255,255,255,0.2); padding: 2px 8px; border-radius: 10px; }
         
-        /* Navigation par onglets (Défilante) */
-        .nav-tabs { display: flex; overflow-x: auto; background: white; border-bottom: 1px solid #e2e8f0; position: sticky; top: 50px; z-index: 999; white-space: nowrap; -webkit-overflow-scrolling: touch; }
-        .tab-btn { padding: 12px 18px; border: none; background: none; font-size: 0.85rem; font-weight: 600; color: #64748b; cursor: pointer; }
-        .tab-btn.active { color: var(--p); border-bottom: 3px solid var(--p); }
+        .nav-tabs { display: flex; overflow-x: auto; background: white; border-bottom: 1px solid #e2e8f0; position: sticky; top: 48px; z-index: 999; white-space: nowrap; -webkit-overflow-scrolling: touch; }
+        .tab-btn { padding: 12px 20px; border: none; background: none; font-size: 13px; font-weight: 700; color: var(--tx-l); cursor: pointer; border-bottom: 3px solid transparent; }
+        .tab-btn.active { color: var(--acc); border-bottom-color: var(--acc); background: var(--acc-l); }
 
         .container { padding: 15px; max-width: 800px; margin: auto; }
-        .card { background: white; border-radius: 12px; padding: 16px; margin-bottom: 15px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .card { background: white; border-radius: 12px; padding: 16px; margin-bottom: 15px; border: 1px solid #e2e8f0; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+        .sl { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; color: var(--tx-l); margin-bottom: 8px; display: flex; align-items: center; gap: 5px; }
         
-        input, select, textarea { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #e2e8f0; border-radius: 8px; box-sizing: border-box; font-size: 1rem; }
-        .btn { padding: 14px; border-radius: 10px; border: none; font-weight: bold; cursor: pointer; width: 100%; font-size: 1rem; margin-top: 5px; }
-        .btn-p { background: var(--p); color: white; }
-        .btn-ia { background: linear-gradient(135deg, #6366f1, #a855f7); color: white; }
-        .btn-s { background: var(--s); color: white; }
+        /* Tiroirs Appts */
+        .appt-card { background: white; border-radius: 10px; border: 1px solid #e2e8f0; margin-bottom: 10px; overflow: hidden; }
+        .appt-header { padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; background: #fff; cursor: pointer; }
+        .appt-header:active { background: #f1f5f9; }
+        .appt-body { padding: 0 15px; max-height: 0; overflow: hidden; transition: all 0.3s ease-out; background: #fafafa; border-top: 0px solid #eee; }
+        .appt-body.open { padding: 15px; max-height: 2000px; border-top-width: 1px; }
+        
+        /* Formulaires */
+        .inp { width: 100%; padding: 12px; margin: 5px 0 15px 0; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 15px; box-sizing: border-box; }
+        .btn-p { background: var(--acc); color: white; border: none; padding: 14px; border-radius: 10px; font-weight: 700; width: 100%; cursor: pointer; }
+        .qbtn { background: white; border: 1px solid #cbd5e1; padding: 10px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+        .quick-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 15px; }
 
-        .hidden { display: none; }
-        .flex-row { display: flex; gap: 10px; }
-        .status-pill { padding: 2px 8px; border-radius: 10px; font-size: 0.7rem; color: white; font-weight: bold; }
-    </style>
-</head>
-<body>
-
-<div class="header">
-    <span style="font-weight:800;">MYDIAG DPE V3</span>
-    <div id="sync-status" style="font-size:0.7rem;">🟢 Synchronisé</div>
-</div>
-
-<nav class="nav-tabs" id="main-nav">
-    <button class="tab-btn active" onclick="goTab('accueil')">🏠 Accueil</button>
-    <button class="tab-btn" onclick="goTab('copro')">🏢 Copro</button>
-    <button class="tab-btn" onclick="goTab('appts')">🚪 Appts</button>
-    <button class="tab-btn" onclick="goTab('murs')">🧱 Murs</button>
-    <button class="tab-btn" onclick="goTab('fens')">🪟 Fens</button>
-    <button class="tab-btn" onclick="goTab('plas')">🔽 Sols</button>
-    <button class="tab-btn" onclick="goTab('plfs')">🔝 Plafonds</button>
-    <button class="tab-btn" onclick="goTab('syst')">🔥 Systèmes</button>
-    <button class="tab-btn" onclick="goTab('export')">📤 Export</button>
-</nav>
-
-<div class="container">
-    <div id="tab-accueil" class="tab-content">
-        <div class="card">
-            <h3>🤖 Assistant IA Vision</h3>
-            <button class="btn btn-ia" onclick="triggerIA('plan')">📸 Scanner Plan de Masse</button>
-            <div id="ia-loader" class="hidden" style="text-align:center; color:var(--p); font-weight:bold; margin-top:10px;">Analyse en cours...</div>
-        </div>
-        <div id="list-appts-summary"></div>
-    </div>
-
-    <div id="tab-copro" class="tab-content hidden">
-        <div class="card">
-            <h3>🏢 Données Copropriété</h3>
-            <input type="text" id="copro-nom" placeholder="Nom de la résidence" oninput="saveAll()">
-            <input type="text" id="copro-ref" placeholder="Réf Dossier ADN" oninput="saveAll()">
-            <textarea id="copro-notes" placeholder="Notes générales..."></textarea>
-        </div>
-    </div>
-
-    <div id="tab-murs" class="tab-content hidden">
-        <div class="card">
-            <h3 id="mur-header">Relevé des Parois</h3>
-            <select id="mur-type">
-                <option value="rect">Rectangle Standard</option>
-                <option value="ramp">Pignon / Rampant (Trapèze)</option>
-            </select>
-            <div id="ui-mur-rect" class="flex-row">
-                <input type="number" id="mur-l" placeholder="Largeur (m)">
-                <input type="number" id="mur-h" placeholder="Hauteur (m)">
-            </div>
-            <div id="ui-mur-ramp" class="hidden">
-                <input type="number" id="mur-lr" placeholder="Largeur base">
-                <div class="flex-row">
-                    <input type="number" id="mur-h1" placeholder="H. Bas">
-                    <input type="number" id="mur-h2" placeholder="H. Haut">
-                </div>
-            </div>
-            <select id="mur-orient">
-                <option value="Nord">Nord</option><option value="Sud">Sud</option><option value="Est">Est</option><option value="Ouest">Ouest</option>
-            </select>
-            <button class="btn btn-p" onclick="addParoi('mur')">Enregistrer Mur</button>
-        </div>
-        <div id="list-murs"></div>
-    </div>
-
-    <div id="tab-export" class="tab-content hidden">
-        <div class="card">
-            <h3>📊 Exports Professionnels</h3>
-            <button class="btn btn-s" onclick="exportExcelADN()">Exporter Excel ADN ANALYSIMMO</button>
-            <button class="btn btn-p" style="background:#e11d48; margin-top:10px;" onclick="exportPDF()">Générer Rapport PDF</button>
-        </div>
-        <div class="card" style="border: 2px dashed #cbd5e1;">
-            <h3>💾 Sauvegarde Critique</h3>
-            <p style="font-size:0.8rem; color:#64748b;">Téléchargez ce fichier JSON. Il contient TOUTES vos données et PHOTOS.</p>
-            <button class="btn btn-p" onclick="downloadBackup()">📥 Télécharger Sauvegarde Complète</button>
-            <hr>
-            <label style="font-size:0.8rem; font-weight:bold;">Restaurer depuis un fichier :</label>
-            <input type="file" onchange="restoreBackup(event)">
-        </div>
-    </div>
-</div>
-
-<script>
-const GEMINI_KEY = 'AIzaSyALgB9zjGn0d7X7z5WeelO2vMEYTwwx-Fc';
-
-// --- DB MANAGER (STORAGE) ---
-const db = {
-    _db: null,
-    async init() {
-        return new Promise(res => {
-            const r = indexedDB.open("MyDiag_V3", 1);
-            r.onupgradeneeded = e => e.target.result.createObjectStore("data");
-            r.onsuccess = e => { this._db = e.target.result; res(); };
-        });
-    },
-    async set(k, v) {
-        const tx = this._db.transaction("data", "readwrite");
-        return new Promise(res => {
-            const req = tx.objectStore("data").put(v, k);
-            req.onsuccess = () => res();
-        });
-    },
-    async get(k, def) {
-        const tx = this._db.transaction("data", "readonly");
-        return new Promise(res => {
-            const req = tx.objectStore("data").get(k);
-            req.onsuccess = () => res(req.result !== undefined ? req.result : def);
-        });
-    }
-};
-
-// --- DATA STATE ---
-let appts = [], murs = [], fens = [], copro = {}, photos = {}, curId = null;
-
-async function initApp() {
-    await db.init();
-    appts = await db.get('appts', []);
-    murs = await db.get('murs', []);
-    copro = await db.get('copro', {});
-    photos = await db.get('photos', {});
-    
-    document.getElementById('copro-nom').value = copro.nom || '';
-    goTab('accueil');
-}
-
-async function saveAll() {
-    document.getElementById('sync-status').innerText = "⏳ Sauvegarde...";
-    
-    // On met à jour l'objet copro depuis les inputs
-    copro.nom = document.getElementById('copro-nom').value;
-    copro.ref = document.getElementById('copro-ref').value;
-
-    await db.set('appts', appts);
-    await db.set('murs', murs);
-    await db.set('copro', copro);
-    await db.set('photos', photos);
-    
-    document.getElementById('sync-status').innerText = "🟢 Synchronisé";
-}
-
-// --- NAVIGATION ---
-function goTab(id) {
-    document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
-    document.getElementById('tab-' + id).classList.remove('hidden');
-    
-    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-    event?.target?.classList?.add('active');
-}
-
-// --- LOGIQUE SAUVEGARDE PHYSIQUE (JSON) ---
-async function downloadBackup() {
-    const fullData = {
-        appts, murs, fens, copro, photos,
-        exportDate: new Date().toISOString(),
-        version: "3.0"
-    };
-    
-    const blob = new Blob([JSON.stringify(fullData)], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `MYDIAG_SAVE_${copro.nom || 'EXPORT'}_${new Date().toISOString().split('T')[0]}.json`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-}
-
-async function restoreBackup(e) {
-    const file = e.target.files[0];
-    const reader = new FileReader();
-    reader.onload = async (event) => {
-        const data = JSON.parse(event.target.result);
-        appts = data.appts || [];
-        murs = data.murs || [];
-        photos = data.photos || {};
-        copro = data.copro || {};
-        await saveAll();
-        alert("✅ Données restaurées !");
-        location.reload();
-    };
-    reader.readAsText(file);
-}
-
-// --- EXPORT ADN ---
-function exportExcelADN() {
-    const wb = XLSX.utils.book_new();
-    const agg = murs.reduce((acc, m) => {
-        const key = `${m.type === 'ramp' ? 'Pignon' : 'Mur'} sur Ext ${m.orientation}`;
-        if(!acc[key]) acc[key] = { designation: key, surf: 0 };
-        acc[key].surf += parseFloat(m.surface);
-        return acc;
-    }, {});
-
-    const data = Object.values(agg).map((m, i) => ({
-        "Code ADN": `MUR_${i+1}`,
-        "Désignation": m.designation,
-        "Surface": m.surf.toFixed(2)
-    }));
-
-    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(data), "Murs ADN");
-    XLSX.writeFile(wb, `EXPORT_ADN_${copro.nom}.xlsx`);
-}
-
-// --- INITIALISATION ---
-window.onload = initApp;
-
-</script>
-</body>
-</html>
+        /* Modales */
+        .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(2px); }
+        .modal-content { background: white; margin: 10% auto; padding: 20px; border-radius: 15
