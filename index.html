@@ -13,8 +13,7 @@
   <link rel="apple-touch-startup-image" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxOTIgMTkyIj4KICA8cmVjdCB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiIgcng9IjQwIiBmaWxsPSIjNDM1NDU5Ii8+CiAgPHJlY3QgeD0iMTYiIHk9Ijg4IiB3aWR0aD0iODAiIGhlaWdodD0iOCIgZmlsbD0iI0E0QjhCRSIvPgogIDxyZWN0IHg9IjE2IiB5PSIxNiIgd2lkdGg9IjgiIGhlaWdodD0iMTYwIiBmaWxsPSIjQTRCOEJFIi8+CiAgPHRleHQgeD0iMzQiIHk9IjEyNSIgZm9udC1mYW1pbHk9IkFyaWFsLHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iNzIiIGZvbnQtd2VpZ2h0PSI5MDAiIGZpbGw9IiNEMjcwM0MiPk88L3RleHQ+CiAgPHRleHQgeD0iOTYiIHk9IjEyNSIgZm9udC1mYW1pbHk9IkFyaWFsLHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMzgiIGZvbnQtd2VpZ2h0PSI3MDAiIGZpbGw9IiNFOEI2OUMiPlJGSVQ8L3RleHQ+CiAgPHRleHQgeD0iMzQiIHk9IjE1OCIgZm9udC1mYW1pbHk9IkFyaWFsLHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMjgiIGZvbnQtd2VpZ2h0PSI2MDAiIGZpbGw9IiNBNEI4QkUiPlBQUFQgdjI8L3RleHQ+Cjwvc3ZnPg==">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-<style>1873
-
+<style>
 :root{
     /* Fond et surface */
   --bg:#F1F5F9;--sur:#FFFFFF;--bor:rgba(30,41,59,.15);
@@ -45,8 +44,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display',sans-serif;ba
 .hd h1{font-size:16px;font-weight:700;letter-spacing:-.3px;color:#fff}
 .bdg{font-size:11px;font-weight:700;padding:4px 10px;border-radius:20px;background:#2563EB;color:#fff;border:none}
 
-.tabs{background:#0F172A;border-bottom:3px solid #2563EB;display:flex;overflow-x:auto;-webkit-overflow-scrolling:touch;position:sticky;top:45px;z-index:19}
-.tab{flex:0 0 auto;padding:10px 14px;font-size:13px;font-weight:500;color:rgba(255,255,255,.65);border-bottom:3px solid transparent;cursor:pointer;white-space:nowrap;transition:color .2s,border-color .2s}
+.tabs{background:#0F172A;display:flex;overflow-x:auto;-webkit-overflow-scrolling:touch;position:sticky;top:45px;z-index:19}
+.tab{flex:0 0 auto;padding:10px 14px;font-size:13px;font-weight:500;color:rgba(255,255,255,.65);border-bottom:3px solid transparent;margin-bottom:-1px;cursor:pointer;white-space:nowrap;transition:color .2s,border-color .2s}
 .tab.on{color:#fff;border-bottom-color:#2563EB;font-weight:700}
 .vw{display:none;padding:16px}
 .vw.on{display:block}
@@ -66,12 +65,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display',sans-serif;ba
 .dg input{max-width:68px;text-align:center;border:.5px solid var(--bor);border-radius:6px;padding:4px 6px;background:var(--bg);font-size:14px}
 .ds{color:var(--tx2);font-size:13px}
 
-.btn{width:100%;padding:14px;border-radius:var(--r)border:none;font-size:15px;-webkit-text-fill-color:var(--clr-dark);font-weight:600;cursor:pointer;background:var(--clr-xlight);color:var(--clr-dark);transition:filter .15s,transform .1s;letter-spacing:.01em;background:var(--clr-xlight);color:var(--clr-dark)}
+.btn{width:100%;padding:14px;border-radius:14px;border:none;font-size:15px;font-weight:600;cursor:pointer;background:var(--clr-xlight,#E2E8F0);color:var(--clr-dark,#0F172A);transition:filter .15s,transform .1s;letter-spacing:.01em;font-family:inherit}
 .btn:active{filter:brightness(.9);transform:scale(.98)}
-.btn-p{background:var(--clr-accent);color:#fff;box-shadow:0 2px 8px rgba(37,99,235,.35)}
-    .btn-s{background:#CBD5E1;color:#0F172A;border:2px solid #94A3B8;font-weight:700}
-.btn-ok{background:var(--ok);color:#fff}
-.btn-d{background:var(--dan);color:#fff}
+.btn-p{background:var(--clr-accent,#2563EB)!important;color:#fff!important;box-shadow:0 2px 8px rgba(37,99,235,.35)}
+    .btn-s{background:#CBD5E1!important;color:#0F172A!important;border:2px solid #94A3B8;font-weight:700}
+.btn-ok{background:var(--ok,#16A34A)!important;color:#fff!important}
+.btn-d{background:var(--dan,#DC2626)!important;color:#fff!important}
 .btn-row{display:flex;gap:8px;margin-top:8px}
 /* ── Appartement card (collapsible) ── */
 .appt-card{background:#fff;border-radius:var(--r);border:1px solid rgba(30,41,59,.13);overflow:hidden;margin-bottom:10px;box-shadow:0 2px 6px rgba(30,41,59,.08)}
@@ -326,11 +325,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display',sans-serif;ba
 .tuto-tip{background:#FFF8E1;border-left:3px solid #FFC107;border-radius:0 6px 6px 0;padding:6px 10px;font-size:.82rem;color:#795548;margin-top:8px!important}
 .btn-aide{position:fixed;bottom:72px;right:14px;width:36px;height:36px;border-radius:50%;background:var(--acc);color:#fff;border:none;font-size:1.1rem;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.2);z-index:90;display:flex;align-items:center;justify-content:center}
 </style>
-<!--PPPT-SNAP-->
-<script>
-(function(){try{var d=JSON.parse('{"appts":[{"id":1775193263020,"num":"E01","etage":"R+1","niveau":"Intermédiaire","pos":"","surf":"","bat":"","occupant":"MARLIN","hsp":"","chantier":"","date":"03/04/2026 07:14:23"}],"murs":[],"fens":[],"plas":[],"plfs":[],"portes":[],"chaufs":[],"ecss":[],"photos":{},"dtgPhotos":[],"vmc":{},"copro":{"nom":"","adresse":"","annee":"","batiments":"","ref":""}}');localStorage.setItem('pppt_appts',JSON.stringify(d.appts||[]));localStorage.setItem('pppt_murs',JSON.stringify(d.murs||[]));localStorage.setItem('pppt_fens',JSON.stringify(d.fens||[]));localStorage.setItem('pppt_plas',JSON.stringify(d.plas||[]));localStorage.setItem('pppt_plfs',JSON.stringify(d.plfs||[]));localStorage.setItem('pppt_portes',JSON.stringify(d.portes||[]));localStorage.setItem('pppt_chaufs',JSON.stringify(d.chaufs||[]));localStorage.setItem('pppt_ecss',JSON.stringify(d.ecss||[]));localStorage.setItem('pppt_photos',JSON.stringify(d.photos||{}));localStorage.setItem('pppt_dtg',JSON.stringify(d.dtgPhotos||[]));localStorage.setItem('pppt_vmc',JSON.stringify(d.vmc||{}));localStorage.setItem('pppt_copro',JSON.stringify(d.copro||{}));}catch(e){}})();
-</script>
-<!--/PPPT-SNAP-->
 </head>
 <body>
 
@@ -671,8 +665,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display',sans-serif;ba
 
   <div class="aide-footer">
     <p><strong>MyDiag v2.0</strong><br>
-    Développé par <strong>Cyril LOUIS</strong> <br>
-    </p>
+    Outil de relevé terrain PPPT / DPE copropriété</p>
   </div>
 
 </div>
@@ -1604,24 +1597,19 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display',sans-serif;ba
   <div style="display:flex;flex-direction:column;gap:10px">
     <button class="btn btn-ok" onclick="exportMyDiag()">Export format MyDiag (.xlsx)</button>
     <button class="btn btn-s" onclick="exportCSV()">Export CSV complet</button>
-            <button class="btn btn-ok" onclick="exportDTGZip()">⬇ Exporter DTG photos ZIP</button>
-    <div class="btn-row" style="margin-top:4px;gap:8px">
-      <button class="btn btn-s" style="flex:1" onclick="exportDTGHtml()" id="exp-dtg-btn">📷 Exporter DTG (HTML)</button>
-      <button class="btn btn-s" style="flex:1" onclick="ouvrirDTGHtml()">👁 Ouvrir DTG</button>
-    </div>
     <button class="btn btn-p" style="margin-top:8px;background:var(--ok);border-color:var(--ok)" onclick="sauvegarderProjet()">💾 Sauvegarder le projet (HTML complet)</button>
     <div style="font-size:12px;color:var(--tx2);margin-top:4px;margin-bottom:8px">Génère un fichier HTML autonome avec toutes les données et photos intégrées — ouvrable sur n'importe quel appareil.</div>
     <div class="sl" style="margin-top:20px">Partager &amp; Alertes</div>
     <div style="display:flex;flex-direction:column;gap:10px">
       <button class="btn btn-s" style="background:var(--clr-dark);border-color:var(--clr-dark);color:#fff" onclick="partagerProjet()">📤 Partager le projet</button>
-      <button class="btn btn-s" style="background:#c0392b;border-color:#922b21;color:#fff" onclick="demanderVisite()">📧 Demander des visites complémentaires</button>
+      <a class="mail-visite-link btn btn-s" href="/cdn-cgi/l/email-protection#82" style="background:#c0392b;border-color:#922b21;color:#fff;text-decoration:none;display:block;text-align:center" ontouchstart="preparerMailVisite(this)" onmousedown="preparerMailVisite(this)">📧 Demander des visites complémentaires</a>
     </div>
     <button class="btn btn-d" style="margin-top:16px" onclick="resetTout()">Effacer toutes les données</button>
   </div>
   <div style="text-align:center;margin-top:24px;padding-top:16px;border-top:.5px solid var(--bor)">
     <div style="font-size:18px;font-weight:700;color:var(--clr-dark);font-size:18px;font-weight:700">MyDiag <span style="color:var(--clr-accent)">v2.0</span></div>
     <div style="font-size:12px;color:var(--tx2);margin-top:4px">Outil de relevé terrain PPPT / DPE copropriété</div>
-    <div style="font-size:12px;color:var(--tx2);margin-top:4px">Développé par <strong style="color:var(--clr-dark)">Cyril LOUIS</strong></div>
+    <div style="font-size:12px;color:var(--tx2);margin-top:4px">Développé par </div>
     
     <div style="margin-top:16px;background:var(--clr-xlight);border-radius:10px;padding:12px 14px">
       <div style="font-size:12px;font-weight:700;color:var(--clr-dark);margin-bottom:8px">📱 Installer l'application sur mobile</div>
@@ -1865,10 +1853,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display',sans-serif;ba
 </div>
 <div class="modal-bg" id="modal-plf"><div class="modal-box"><div class="modal-handle"></div><div class="modal-title">Modifier le plafond</div><div class="card"><div class="fr"><span class="fl">Type</span><select id="ed-plf-type" onchange="toggleRampantEdit(this.value)"><option value=""></option><option value="inconnu">Inconnu</option><option value="inconnuRempl">Inconnu avec ou sans remplissage</option><option value="boisSolives">Bois sous solives bois</option><option value="boisSurSolives">Bois sur solives bois</option><option value="bardeaux">Bardeaux et remplissage</option><option value="entresolivesBoiss">Entre solives bois avec ou sans remplissage</option><option value="boisMetal">Bois sur solives métallique</option><option value="boisSousMetal">Bois sous solives métallique</option><option value="solivestMetal">Entre solives métallique avec ou sans remplissage</option><option value="entrevous">Entrevous, terre-cuite, poutrelles béton</option><option value="dalle">Dalle béton</option><option value="rampant">Combles aménagés sous rampants</option><option value="chaume">Toit de chaume</option><option value="plaquesplatre">Plaques de plâtre</option><option value="bacAcier">Toiture en bac acier</option><option value="autre">Autre</option></select></div><div class="fr"><span class="fl">Donne sur</span><select id="ed-plf-donne"><option value=""></option><option>Terrasse</option><option>Combles aménagés</option><option>Combles perdus</option><option>Local chauffé</option><option>Local non chauffé</option><option>Local non chauffé et non accessible</option><option>Circulations communes</option><option>Extérieur</option><option>Bâtiment autre qu'habitation</option><option>Véranda non chauffée, loggia fermée</option><option>Local tertiaire à l'intérieur de l'immeuble</option></select></div><div id="ed-plf-plat-fields"><div class="fr"><span class="fl">L <span class="unit">m</span></span><div class="stepper"><button type="button" class="stepper-btn" onclick="stepperDec('ed-plf-l',0.05)">−</button><input type="number" id="ed-plf-l" inputmode="decimal" min="0" step="0.05"><span class="stepper-unit">m</span><button type="button" class="stepper-btn" onclick="stepperInc('ed-plf-l',0.05)">+</button></div></div><div class="fr"><span class="fl">l <span class="unit">m</span></span><div class="stepper"><button type="button" class="stepper-btn" onclick="stepperDec('ed-plf-li',0.05)">−</button><input type="number" id="ed-plf-li" inputmode="decimal" min="0" step="0.05"><span class="stepper-unit">m</span><button type="button" class="stepper-btn" onclick="stepperInc('ed-plf-li',0.05)">+</button></div></div></div><div id="ed-plf-rampant-fields" style="display:none"><div class="fr"><span class="fl">Orientation</span><select id="ed-plf-ori"><option value=""></option><option>Nord</option><option>Est</option><option>Sud</option><option>Ouest</option></select></div><div class="fr"><span class="fl">L rampant</span><input type="number" id="ed-plf-rl" inputmode="decimal" min="0" step="0.01"></div><div class="fr"><span class="fl">l rampant</span><input type="number" id="ed-plf-rli" inputmode="decimal" min="0" step="0.01"></div><div class="fr"><span class="fl">h bas</span><input type="number" id="ed-plf-rh" inputmode="decimal" min="0" step="0.01"></div><div class="fr"><span class="fl">H haut</span><input type="number" id="ed-plf-rH" inputmode="decimal" min="0" step="0.01"></div></div><div class="fr"><span class="fl">Isolation</span><select id="ed-plf-iso-type"><option value="Aucune"></option><option>ITE</option><option>ITI</option><option>Sous rampant</option><option>Soufflé</option></select></div><div class="fr"><span class="fl">ép. <span class="unit">cm</span></span><input type="number" id="ed-plf-iso-ep" inputmode="numeric" min="0"></div></div><div class="btn-row"><button class="btn btn-s" style="flex:0 0 80px" onclick="closeModal('modal-plf')">Annuler</button><button class="btn btn-p" style="flex:1" onclick="savePlf()">Enregistrer</button></div></div></div>
 <div class="modal-bg" id="modal-pla"><div class="modal-box"><div class="modal-handle"></div><div class="modal-title">Modifier le plancher</div><div class="card"><div class="fr"><span class="fl">Type</span><select id="ed-pla-type"><option value=""></option><option>Inconnu</option><option>Inconnu avec ou sans remplissage</option><option>Entre solives bois avec ou sans remplissage</option><option>Bardeaux et remplissage</option><option>Bois sur solives bois</option><option>Entre solives métallique avec ou sans remplissage</option><option>Bois sur solives métalliques</option><option>Voutains sur solives métallique</option><option>Entrevous, terre-cuite, poutrelles béton</option><option>Dalle béton</option><option>Voutains en brique ou moellons</option><option>Entrevous isolants</option><option>Autre</option></select></div><div class="fr"><span class="fl">Donne sur</span><select id="ed-pla-donne"><option value=""></option><option>Terre-plein</option><option>Vide sanitaire</option><option>Local non chauffé</option><option>Local non chauffé et non accessible</option><option>Bâtiment autre que d'habitation</option><option>Local chauffé</option><option>Extérieur</option><option>Circulations communes</option><option>Terre (paroi enterrée)</option><option>Sous-sol non chauffé</option><option>Local tertiaire à l'intérieur de l'immeuble</option></select></div><div class="fr"><span class="fl">L × l <span class="unit">m</span></span><div class="dg"><input type="number" id="ed-pla-l" inputmode="decimal" min="0" step="0.05"><span class="ds">×</span><input type="number" id="ed-pla-li" inputmode="decimal" min="0" step="0.05"></div></div><div class="fr"><span class="fl">Isolation</span><select id="ed-pla-iso-type"><option value="Aucune"></option><option>ITE</option><option>ITI</option><option>Sous dalle</option></select></div><div class="fr"><span class="fl">ép. <span class="unit">cm</span></span><input type="number" id="ed-pla-iso-ep" inputmode="numeric" min="0"></div></div><div class="btn-row"><button class="btn btn-s" style="flex:0 0 80px" onclick="closeModal('modal-pla')">Annuler</button><button class="btn btn-p" style="flex:1" onclick="savePla()">Enregistrer</button></div></div></div>
-<div class="modal-bg" id="modal-ref"><div class="modal-box"><div class="modal-handle"></div><div class="modal-title">Modifier le refend</div><div class="card"><div class="fr"><span class="fl">Orientation</span><select id="ed-ref-ori"><option value=""></option><option>Nord</option><option>Est</option><option>Sud</option><option>Ouest</option></select></div><div class="fr"><span class="fl">Longueur droite <span class="unit">m</span></span><div class="stepper"><button type="button" class="stepper-btn" onclick="stepperDec('ed-ref-ld',0.05)">−</button><input type="number" id="ed-ref-ld" inputmode="decimal" min="0" step="0.05"><span class="stepper-unit">m</span><button type="button" class="stepper-btn" onclick="stepperInc('ed-ref-ld',0.05)">+</button></div></div><div class="fr"><span class="fl">Longueur gauche <span class="unit">m</span></span><div class="stepper"><button type="button" class="stepper-btn" onclick="stepperDec('ed-ref-lg',0.05)">−</button><input type="number" id="ed-ref-lg" inputmode="decimal" min="0" step="0.05"><span class="stepper-unit">m</span><button type="button" class="stepper-btn" onclick="stepperInc('ed-ref-lg',0.05)">+</button></div></div></div><div class="btn-row"><button class="btn btn-s" style="flex:0 0 80px" onclick="closeModal('modal-ref')">Annuler</button><button class="btn btn-p" style="flex:1" onclick="saveRef()">Enregistrer</button></div></div></div>
-<button class="btn-aide" id="btn-aide-flottant" onclick="ouvrirTutoOnglet(window._tabActif||'accueil')" title="Aide sur cet onglet">❓</button>
-<script>
+<div class="modal-bg" id="modal-ref"><div class="modal-box"><div class="modal-handle"></div><div class="modal-title">Modifier le refend</div><div class="card"><div class="fr"><span class="fl">Orientation</span><select id="ed-ref-ori"><option value=""></option><option>Nord</option><option>Est</option><option>Sud</option><option>Ouest</option></select></div><div class="fr"><span class="fl">Longueur droite <span class="unit">m</span></span><div class="stepper"><button type="button" class="stepper-btn" onclick="stepperDec('ed-ref-ld',0.05)">−</button><input type="number" id="ed-ref-ld" inputmode="decimal" min="0" step="0.05"><span class="stepper-unit">m</span><button type="button" class="stepper-btn" onclick="stepperInc('ed-ref-ld',0.05)">+</button></div></div><div class="fr"><span class="fl">Longueur gauche <span class="unit">m</span></span><div class="stepper"><button type="button" class="stepper-btn" onclick="stepperDec('ed-ref-lg',0.05)">−</button><input type="number" id="ed-ref-lg" inputmode="decimal" min="0" step="0.05"><span class="stepper-unit">m</span><button type="button" class="stepper-btn" onclick="stepperInc('ed-ref-lg',0.05)">+</button></div></div></div><div class="btn-row"><button class="btn btn-s" style="flex:0 0 80px" onclick="closeModal('modal-ref')">Annuler</button><button class="btn btn-p" style="flex:1" onclick="saveRef()">Enregistrer</button>
+    </div>
+  </div>
+</div>
 
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 // ══════════════════════════════════════════════
 // État global
 // ══════════════════════════════════════════════
@@ -1911,6 +1901,7 @@ function save(){
   updateHeader();
   updateExportView();
   renderCoproRecap();
+  refreshMailVisite();
 }
 
 // ══════════════════════════════════════════════
@@ -4284,64 +4275,14 @@ async function _buildSaveBlob(){
 
   // 3. Injecter le snapshot dans le HTML source
   let src = document.documentElement.outerHTML;
-  src = src.replace(/';
+  src = src.replace(/<!--PPPT-SNAP-->[\s\S]*?<!--\/PPPT-SNAP-->/g, '');
 
   src = src.replace('</head>', snapBlock + '\n</head>');
   return new Blob([src], {type:'text/html;charset=utf-8'});
 }
 
 // ── Sauvegarder le projet (téléchargement) ──
-async function sauvegarderProjet(){
-  toast('Préparation…');
-  const ref  = (copro&&copro.nom) ? copro.nom.replace(/[^a-zA-Z0-9 ]/g,'-').trim() : 'chantier';
-  const date = new Date().toLocaleDateString('fr-FR').replace(/\//g,'-');
-  const filename = 'MyDiag_' + ref + '_' + date + '.html';
-
-  const blob = await _buildSaveBlob();
-  const url  = URL.createObjectURL(blob);
-  const a    = document.createElement('a');
-  a.href = url; a.download = filename; a.click();
-  setTimeout(()=>URL.revokeObjectURL(url), 1000);
-
-  const lbl = document.getElementById('save-label');
-  const btn = lbl ? lbl.parentElement : null;
-  if(btn){
-    lbl.style.display='inline'; btn.style.background='#3B6D11';
-    setTimeout(()=>{ lbl.style.display='none'; btn.style.background='var(--clr-accent)'; }, 2500);
-  }
-  const nb = Object.keys(photos||{}).length + (dtgPhotos||[]).length;
-  toast('Sauvegardé — ' + appts.length + ' appts · ' + nb + ' photos ✓');
-}
-
-// ── Partager le projet ──
-async function partagerProjet(){
-  toast('Préparation du partage…');
-  const ref  = (copro&&copro.nom) ? copro.nom.normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-zA-Z0-9]+/g,'-').replace(/^-+|-+$/g,'') : 'Projet';
-  const date = new Date().toLocaleDateString('fr-FR').replace(/\//g,'-');
-  const filename = 'MyDiag_' + ref + '_' + date + '.html';
-
-  const blob = await _buildSaveBlob();
-  const file = new File([blob], filename, {type:'text/html'});
-
-  if(navigator.share && navigator.canShare && navigator.canShare({files:[file]})){
-    try {
-      await navigator.share({
-        title: 'MyDiag — ' + (copro.nom||'Projet'),
-        text:  'Relevé terrain PPPT — ' + (copro.nom||''),
-        files: [file]
-      });
-      toast('Projet partagé ✓');
-      return;
-    } catch(e){ if(e.name !== 'AbortError') console.warn(e); }
-  }
-  // Fallback : téléchargement
-  const url = URL.createObjectURL(blob);
-  const a   = document.createElement('a');
-  a.href = url; a.download = filename; a.target = '_blank';
-  a.click(); URL.revokeObjectURL(url);
-  toast('Fichier prêt — partagez-le manuellement 📤');
-}
-
+async // ── Partager le projet ──
 
 // Helper partagé — conversion image → PNG
 async function toPNGDataUrl(src){
@@ -4499,7 +4440,7 @@ function demanderVisite(){
     + 'MyDiag'
   );
 
-  window.location.href = 'mailto:c.louis@eti360.fr?subject=' + sujet + '&body=' + corps;
+  window.location.href = 'mailto:?subject=' + sujet + '&body=' + corps;
 }
 
 
@@ -4619,6 +4560,91 @@ function toggleCollAcc(id){
 
 // Init
 // ══════════════════════════════════════════════
+
+function _buildMailVisite(){
+  const nomCopro   = (copro&&copro.nom)  ? copro.nom  : 'Copropriété inconnue';
+  const codeCopro  = (copro&&copro.code) ? copro.code : '';
+  const refDossier = (copro&&copro.ref)  ? copro.ref  : '';
+  const dateVisite = (copro&&copro.dateVisite) ? copro.dateVisite : '';
+  const nbTotal    = (copro&&copro.lots) ? parseInt(copro.lots) : 0;
+
+  const niveaux = {'RDC':[],'Intermédiaire':[],'Dernier étage':[]};
+  const autres  = [];
+  (appts||[]).forEach(a=>{
+    const niv = a.niveau||'';
+    const lbl = (a.num||'?')+(a.bat?' Bât.'+a.bat:'')+(a.etage?' ('+a.etage+')':'')+(a.pos?' — '+a.pos:'');
+    if(niveaux[niv]!==undefined) niveaux[niv].push(lbl);
+    else autres.push(lbl+(niv?' ['+niv+']':''));
+  });
+
+  let corps='Bonjour,\n\n'
+    +'Suite à la visite du '+(dateVisite||'___')+', des visites complémentaires sont nécessaires :\n\n'
+    +'Copropriété : '+nomCopro+'\n'
+    +(codeCopro  ?'Code : '+codeCopro+'\n':'')
+    +(refDossier ?'Réf. dossier : '+refDossier+'\n':'')
+    +(copro&&copro.adresse?'Adresse : '+copro.adresse+'\n':'')
+    +(nbTotal?'Nb lots : '+nbTotal+'\n':'')+'\n';
+
+  if(!(appts&&appts.length)){
+    corps+='Aucun appartement saisi.';
+  } else {
+    corps+='Appartements visités ('+appts.length+(nbTotal?' / '+nbTotal:'')+') :\n\n';
+    Object.entries(niveaux).forEach(([niv,liste])=>{
+      corps+='> '+niv+(liste.length?' ('+liste.length+') :':' : AUCUN')+'\n';
+      liste.forEach(l=>{corps+='  - '+l+'\n';});
+      corps+='\n';
+    });
+    if(autres.length){corps+='> Autres :\n';autres.forEach(l=>{corps+='  - '+l+'\n';});}
+  }
+  corps+='\nMerci de planifier les rendez-vous manquants.\n\nCordialement';
+  if(corps.length>1000) corps=corps.substring(0,950)+'\n[voir ORFIT]';
+
+  const sujet='Visites PPPT — '+(codeCopro?'['+codeCopro+'] ':'')+nomCopro+(refDossier?' — '+refDossier:'');
+  return 'mailto:?subject='+encodeURIComponent(sujet)+'&body='+encodeURIComponent(corps);
+}
+
+function refreshMailVisite(){
+  try{
+    const url=_buildMailVisite();
+    document.querySelectorAll('.mail-visite-link').forEach(el=>{el.href=url;});
+  }catch(e){}
+}
+
+function preparerMailVisite(el){
+  el.href=_buildMailVisite();
+}
+
+
+async function partagerProjet(){
+  toast('Préparation du partage…');
+  const ref=(copro&&copro.nom)?copro.nom.normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-zA-Z0-9]+/g,'-').replace(/^-+|-+$/g,''):'Projet';
+  const date=new Date().toLocaleDateString('fr-FR').replace(/\//g,'-');
+  const filename='ORFIT_'+ref+'_'+date+'.html';
+  const blob=await _buildSaveBlob();
+  const file=new File([blob],filename,{type:'text/html'});
+  if(navigator.share&&navigator.canShare&&navigator.canShare({files:[file]})){
+    try{await navigator.share({title:'ORFIT — '+(copro.nom||'Projet'),files:[file]});toast('Partagé ✓');return;}catch(e){if(e.name!=='AbortError')console.warn(e);}
+  }
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a'); a.href=url; a.download=filename; a.click(); URL.revokeObjectURL(url);
+  toast('Fichier prêt 📤');
+}
+
+
+
+async function sauvegarderProjet(){
+  toast('Préparation…');
+  const ref=(copro&&copro.nom)?copro.nom.replace(/[^a-zA-Z0-9 ]/g,'-').trim():'chantier';
+  const date=new Date().toLocaleDateString('fr-FR').replace(/\//g,'-');
+  const blob=await _buildSaveBlob();
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');a.href=url;a.download='ORFIT_'+ref+'_'+date+'.html';a.click();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+  const lbl=document.getElementById('save-label'),btn=lbl?lbl.parentElement:null;
+  if(btn){lbl.style.display='inline';btn.style.background='#3B6D11';setTimeout(()=>{lbl.style.display='none';btn.style.background='';},2500);}
+  toast('Sauvegardé ✓');
+}
+
 loadCopro();
 loadVMC();
 renderApptsList();
@@ -4627,68 +4653,21 @@ renderDTG();
 updateHeader();
 updateExportView();
 renderAccueil();
-
-
+refreshMailVisite();
+document.addEventListener('DOMContentLoaded',refreshMailVisite);
 /* ============================================================
    MYDIAG v2.1 — JS ADDITIONNEL
    ============================================================ */
 
 // Patch save
 const _savOrig=typeof save==='function'?save:null;
-function save(){if(_savOrig)_savOrig();localStorage.setItem('pppt_refs',JSON.stringify(refs));}
-
 /* ── PLAFONDS ── */
-function toggleRampant(v){const pf=document.getElementById('plf-plat-fields'),rf=document.getElementById('plf-rampant-fields');if(pf)pf.style.display=v==='rampant'?'none':'block';if(rf)rf.style.display=v==='rampant'?'block':'none';}
 function toggleRampantEdit(v){const pf=document.getElementById('ed-plf-plat-fields'),rf=document.getElementById('ed-plf-rampant-fields');if(pf)pf.style.display=v==='rampant'?'none':'block';if(rf)rf.style.display=v==='rampant'?'block':'none';}
-function resetPlf(){['plf-type','plf-donne','plf-ori','plf-iso-type'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});['plf-l','plf-li','plf-rl','plf-rli','plf-rh','plf-rH','plf-iso-ep'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});const pf=document.getElementById('plf-plat-fields'),rf=document.getElementById('plf-rampant-fields');if(pf)pf.style.display='block';if(rf)rf.style.display='none';}
-function plfTitre(p){const d=p.donne||'';const a=d.includes('Terrasse')?'terrasse':d.includes('aménagés')?'combles aménagés':d.includes('perdus')?'combles perdus':d.includes('non chauffé')?'LNC':d.includes('chauffé')?'chauffé':d.includes('Circ')?'circ.':d==='Extérieur'?'ext.':d.includes('autre')?'autre bât.':d.includes('randa')?'véranda':d.includes('tertiaire')?'tertiaire':'';return`Plafond ${p.num}${a?' — '+a:''}`;}
-function nextPlfNum(){const ex=plfs.filter(p=>p.aptId===curAppt).map(p=>parseInt(p.num)||0);return ex.length?Math.max(...ex)+1:1;}
-function ajouterPlf(){
-  if(!curAppt){toast('Sélectionnez un appartement');return;}
-  const isR=document.getElementById('plf-type').value==='rampant';
-  let surf=null,longRampant=null;
-  if(isR){const rl=parseFloat(document.getElementById('plf-rl').value),rli=parseFloat(document.getElementById('plf-rli').value);if(!isNaN(rl)&&!isNaN(rli)&&rl>0&&rli>0)surf=Math.round(rl*rli*100)/100;if(!isNaN(rl)&&rl>0)longRampant=rl;}
-  else{const l=parseFloat(document.getElementById('plf-l').value),li=parseFloat(document.getElementById('plf-li').value);if(!isNaN(l)&&!isNaN(li)&&l>0&&li>0)surf=Math.round(l*li*100)/100;}
-  const p={id:Date.now(),aptId:curAppt,num:nextPlfNum(),type:document.getElementById('plf-type').value,donne:document.getElementById('plf-donne').value,l:isR?null:document.getElementById('plf-l').value,li:isR?null:document.getElementById('plf-li').value,ori:isR?document.getElementById('plf-ori').value:null,rl:isR?document.getElementById('plf-rl').value:null,rli:isR?document.getElementById('plf-rli').value:null,rh:isR?document.getElementById('plf-rh').value:null,rH:isR?document.getElementById('plf-rH').value:null,longRampant,surf,isoType:document.getElementById('plf-iso-type').value,isoEp:document.getElementById('plf-iso-ep').value};
-  if(!p.type||!p.donne){toast('Indiquez au moins le type et donne sur');return;}
-  plfs.push(p);save();renderPlfView();resetPlf();toast(plfTitre(p)+' ajouté ✓');
-}
-function suppPlf(id){plfs=plfs.filter(p=>String(p.id)!==String(id));save();renderPlfView();if(typeof renderApptsList==='function')renderApptsList();}
-function clonerPlf(id){const s=plfs.find(p=>String(p.id)===String(id));if(!s)return;plfs.push({...s,id:Date.now(),num:nextPlfNum()});save();renderPlfView();toast('Plafond cloné ✓');}
-function renderPlfView(){
-  const hasApt=!!curAppt;const w=document.getElementById('plf-apt-warning'),c2=document.getElementById('plf-content');
-  if(w)w.style.display=hasApt?'none':'block';if(c2)c2.style.display=hasApt?'block':'none';if(!hasApt)return;
-  const a=appts.find(x=>String(x.id)===curAppt);const lbl=document.getElementById('plf-apt-label');if(lbl)lbl.textContent=a?`${a.num}${a.etage?' — '+a.etage:''}`:'';
-  const myP=plfs.filter(p=>p.aptId===curAppt);const c=document.getElementById('plf-liste');if(!c)return;
-  if(!myP.length){c.innerHTML='<div class="empty">Aucun plafond pour cet appartement.</div>';return;}
-  const tot=myP.filter(p=>p.surf).reduce((s,p)=>s+parseFloat(p.surf||0),0);
-  c.innerHTML=(tot?`<div class="grp-hd"><span>Total plafonds</span><span class="grp-val">${Math.round(tot*100)/100} m²</span></div>`:'')+[...myP].reverse().map(p=>`<div class="item"><div class="item-head">${plfTitre(p)}${p.ori?' — '+p.ori:''}</div><div class="item-sub">${p.donne||''}${p.l&&p.li?' — '+p.l+'m × '+p.li+'m':''}${p.longRampant?' — Rampant '+p.longRampant+'m':''}</div><div class="tags">${p.surf?`<span class="tag tag-col">${p.surf} m²</span>`:''}${p.isoType?`<span class="tag">${p.isoType}${p.isoEp?' '+p.isoEp+'cm':''}</span>`:''}</div><div class="item-foot"><button class="btn-xs edit" onclick="editPlf('${p.id}')">Modifier</button><button class="btn-xs" style="color:var(--ok);border-color:#C0DD97;background:var(--ok-l)" onclick="clonerPlf('${p.id}')">Cloner</button><button class="btn-xs del" onclick="suppPlf('${p.id}')">Supprimer</button></div></div>`).join('');
-}
 let edPlfId=null;
-function editPlf(id){const p=plfs.find(x=>String(x.id)===String(id));if(!p)return;edPlfId=p.id;const s=(elId,val)=>{const e=document.getElementById(elId);if(e&&val!=null)e.value=val;};s('ed-plf-type',p.type);s('ed-plf-donne',p.donne);s('ed-plf-l',p.l);s('ed-plf-li',p.li);s('ed-plf-ori',p.ori);s('ed-plf-rl',p.rl);s('ed-plf-rli',p.rli);s('ed-plf-rh',p.rh);s('ed-plf-rH',p.rH);s('ed-plf-iso-type',p.isoType);s('ed-plf-iso-ep',p.isoEp);toggleRampantEdit(p.type);openModal('modal-plf');}
-function savePlf(){const p=plfs.find(x=>String(x.id)===String(edPlfId));if(!p)return;const isR=document.getElementById('ed-plf-type').value==='rampant';const l=parseFloat(document.getElementById('ed-plf-l').value),li=parseFloat(document.getElementById('ed-plf-li').value),rl=parseFloat(document.getElementById('ed-plf-rl').value),rli=parseFloat(document.getElementById('ed-plf-rli').value);const surf=isR?(!isNaN(rl)&&!isNaN(rli)&&rl>0&&rli>0?Math.round(rl*rli*100)/100:null):(!isNaN(l)&&!isNaN(li)&&l>0&&li>0?Math.round(l*li*100)/100:null);const longRampant=isR&&!isNaN(rl)&&rl>0?rl:null;Object.assign(p,{type:document.getElementById('ed-plf-type').value,donne:document.getElementById('ed-plf-donne').value,l:isR?null:document.getElementById('ed-plf-l').value,li:isR?null:document.getElementById('ed-plf-li').value,ori:isR?document.getElementById('ed-plf-ori').value:null,rl:isR?document.getElementById('ed-plf-rl').value:null,rli:isR?document.getElementById('ed-plf-rli').value:null,rh:isR?document.getElementById('ed-plf-rh').value:null,rH:isR?document.getElementById('ed-plf-rH').value:null,longRampant,surf,isoType:document.getElementById('ed-plf-iso-type').value,isoEp:document.getElementById('ed-plf-iso-ep').value});save();closeModal('modal-plf');renderPlfView();if(typeof renderApptsList==='function')renderApptsList();toast(plfTitre(p)+' modifié ✓');}
-
 /* ── PLANCHERS ── */
-function resetPla(){['pla-type','pla-donne','pla-iso-type'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});['pla-l','pla-li','pla-iso-ep'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});}
-function plaTitre(p){const d=p.donne||'';const a=d.includes('Terre-plein')?'terre-plein':d.includes('Vide')?'vide sanitaire':d.includes('non chauffé')?'LNC':d.includes('chauffé')?'chauffé':d==='Extérieur'?'ext.':d.includes('Circ')?'circ.':d.includes('enterr')||d.includes('Terre(')?'enterré':d.includes('sous-sol')||d.includes('Sous-sol')?'sous-sol':d.includes('tertiaire')?'tertiaire':'';return`Plancher ${p.num}${a?' — '+a:''}`;}
-function nextPlaNum(){const ex=plas.filter(p=>p.aptId===curAppt).map(p=>parseInt(p.num)||0);return ex.length?Math.max(...ex)+1:1;}
-function ajouterPla(){if(!curAppt){toast('Sélectionnez un appartement');return;}const l=parseFloat(document.getElementById('pla-l').value),li=parseFloat(document.getElementById('pla-li').value);const surf=(!isNaN(l)&&!isNaN(li)&&l>0&&li>0)?Math.round(l*li*100)/100:null;const p={id:Date.now(),aptId:curAppt,num:nextPlaNum(),type:document.getElementById('pla-type').value,donne:document.getElementById('pla-donne').value,l:document.getElementById('pla-l').value,li:document.getElementById('pla-li').value,surf,isoType:document.getElementById('pla-iso-type').value,isoEp:document.getElementById('pla-iso-ep').value};if(!p.type||!p.donne){toast('Indiquez au moins le type et donne sur');return;}plas.push(p);save();renderPlaView();resetPla();toast(plaTitre(p)+' ajouté ✓');}
-function suppPla(id){plas=plas.filter(p=>String(p.id)!==String(id));save();renderPlaView();if(typeof renderApptsList==='function')renderApptsList();}
-function clonerPla(id){const s=plas.find(p=>String(p.id)===String(id));if(!s)return;plas.push({...s,id:Date.now(),num:nextPlaNum()});save();renderPlaView();toast('Plancher cloné ✓');}
-function renderPlaView(){const hasApt=!!curAppt;const w=document.getElementById('pla-apt-warning'),c2=document.getElementById('pla-content');if(w)w.style.display=hasApt?'none':'block';if(c2)c2.style.display=hasApt?'block':'none';if(!hasApt)return;const a=appts.find(x=>String(x.id)===curAppt);const lbl=document.getElementById('pla-apt-label');if(lbl)lbl.textContent=a?`${a.num}${a.etage?' — '+a.etage:''}`:'';const myP=plas.filter(p=>p.aptId===curAppt);const c=document.getElementById('pla-liste');if(!c)return;if(!myP.length){c.innerHTML='<div class="empty">Aucun plancher pour cet appartement.</div>';return;}const tot=myP.filter(p=>p.surf).reduce((s,p)=>s+parseFloat(p.surf||0),0);c.innerHTML=(tot?`<div class="grp-hd"><span>Total planchers</span><span class="grp-val">${Math.round(tot*100)/100} m²</span></div>`:'')+[...myP].reverse().map(p=>`<div class="item"><div class="item-head">${plaTitre(p)}</div><div class="item-sub">${p.donne||''}${p.l&&p.li?' — '+p.l+'m × '+p.li+'m':''}</div><div class="tags">${p.surf?`<span class="tag tag-col">${p.surf} m²</span>`:''}${p.isoType?`<span class="tag">${p.isoType}${p.isoEp?' '+p.isoEp+'cm':''}</span>`:''}</div><div class="item-foot"><button class="btn-xs edit" onclick="editPla('${p.id}')">Modifier</button><button class="btn-xs" style="color:var(--ok);border-color:#C0DD97;background:var(--ok-l)" onclick="clonerPla('${p.id}')">Cloner</button><button class="btn-xs del" onclick="suppPla('${p.id}')">Supprimer</button></div></div>`).join('');}
 let edPlaId=null;
-function editPla(id){const p=plas.find(x=>String(x.id)===String(id));if(!p)return;edPlaId=p.id;const s=(elId,val)=>{const e=document.getElementById(elId);if(e&&val!=null)e.value=val;};s('ed-pla-type',p.type);s('ed-pla-donne',p.donne);s('ed-pla-l',p.l);s('ed-pla-li',p.li);s('ed-pla-iso-type',p.isoType);s('ed-pla-iso-ep',p.isoEp);openModal('modal-pla');}
-function savePla(){const p=plas.find(x=>String(x.id)===String(edPlaId));if(!p)return;const l=parseFloat(document.getElementById('ed-pla-l').value),li=parseFloat(document.getElementById('ed-pla-li').value);const surf=(!isNaN(l)&&!isNaN(li)&&l>0&&li>0)?Math.round(l*li*100)/100:null;Object.assign(p,{type:document.getElementById('ed-pla-type').value,donne:document.getElementById('ed-pla-donne').value,l:document.getElementById('ed-pla-l').value,li:document.getElementById('ed-pla-li').value,surf,isoType:document.getElementById('ed-pla-iso-type').value,isoEp:document.getElementById('ed-pla-iso-ep').value});save();closeModal('modal-pla');renderPlaView();if(typeof renderApptsList==='function')renderApptsList();toast(plaTitre(p)+' modifié ✓');}
-
 /* ── PORTES ── */
 const PORTE_TYPES_EXT={Bois:['Porte pleine bois','Porte bois vitrée','Porte bois isolée (double paroi)','Porte bois ancienne simple'],Métallique:['Porte métallique pleine','Porte métallique coupe-feu','Porte métallique vitrée','Porte métallique avec joint'],PVC:['Porte PVC pleine','Porte PVC vitrée','Porte PVC isolée']};
-function updatePorteTypes(matId='por-mat',typeId='por-type'){const mat=document.getElementById(matId)?.value;const sel=document.getElementById(typeId);if(!sel)return;const types=PORTE_TYPES[mat]||[];sel.innerHTML=types.length?`<option value=""></option>`+types.map(t=>`<option>${t}</option>`).join(''):`<option value="">— Choisir menuiserie d'abord —</option>`;}
-function resetPorte(){['por-mat','por-type','por-obs'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});['por-l','por-h','por-rep'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});['por-opt-isolee','por-opt-sas','por-opt-dv','por-opt-autre'].forEach(id=>{const e=document.getElementById(id);if(e)e.checked=false;});const s=document.getElementById('por-type');if(s)s.innerHTML="<option value=''>— Choisir menuiserie d'abord —</option>";}
-function nextPorteNum(){const ex=portes.filter(p=>p.aptId===curAppt).map(p=>parseInt(p.num)||0);return ex.length?Math.max(...ex)+1:1;}
-function ajouterPorte(){if(!curAppt){toast('Sélectionnez un appartement');return;}const num=nextPorteNum();const rep=document.getElementById('por-rep').value.trim()||`P${num}`;const p={id:Date.now(),aptId:curAppt,num,rep,mat:document.getElementById('por-mat').value,type:document.getElementById('por-type').value,l:document.getElementById('por-l').value,h:document.getElementById('por-h').value,optIsolee:document.getElementById('por-opt-isolee').checked,optSas:document.getElementById('por-opt-sas').checked,optDV:document.getElementById('por-opt-dv').checked,optAutre:document.getElementById('por-opt-autre').checked,obs:document.getElementById('por-obs').value.trim()};if(!p.mat){toast('Indiquez au moins la menuiserie');return;}portes.push(p);save();renderPortesView();resetPorte();toast(`Porte ${p.rep} ajoutée ✓`);}
-function suppPorte(id){portes=portes.filter(p=>String(p.id)!==String(id));save();renderPortesView();if(typeof renderApptsList==='function')renderApptsList();}
-function renderPortesView(){const hasApt=!!curAppt;const w=document.getElementById('por-apt-warning'),c2=document.getElementById('por-content');if(w)w.style.display=hasApt?'none':'block';if(c2)c2.style.display=hasApt?'block':'none';if(!hasApt)return;const a=appts.find(x=>String(x.id)===curAppt);const lbl=document.getElementById('por-apt-label');if(lbl)lbl.textContent=a?`${a.num}${a.etage?' — '+a.etage:''}`:'';const myP=portes.filter(p=>p.aptId===curAppt);const c=document.getElementById('por-liste');if(!c)return;if(!myP.length){c.innerHTML='<div class="empty">Aucune porte pour cet appartement.</div>';return;}c.innerHTML=[...myP].reverse().map(p=>{const opts=[p.optIsolee?'Isolée':'',p.optSas?'Sas':'',p.optDV?'DV':'',p.optAutre?'Autre':''].filter(Boolean).join(', ');return`<div class="item"><div class="item-head">${p.rep}${p.l&&p.h?` <span style="font-size:11px;font-weight:400;color:var(--tx2)">${p.l}×${p.h} cm</span>`:''}</div><div class="tags">${p.mat?`<span class="tag">${p.mat}</span>`:''}${p.type?`<span class="tag">${p.type}</span>`:''}${opts?`<span class="tag" style="color:var(--ok)">${opts}</span>`:''}${p.obs?`<span class="tag">${p.obs}</span>`:''}</div><div class="item-foot"><button class="btn-xs del" onclick="suppPorte('${p.id}')">Supprimer</button></div></div>`;}).join('');}
-
 /* ── REFENDS ── */
 function resetRef(){const o=document.getElementById('ref-ori'),d=document.getElementById('ref-ld'),g=document.getElementById('ref-lg');if(o)o.value='';if(d)d.value='';if(g)g.value='';}
 function nextRefNum(){const ex=refs.filter(r=>r.aptId===curAppt).map(r=>parseInt(r.num)||0);return ex.length?Math.max(...ex)+1:1;}
@@ -4709,13 +4688,6 @@ function renderRefView(){
 
 /* ── TOTAUX ── */
 let curTotPoste='appts';
-function setTotPoste(btn){document.querySelectorAll('.tot-tab').forEach(b=>b.classList.remove('on'));btn.classList.add('on');curTotPoste=btn.dataset.poste;renderTotaux();}
-function renderTotaux(){
-  const sel=document.getElementById('tot-apt-filter');if(sel){const cur=sel.value;sel.innerHTML='<option value="">Tous les appartements</option>'+appts.map(a=>`<option value="${a.id}">${a.num}${a.etage?' — '+a.etage:''}</option>`).join('');if(cur)sel.value=cur;}
-  const fid=sel?sel.value:'';const c=document.getElementById('tot-content');if(!c)return;
-  const map={appts:totAppts,murs:totMurs,fen:totFenetres,planchers:totPlanchers,plafonds:totPlafonds,refends:totRefends,portes:totPortes,chauf:totChauffages,ecs:totEcs};
-  c.innerHTML=(map[curTotPoste]||totAppts)(fid);
-}
 function _filtre(arr,aptId){return aptId?arr.filter(x=>String(x.aptId)===String(aptId)):arr;}
 function _tableHtml(headers,rows,footer=''){if(!rows.length)return'<div class="empty">Aucune donnée.</div>';return`<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12px"><thead><tr>${headers.map(h=>`<th style="background:#E3F2FD;color:#1565C0;padding:6px 8px;text-align:left;white-space:nowrap">${h}</th>`).join('')}</tr></thead><tbody>${rows.map((r,i)=>`<tr style="background:${i%2===0?'#fff':'#F9FAFB'}">${r.map(cell=>`<td style="padding:5px 8px;border-bottom:1px solid #F0F0F0;white-space:nowrap">${cell??'—'}</td>`).join('')}</tr>`).join('')}</tbody>${footer?`<tfoot><tr style="background:#F3F8FF;font-weight:700">${footer.map(cell=>`<td style="padding:6px 8px;color:#1565C0">${cell}</td>`).join('')}</tr></tfoot>`:''}</table></div>`;}
 function totAppts(aptId){const d=_filtre(appts,aptId);return _tableHtml(['Échantillon','Étage','Niveau','Bât.','Surface','HSP','Murs','Fenêtres'],d.map(a=>[a.num,a.etage||'—',a.niveau||'—',a.bat||'—',a.surf?a.surf+' m²':'—',a.hsp?a.hsp+' m':'—',murs.filter(m=>String(m.aptId)===String(a.id)).length,fens.filter(f=>String(f.aptId)===String(a.id)).length]));}
@@ -4762,6 +4734,7 @@ const TUTO_STEPS=[
 function renderAide(){const c=document.getElementById('tuto-list');if(!c)return;c.innerHTML=TUTO_STEPS.map((s,i)=>`<div class="tuto-item" id="tuto-${i}"><div class="tuto-head" onclick="toggleTuto(${i})"><span class="tuto-icon">${s.icon}</span><span class="tuto-titre">${s.titre}</span><span class="tuto-chevron" id="chev-${i}">▶</span></div><div class="tuto-body" id="tbody-${i}" style="display:none">${s.contenu}</div></div>`).join('');}
 function toggleTuto(i){const b=document.getElementById(`tbody-${i}`),ch=document.getElementById(`chev-${i}`);const open=b.style.display!=='none';b.style.display=open?'none':'block';ch.textContent=open?'▶':'▼';}
 function ouvrirTutoOnglet(nom){const map={accueil:0,copro:1,appts:2,murs:3,fen:4,plafonds:5,planchers:6,refends:7,totaux:8,export:9};goTab('aide');setTimeout(()=>{renderAide();const idx=map[nom];if(idx!==undefined){const b=document.getElementById(`tbody-${idx}`),ch=document.getElementById(`chev-${idx}`);if(b)b.style.display='block';if(ch)ch.textContent='▼';document.getElementById(`tuto-${idx}`)?.scrollIntoView({behavior:'smooth',block:'start'});}},120);}
+
 
 </script>
 
