@@ -2,166 +2,199 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MyDiag Pro v4 - Logiciel de Diagnostic Copropriété</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>MyDiag PRO v4.2 - FIX</title>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
     <style>
-        :root {
-            --primary: #2563eb;
-            --secondary: #64748b;
-            --danger: #e11d48;
-            --warning: #f59e0b;
-            --success: #10b981;
-            --bg: #f8fafc;
-            --card: #ffffff;
-            --accent-rose: #fff1f2;
-        }
+        :root { --p: #2563eb; --bg: #f8fafc; --txt: #0f172a; --s: #10b981; --err: #ef4444; }
+        
+        /* FIX TACTILE IPHONE */
+        * { box-sizing: border-box; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+        
+        body { font-family: -apple-system, sans-serif; background: var(--bg); margin: 0; padding-bottom: 100px; overflow-x: hidden; }
 
-        body { font-family: -apple-system, system-ui, sans-serif; background: var(--bg); margin: 0; padding: 20px; color: #1e293b; }
-        .container { max-width: 800px; margin: 0 auto; }
+        /* Header Fixe sans superposition */
+        .header { background: #0f172a; color: white; padding: 15px; position: sticky; top: 0; z-index: 1000; display: flex; justify-content: space-between; align-items: center; }
         
-        /* Header Box */
-        .header { display: flex; justify-content: space-between; align-items: center; background: #1e293b; color: white; padding: 15px 20px; border-radius: 12px; margin-bottom: 20px; }
-        .sync-ok { color: var(--success); font-size: 0.8rem; font-weight: bold; }
+        /* Navigation Simple (plus de défilement complexe) */
+        .nav-tabs { display: flex; background: #1e293b; position: sticky; top: 50px; z-index: 1000; width: 100%; border-bottom: 3px solid var(--p); }
+        .tab-btn { flex: 1; padding: 15px 5px; border: none; background: none; font-size: 0.7rem; font-weight: 800; color: #94a3b8; text-transform: uppercase; }
+        .tab-btn.active { color: white; background: var(--p); }
 
-        /* Apartment Card (The Main Box) */
-        .apt-card { background: var(--card); border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); padding: 20px; margin-bottom: 20px; }
-        .apt-header { display: flex; justify-content: space-between; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; margin-bottom: 20px; }
+        .container { padding: 15px; max-width: 800px; margin: auto; position: relative; z-index: 1; }
+        .card { background: white; border-radius: 12px; padding: 16px; margin-bottom: 15px; border: 1px solid #e2e8f0; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
         
-        /* Tool Grid */
-        .tool-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
-        .tool-btn { padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px; background: white; cursor: pointer; text-align: center; font-weight: 600; font-size: 0.85rem; transition: 0.2s; }
-        .tool-btn:hover { background: #f1f5f9; border-color: var(--primary); color: var(--primary); }
+        /* Boutons larges pour iPhone */
+        input, select { width: 100%; padding: 14px; margin: 8px 0; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 1rem; -webkit-appearance: none; }
+        .btn { padding: 18px; border-radius: 12px; border: none; font-weight: 800; cursor: pointer; width: 100%; font-size: 1rem; display: block; text-align: center; text-decoration: none; }
+        .btn-p { background: var(--p); color: white; margin-bottom: 10px; }
+        .btn-s { background: var(--s); color: white; }
 
-        /* Calculation Module */
-        .calc-box { background: #fdfdfd; border: 1px dashed #cbd5e1; border-radius: 8px; padding: 15px; }
-        .row { display: grid; grid-template-columns: 2fr 1fr 1fr 1.2fr 40px; gap: 8px; margin-bottom: 10px; align-items: center; }
-        
-        input { width: 100%; padding: 8px; border: 1px solid #d1d5db; border-radius: 4px; box-sizing: border-box; font-size: 0.9rem; }
-        input.deduction { background: var(--accent-rose); border-color: #fda4af; }
-        
-        .label-mini { font-size: 0.7rem; font-weight: bold; color: var(--secondary); text-transform: uppercase; margin-bottom: 4px; }
-        
-        /* Lucarnes / Chiens-assis */
-        .lucarne-list { margin-left: 20px; border-left: 2px solid #e2e8f0; padding-left: 15px; margin-top: 10px; }
-        .btn-add-ca { background: #eff6ff; color: var(--primary); border: 1px solid #bfdbfe; padding: 5px 12px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; margin-top: 5px; }
-        
-        /* Summary Footer */
-        .summary { margin-top: 20px; padding-top: 15px; border-top: 2px solid #f1f5f9; display: flex; justify-content: flex-end; font-size: 1.1rem; font-weight: bold; }
-        .summary span { color: var(--primary); margin-left: 10px; }
+        /* Tiroirs Appts */
+        .appt-card { background: white; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 10px; }
+        .appt-head { padding: 18px; display: flex; justify-content: space-between; font-weight: 800; cursor: pointer; background: #fff; border-radius: 12px; }
+        .appt-drawer { display: none; padding: 15px; border-top: 1px solid #eee; background: #fafafa; }
+        .appt-drawer.open { display: block; }
 
-        .btn-export { width: 100%; background: var(--primary); color: white; padding: 15px; border: none; border-radius: 8px; font-size: 1rem; font-weight: bold; cursor: pointer; margin-top: 20px; }
+        .quick-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 15px; }
+        .q-btn { padding: 15px 5px; border-radius: 10px; border: 1px solid #ccc; background: white; font-size: 0.7rem; font-weight: 800; text-align: center; }
+
+        .hidden { display: none !important; }
+        .view { display: none; }
+        .view.active { display: block; }
     </style>
 </head>
 <body>
 
+<div class="header">
+    <span style="font-weight:900;">MYDIAG PRO v4.2</span>
+    <div id="sync" style="font-size:0.7rem; background:var(--s); padding:3px 8px; border-radius:10px;">🟢 SYNC</div>
+</div>
+
+<nav class="nav-tabs">
+    <button class="tab-btn active" id="tab-accueil" onclick="goTab('accueil')">Accueil</button>
+    <button class="tab-btn" id="tab-appts" onclick="goTab('appts')">Appts</button>
+    <button class="tab-btn" id="tab-murs" onclick="goTab('murs')">Murs</button>
+    <button class="tab-btn" id="tab-fen" onclick="goTab('fen')">Fens</button>
+    <button class="tab-btn" id="tab-export" onclick="goTab('export')">Export</button>
+</nav>
+
 <div class="container">
-    <div class="header">
-        <div><strong>MYDIAG PRO v4</strong> <span style="opacity: 0.5; font-size: 0.7rem;">| Corporate Edition</span></div>
-        <div class="sync-ok">● SYNC OK</div>
-    </div>
-
-    <div class="apt-card">
-        <div class="apt-header">
-            <div>
-                <span style="color: var(--secondary); font-size: 0.8rem;">Lot / Identifiant</span><br>
-                <strong>APT E1 - 4ème Étage (Combles)</strong>
-            </div>
-            <div style="text-align: right;">
-                <span style="color: var(--secondary); font-size: 0.8rem;">Surface Carrez</span><br>
-                <strong id="final-total" style="color: var(--primary); font-size: 1.2rem;">0.00 m²</strong>
-            </div>
+    <div id="vw-accueil" class="view active">
+        <div class="card">
+            <h3>🤖 Assistant Vision</h3>
+            <button class="btn btn-p" style="background:linear-gradient(to right, #6366f1, #a855f7)" onclick="alert('IA activée')">📸 Scan Plan</button>
         </div>
-
-        <div class="tool-grid">
-            <button class="tool-btn">🧱 MURS</button>
-            <button class="tool-btn">🪟 FENÊTRES</button>
-            <button class="tool-btn">🔥 SYSTÈMES</button>
-        </div>
-
-        <div class="calc-box">
-            <div style="margin-bottom: 15px; font-weight: bold; font-size: 0.9rem; color: var(--secondary);">📐 CALCULATEUR DE SURFACE HABITABLE</div>
-            
-            <div id="pieces-container">
-                <div class="row" style="margin-bottom: 5px; border: none;">
-                    <div class="label-mini">Désignation</div>
-                    <div class="label-mini">Long. (L)</div>
-                    <div class="label-mini">Larg. (W)</div>
-                    <div class="label-mini">Déd. <1.80m</div>
-                    <div></div>
-                </div>
-                
-                <div class="piece-group" id="group-1">
-                    <div class="row">
-                        <input type="text" placeholder="ex: Séjour" value="Séjour">
-                        <input type="number" step="0.01" placeholder="0.00" class="val-l" oninput="calculateTotal()">
-                        <input type="number" step="0.01" placeholder="0.00" class="val-w" oninput="calculateTotal()">
-                        <input type="number" step="0.01" placeholder="0.00" class="deduction val-d" oninput="calculateTotal()">
-                        <button style="border:none; background:none; color:var(--danger); cursor:pointer;">×</button>
-                    </div>
-                    
-                    <div class="lucarne-list" id="lucarnes-1">
-                        </div>
-                    <button class="btn-add-ca" onclick="addLucarne(1)">+ Ajouter Chien-assis</button>
-                </div>
-            </div>
-        </div>
-
-        <div class="summary">
-            TOTAL HABITABLE : <span id="summary-val">0.00 m²</span>
+        <div class="card">
+            <h3>🏢 Projet</h3>
+            <input type="text" id="cp-nom" placeholder="Nom de la résidence" oninput="save()">
+            <button class="btn btn-p" onclick="goTab('appts')">Démarrer Relevé</button>
         </div>
     </div>
 
-    <button class="btn-export">📥 EXPORTER VERS ADN ANALYSIMMO</button>
-    <p style="text-align: center; color: var(--secondary); font-size: 0.75rem;">
-        Les surfaces déperditives (joues, chapeaux) sont incluses automatiquement dans l'export.
-    </p>
+    <div id="vw-appts" class="view">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+            <h2 style="margin:0">Logements</h2>
+            <button class="btn btn-p" style="width:auto; padding:10px 20px" onclick="addAppt()">+ Nouveau</button>
+        </div>
+        <div id="list-appts"></div>
+    </div>
+
+    <div id="vw-murs" class="view">
+        <div class="card">
+            <h3 id="mur-header">🧱 Murs (Sélectionnez un Appt)</h3>
+            <div id="mur-form" class="hidden">
+                <input type="number" id="m-l" placeholder="Largeur (m)" inputmode="decimal">
+                <input type="number" id="m-h" placeholder="Hauteur (m)" inputmode="decimal">
+                <select id="m-ori">
+                    <option value="Nord">Nord</option><option value="Sud">Sud</option>
+                    <option value="Est">Est</option><option value="Ouest">Ouest</option>
+                </select>
+                <button class="btn btn-p" onclick="saveMur()">Ajouter Mur</button>
+            </div>
+        </div>
+        <div id="list-murs"></div>
+    </div>
+
+    <div id="vw-export" class="view">
+        <div class="card">
+            <h3>📤 Export ADN</h3>
+            <button class="btn btn-s" onclick="exportADN()">Générer Excel</button>
+            <button class="btn" style="margin-top:10px; background:#64748b; color:white" onclick="downloadBackup()">Sauvegarde JSON</button>
+        </div>
+    </div>
 </div>
 
 <script>
-    function addLucarne(pieceId) {
-        const container = document.getElementById(`lucarnes-${pieceId}`);
-        const div = document.createElement('div');
-        div.className = 'row';
-        div.style.gridTemplateColumns = "1.5fr 1fr 1fr 1fr 40px";
-        div.innerHTML = `
-            <div style="font-size:0.75rem; color:var(--primary); font-weight:bold;">↳ Lucarne (Gain)</div>
-            <input type="number" placeholder="L_ca" class="ca-l" oninput="calculateTotal()">
-            <input type="number" placeholder="W_ca" class="ca-w" oninput="calculateTotal()">
-            <div style="background:#f1f5f9; border-radius:4px; display:flex; align-items:center; justify-content:center; font-size:0.8rem; font-weight:bold;">AUTO</div>
-            <button onclick="this.parentElement.remove(); calculateTotal();" style="border:none; background:none; color:var(--danger); cursor:pointer;">×</button>
-        `;
-        container.appendChild(div);
-        calculateTotal();
-    }
+let appts = [], murs = [], copro = {}, expanded = {}, curApt = null;
 
-    function calculateTotal() {
-        let grandTotal = 0;
-        const groups = document.querySelectorAll('.piece-group');
+// GESTIONNAIRE DE VUES (SIMPLE & ROBUSTE)
+function goTab(id) {
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    
+    document.getElementById('vw-' + id).classList.add('active');
+    document.getElementById('tab-' + id).classList.add('active');
+    
+    if(id === 'appts') renderAppts();
+    if(id === 'murs') renderMurs();
+}
 
-        groups.forEach(group => {
-            const L = parseFloat(group.querySelector('.val-l').value) || 0;
-            const W = parseFloat(group.querySelector('.val-w').value) || 0;
-            const D = parseFloat(group.querySelector('.val-d').value) || 0;
-            
-            let pieceBase = (L * W) - D;
+// LOGIQUE DATA
+async function save() {
+    copro.nom = document.getElementById('cp-nom').value;
+    localStorage.setItem('diag_appts', JSON.stringify(appts));
+    localStorage.setItem('diag_murs', JSON.stringify(murs));
+    localStorage.setItem('diag_copro', JSON.stringify(copro));
+    document.getElementById('sync').innerText = "⏳...";
+    setTimeout(() => document.getElementById('sync').innerText = "🟢 SYNC", 500);
+}
 
-            // Add Lucarnes gains
-            const lucarnesL = group.querySelectorAll('.ca-l');
-            const lucarnesW = group.querySelectorAll('.ca-w');
-            
-            lucarnesL.forEach((lInput, i) => {
-                const lCa = parseFloat(lInput.value) || 0;
-                const wCa = parseFloat(lucarnesW[i].value) || 0;
-                pieceBase += (lCa * wCa);
-            });
+function addAppt() {
+    const n = prompt("N° Appartement :");
+    if(!n) return;
+    const id = Date.now().toString();
+    appts.push({ id, nom: n });
+    save(); renderAppts();
+}
 
-            grandTotal += pieceBase;
-        });
+function toggleApt(id) {
+    expanded[id] = !expanded[id];
+    renderAppts();
+}
 
-        document.getElementById('final-total').innerText = grandTotal.toFixed(2) + " m²";
-        document.getElementById('summary-val').innerText = grandTotal.toFixed(2) + " m²";
-    }
+function selectApt(id, nom) {
+    curApt = id;
+    document.getElementById('mur-header').innerText = "🧱 Murs - " + nom;
+    document.getElementById('mur-form').classList.remove('hidden');
+    goTab('murs');
+}
+
+function renderAppts() {
+    const cont = document.getElementById('list-appts');
+    cont.innerHTML = appts.map(a => `
+        <div class="appt-card">
+            <div class="appt-head" onclick="toggleApt('${a.id}')">
+                <span>${a.nom}</span>
+                <span>${expanded[a.id] ? '▼' : '▶'}</span>
+            </div>
+            <div class="appt-drawer ${expanded[a.id] ? 'open' : ''}">
+                <div class="quick-grid">
+                    <button class="q-btn" onclick="selectApt('${a.id}','${a.nom}')">🧱 MURS</button>
+                    <button class="q-btn" onclick="curApt='${a.id}';goTab('fen')">🪟 FENS</button>
+                    <button class="q-btn" onclick="alert('IA Vision')">🔥 SYST</button>
+                </div>
+                <button class="btn" style="padding:8px; font-size:0.7rem; color:red" onclick="appts=appts.filter(x=>x.id!=='${a.id}');save();renderAppts()">Supprimer</button>
+            </div>
+        </div>
+    `).join('');
+}
+
+function saveMur() {
+    const l = document.getElementById('m-l').value;
+    const h = document.getElementById('m-h').value;
+    murs.push({ aptId: curApt, surface: (l*h).toFixed(2), ori: document.getElementById('m-ori').value });
+    save(); renderMurs();
+}
+
+function renderMurs() {
+    const list = document.getElementById('list-murs');
+    list.innerHTML = murs.filter(m => m.aptId === curApt).map(m => `
+        <div class="card" style="display:flex; justify-content:space-between">
+            <strong>${m.ori}</strong> <span>${m.surface} m²</span>
+        </div>
+    `).join('');
+}
+
+window.onload = () => {
+    appts = JSON.parse(localStorage.getItem('diag_appts') || '[]');
+    murs = JSON.parse(localStorage.getItem('diag_murs') || '[]');
+    copro = JSON.parse(localStorage.getItem('diag_copro') || '{}');
+    document.getElementById('cp-nom').value = copro.nom || '';
+    goTab('accueil');
+};
 </script>
-
 </body>
 </html>
