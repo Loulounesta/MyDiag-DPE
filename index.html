@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>MyDiag DPE - Master Pro v3.5</title>
+    <title>MyDiag PRO v4 - PPPT & ADN</title>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -11,183 +11,146 @@
 
     <style>
         :root {
-            --primary: #2563eb; --primary-light: #dbeafe; --bg: #f8fafc;
-            --text: #0f172a; --text-light: #64748b;
-            --success: #10b981; --warn: #f59e0b; --danger: #ef4444;
-            --r: 12px;
+            --p: #2563eb; --bg: #f8fafc; --txt: #0f172a;
+            --s: #10b981; --err: #ef4444; --w: #f59e0b;
         }
-
-        body { font-family: -apple-system, system-ui, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding-bottom: 90px; }
+        body { font-family: -apple-system, system-ui, sans-serif; background: var(--bg); margin: 0; padding-bottom: 100px; color: var(--txt); }
         
-        /* Header & Navigation */
-        .header { background: var(--primary); color: white; padding: 12px 16px; position: sticky; top: 0; z-index: 1000; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-        .nav-tabs { display: flex; overflow-x: auto; background: white; border-bottom: 1px solid #e2e8f0; position: sticky; top: 48px; z-index: 999; white-space: nowrap; -webkit-overflow-scrolling: touch; }
-        .tab-btn { padding: 12px 18px; border: none; background: none; font-size: 0.85rem; font-weight: 600; color: var(--text-light); cursor: pointer; }
-        .tab-btn.active { color: var(--primary); border-bottom: 3px solid var(--primary); }
+        /* Header Fixe */
+        .header { background: #0f172a; color: white; padding: 12px 16px; position: sticky; top: 0; z-index: 2000; display: flex; justify-content: space-between; align-items: center; }
+        
+        /* Navigation par Onglets Défilante */
+        .nav-tabs { display: flex; overflow-x: auto; background: #1e293b; position: sticky; top: 48px; z-index: 1900; white-space: nowrap; -webkit-overflow-scrolling: touch; border-bottom: 2px solid var(--p); }
+        .tab-btn { padding: 14px 20px; border: none; background: none; font-size: 0.85rem; font-weight: 700; color: #94a3b8; cursor: pointer; }
+        .tab-btn.active { color: white; background: var(--p); }
 
-        /* Conteneurs & Cartes */
         .container { padding: 15px; max-width: 800px; margin: auto; }
-        .card { background: white; border-radius: var(--r); padding: 16px; margin-bottom: 15px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border: 1px solid #e2e8f0; }
+        .card { background: white; border-radius: 12px; padding: 16px; margin-bottom: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; }
         
-        /* Formulaires */
-        h3 { margin: 0 0 12px 0; font-size: 1.1rem; color: var(--primary); display: flex; align-items: center; gap: 8px; }
-        input, select, textarea { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 1rem; box-sizing: border-box; }
-        .flex-row { display: flex; gap: 10px; }
-
-        /* Boutons */
-        .btn { padding: 14px; border-radius: 10px; border: none; font-weight: 700; cursor: pointer; width: 100%; transition: 0.2s; font-size: 1rem; }
-        .btn-p { background: var(--primary); color: white; }
-        .btn-ia { background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%); color: white; }
-        .btn-s { background: var(--success); color: white; }
-        .btn-xs { padding: 8px; font-size: 0.75rem; border-radius: 6px; border: 1px solid #e2e8f0; background: #f8fafc; cursor: pointer; }
-
-        /* Système de Tiroirs (Appartements) */
-        .appt-card { background: white; border-radius: var(--r); border: 1px solid #e2e8f0; margin-bottom: 10px; overflow: hidden; }
-        .appt-header { padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; background: #fff; }
-        .appt-header:active { background: #f1f5f9; }
-        .appt-num { font-weight: 800; font-size: 1.1rem; }
-        .appt-chevron { font-size: 0.8rem; transition: transform 0.3s; color: var(--text-light); }
-        .appt-chevron.open { transform: rotate(180deg); }
-        .appt-drawer { display: none; padding: 12px 16px 20px; border-top: 1px solid #f1f5f9; background: #fafafa; }
+        input, select, textarea { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 1rem; box-sizing: border-box; background: #fff; }
+        .btn { padding: 14px; border-radius: 10px; border: none; font-weight: 800; cursor: pointer; width: 100%; font-size: 1rem; }
+        .btn-p { background: var(--p); color: white; }
+        .btn-s { background: var(--s); color: white; }
+        
+        /* Tiroirs Appartements */
+        .appt-card { background: white; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 10px; overflow: hidden; }
+        .appt-head { padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+        .appt-head:active { background: #f1f5f9; }
+        .appt-drawer { display: none; padding: 12px 16px; border-top: 1px solid #f1f5f9; background: #fafafa; }
         .appt-drawer.open { display: block; }
-
-        /* Quick Actions dans Tiroir */
+        
+        /* Grille Boutons Quick Actions */
         .quick-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 15px; }
-        .q-btn { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 10px 5px; border-radius: 10px; border: 1px solid #e2e8f0; background: white; font-size: 0.7rem; font-weight: 700; gap: 5px; color: var(--text); }
-        .q-btn:active { background: var(--primary-light); border-color: var(--primary); }
+        .q-btn { padding: 12px 5px; border-radius: 8px; border: 1px solid #cbd5e1; background: white; font-size: 0.75rem; font-weight: 700; display: flex; flex-direction: column; align-items: center; gap: 5px; }
+        .q-btn:active { background: #dbeafe; border-color: var(--p); }
 
         /* Calculateur Carrez */
-        .carrez-box { background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 10px; padding: 12px; margin-top: 10px; }
-        .room-row { display: grid; grid-template-columns: 1fr 50px 50px 50px 30px; gap: 5px; align-items: center; margin-bottom: 6px; }
-        .room-row input { padding: 6px; font-size: 0.8rem; margin: 0; text-align: center; }
+        .carrez-box { background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 10px; padding: 12px; }
+        .room-row { display: grid; grid-template-columns: 1.5fr 70px 70px 70px 30px; gap: 5px; margin-bottom: 8px; }
+        .room-row input { padding: 8px 4px; font-size: 0.9rem; margin: 0; text-align: center; }
 
-        /* Statuts */
-        .pill { padding: 3px 8px; border-radius: 20px; font-size: 0.65rem; font-weight: 800; color: white; text-transform: uppercase; }
-        .bg-ok { background: var(--success); }
-        .bg-wait { background: var(--warn); }
-        
         .hidden { display: none; }
-        .loader { text-align: center; padding: 10px; color: var(--primary); font-weight: bold; font-size: 0.8rem; }
+        .status-dot { height: 10px; width: 10px; border-radius: 50%; display: inline-block; margin-right: 5px; }
     </style>
 </head>
 <body>
 
 <div class="header">
-    <div style="display:flex; align-items:center; gap:8px;">
-        <span style="font-weight:900; letter-spacing:-1px; font-size:1.3rem;">MYDIAG PRO</span>
-    </div>
-    <div id="sync-status" style="font-size:0.7rem; background: rgba(0,0,0,0.2); padding:4px 10px; border-radius:15px;">🟢 AUTO-SAVE</div>
+    <span style="font-weight:900; font-size:1.2rem; letter-spacing:-1px;">MYDIAG PRO v4</span>
+    <div id="save-indicator" style="font-size:0.7rem; padding:4px 10px; border-radius:20px; background:rgba(255,255,255,0.1);">🟢 SYNC OK</div>
 </div>
 
-<nav class="nav-tabs" id="main-nav">
-    <button class="tab-btn active" onclick="goTab('accueil')">🏠 Accueil</button>
-    <button class="tab-btn" onclick="goTab('copro')">🏢 Copro</button>
-    <button class="tab-btn" onclick="goTab('appts')">🚪 Appts</button>
-    <button class="tab-btn" onclick="goTab('murs')">🧱 Murs</button>
-    <button class="tab-btn" onclick="goTab('fen')">🪟 Fens</button>
-    <button class="tab-btn" onclick="goTab('export')">📤 Export</button>
-    <button class="tab-btn" onclick="goTab('aide')">❓ Aide</button>
+<nav class="nav-tabs">
+    <button class="tab-btn active" id="btn-accueil" onclick="goTab('accueil')">🏠 Accueil</button>
+    <button class="tab-btn" id="btn-copro" onclick="goTab('copro')">🏢 Copro</button>
+    <button class="tab-btn" id="btn-appts" onclick="goTab('appts')">🚪 Appts</button>
+    <button class="tab-btn" id="btn-murs" onclick="goTab('murs')">🧱 Murs</button>
+    <button class="tab-btn" id="btn-fen" onclick="goTab('fen')">🪟 Fens</button>
+    <button class="tab-btn" id="btn-export" onclick="goTab('export')">📤 Export</button>
 </nav>
 
 <div class="container">
-    <div id="tab-accueil" class="tab-content">
+    <div id="tab-accueil" class="tab-view">
         <div class="card">
-            <h3>🤖 IA Vision Terrain</h3>
-            <p style="font-size:0.85rem; color:var(--text-light);">Scanner un plan de masse ou d'étage pour pré-remplir la liste des appartements.</p>
-            <button class="btn btn-ia" onclick="triggerIA('plan')">📸 Scanner un Plan</button>
-            <div id="ia-loader" class="loader hidden">L'IA analyse le document...</div>
+            <h3 style="margin-top:0">🤖 IA Vision Terrain</h3>
+            <button class="btn" style="background: linear-gradient(135deg, #6366f1, #a855f7); color:white" onclick="triggerIA()">📸 Scanner Plan de Masse</button>
         </div>
-        
-        <div class="card">
-            <h3>🏢 Projet Actuel</h3>
-            <div id="summary-name" style="font-weight:800; font-size:1.2rem;">-</div>
-            <div id="summary-stats" style="font-size:0.8rem; color:var(--text-light); margin-top:5px;">0 appartements · 0 parois</div>
-            <button class="btn btn-p" style="margin-top:15px;" onclick="goTab('appts')">Accéder aux Relevés</button>
-        </div>
+        <div id="home-summary"></div>
     </div>
 
-    <div id="tab-copro" class="tab-content hidden">
+    <div id="tab-copro" class="tab-view hidden">
         <div class="card">
             <h3>🏢 Informations Copropriété</h3>
             <input type="text" id="copro-nom" placeholder="Nom de la résidence" oninput="saveAll()">
             <input type="text" id="copro-ref" placeholder="Réf Dossier ADN" oninput="saveAll()">
-            <input type="text" id="copro-adr" placeholder="Adresse" oninput="saveAll()">
-            <div class="flex-row">
-                <input type="number" id="copro-annee" placeholder="Année constr." oninput="saveAll()">
-                <input type="number" id="copro-lots" placeholder="Nb total lots" oninput="saveAll()">
-            </div>
+            <input type="number" id="copro-annee" placeholder="Année de construction" oninput="saveAll()">
+            <button class="btn btn-p" style="margin-top:10px" onclick="goTab('appts')">Accéder aux Logements ➡️</button>
         </div>
     </div>
 
-    <div id="tab-appts" class="tab-content hidden">
+    <div id="tab-appts" class="tab-view hidden">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
             <h2 style="margin:0;">Logements</h2>
             <button class="btn btn-p" style="width:auto; padding:10px 20px;" onclick="addAppt()">+ Nouveau</button>
         </div>
-        <div id="list-appts">
-            </div>
+        <div id="list-appts"></div>
     </div>
 
-    <div id="tab-murs" class="tab-content hidden">
+    <div id="tab-murs" class="tab-view hidden">
         <div class="card">
-            <h3 id="mur-header">🧱 Mur (Sélectionnez un logement)</h3>
-            <div id="mur-inputs" class="hidden">
+            <h3 id="mur-header">🧱 Mur (Sélectionnez un appartement)</h3>
+            <div id="mur-form" class="hidden">
                 <select id="mur-forme" onchange="updateMurUI()">
                     <option value="rect">Rectangle Standard</option>
                     <option value="ramp">Pignon / Rampant (Trapèze)</option>
                 </select>
-                <div id="ui-rect" class="flex-row">
+                <div id="ui-rect" style="display:flex; gap:10px;">
                     <input type="number" id="mur-l" placeholder="Largeur (m)">
                     <input type="number" id="mur-h" placeholder="Hauteur (m)">
                 </div>
                 <div id="ui-ramp" class="hidden">
                     <input type="number" id="mur-l-ramp" placeholder="Largeur base">
-                    <div class="flex-row">
-                        <input type="number" id="mur-h1" placeholder="H. Basse">
-                        <input type="number" id="mur-h2" placeholder="H. Faîtage">
+                    <div style="display:flex; gap:10px;">
+                        <input type="number" id="mur-h1" placeholder="H. Bas">
+                        <input type="number" id="mur-h2" placeholder="H. Haut">
                     </div>
                 </div>
                 <select id="mur-orient">
-                    <option value="Nord">Nord</option><option value="Sud">Sud</option>
-                    <option value="Est">Est</option><option value="Ouest">Ouest</option>
+                    <option value="Nord">Nord</option><option value="Est">Est</option>
+                    <option value="Sud">Sud</option><option value="Ouest">Ouest</option>
                 </select>
-                <button class="btn btn-p" onclick="saveMur()">Ajouter la paroi</button>
+                <button class="btn btn-p" onclick="saveMur()">Ajouter au relevé</button>
             </div>
-            <div id="mur-warning" style="text-align:center; padding:20px; color:var(--text-light);">
-                ⚠️ Ouvrez un tiroir d'appartement dans l'onglet <strong>Appts</strong> pour ajouter des murs.
+            <div id="mur-empty-msg" style="text-align:center; padding:20px; color:#64748b;">
+                ⚠️ Ouvrez un tiroir d'appartement dans <strong>Appts</strong> pour ajouter des murs.
             </div>
         </div>
         <div id="list-murs"></div>
     </div>
 
-    <div id="tab-export" class="tab-content hidden">
+    <div id="tab-export" class="tab-view hidden">
         <div class="card">
-            <h3>📊 Exports Métier</h3>
-            <button class="btn btn-s" style="margin-bottom:12px;" onclick="exportExcelADN()">📊 Excel ADN ANALYSIMMO</button>
-            <button class="btn btn-p" style="background:#e11d48;" onclick="exportPDF()">📄 Rapport Terrain PDF</button>
+            <h3>📊 Exports ADN ANALYSIMMO</h3>
+            <button class="btn btn-s" style="margin-bottom:12px" onclick="exportExcelADN()">📊 Excel (Données Agglomérées)</button>
+            <button class="btn btn-p" style="background:#e11d48;" onclick="exportPDF()">📄 Rapport PDF Terrain</button>
         </div>
-        <div class="card" style="border: 2px dashed #cbd5e1;">
+        <div class="card" style="border: 2px dashed #cbd5e1">
             <h3>💾 Sauvegarde Critique</h3>
-            <p style="font-size:0.8rem; color:var(--text-light);">Fichier JSON complet (données + photos) pour restaurer le projet.</p>
-            <button class="btn btn-p" onclick="downloadBackup()">📥 Télécharger la Sauvegarde</button>
+            <p style="font-size:0.8rem; color:#64748b;">Copie de sécurité complète (données + photos).</p>
+            <button class="btn btn-p" onclick="downloadBackup()">📥 Télécharger JSON</button>
         </div>
-    </div>
-
-    <div id="tab-aide" class="tab-content hidden">
-        <div class="card" id="aide-walkthrough"></div>
     </div>
 </div>
 
 <script>
-// CONFIGURATION
-const API_KEY = 'AIzaSyALgB9zjGn0d7X7z5WeelO2vMEYTwwx-Fc'; // Clé utilisateur
+// --- CONFIGURATION & DB ---
+const API_KEY = 'AIzaSyALgB9zjGn0d7X7z5WeelO2vMEYTwwx-Fc';
 
-// DB MANAGER (IndexedDB)
 const db = {
     _db: null,
     async init() {
         return new Promise(res => {
-            const req = indexedDB.open("MyDiag_DB_V4", 1);
+            const req = indexedDB.open("MyDiag_V4_Final", 1);
             req.onupgradeneeded = e => e.target.result.createObjectStore("store");
             req.onsuccess = e => { this._db = e.target.result; res(); };
         });
@@ -208,66 +171,70 @@ const db = {
     }
 };
 
-// DATA STATE
+// --- ETAT GLOBAL ---
 let appts = [], murs = [], copro = {}, carrez = {}, curApptId = null;
-let expanded = {}; // État des tiroirs
+let expanded = {};
 
-// INITIALISATION
-async function init() {
+// --- INITIALISATION ---
+window.onload = async () => {
     await db.init();
     appts = await db.get('appts', []);
     murs = await db.get('murs', []);
     copro = await db.get('copro', {});
     carrez = await db.get('carrez', {});
-
-    // Charger Copro UI
+    
     document.getElementById('copro-nom').value = copro.nom || '';
     document.getElementById('copro-ref').value = copro.ref || '';
-    document.getElementById('copro-adr').value = copro.adr || '';
     document.getElementById('copro-annee').value = copro.annee || '';
-    document.getElementById('copro-lots').value = copro.lots || '';
     
-    updateSummary();
-    renderApptsList();
-    renderAide();
+    goTab('accueil');
+};
+
+// --- NAVIGATION ROBUSTE ---
+function goTab(name) {
+    // Masquer toutes les vues
+    document.querySelectorAll('.tab-view').forEach(v => v.classList.add('hidden'));
+    
+    // Afficher la vue demandée
+    const target = document.getElementById('tab-' + name);
+    if (target) target.classList.remove('hidden');
+
+    // Gérer les boutons de nav
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    const btn = document.getElementById('btn-' + name);
+    if (btn) btn.classList.add('active');
+
+    // Rafraîchir les listes
+    if (name === 'appts') renderApptsList();
+    if (name === 'murs') renderMurs();
+    if (name === 'accueil') renderSummary();
 }
 
+// --- LOGIQUE SAUVEGARDE ---
 async function saveAll() {
-    document.getElementById('sync-status').innerText = "⏳ Sauvegarde...";
+    const indicator = document.getElementById('save-indicator');
+    indicator.innerText = "⏳ SYNC...";
     
-    // Sync copro object
     copro.nom = document.getElementById('copro-nom').value;
     copro.ref = document.getElementById('copro-ref').value;
-    copro.adr = document.getElementById('copro-adr').value;
     copro.annee = document.getElementById('copro-annee').value;
-    copro.lots = document.getElementById('copro-lots').value;
 
     await db.set('appts', appts);
     await db.set('murs', murs);
     await db.set('copro', copro);
     await db.set('carrez', carrez);
     
-    updateSummary();
-    document.getElementById('sync-status').innerText = "🟢 AUTO-SAVE";
+    indicator.innerText = "🟢 SYNC OK";
 }
 
-// NAVIGATION
-function goTab(id) {
-    document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
-    document.getElementById('tab-' + id).classList.remove('hidden');
-    document.querySelectorAll('.tab-btn').forEach(b => {
-        b.classList.toggle('active', b.innerText.toLowerCase().includes(id));
-    });
-}
-
-// LOGIQUE APPARTEMENTS & TIROIRS
+// --- APPARTEMENTS & TIROIRS ---
 function addAppt() {
-    const n = prompt("Nom ou N° de l'appartement (ex: E01) :");
-    if(!n) return;
+    const n = prompt("Nom ou N° (ex: E01) :");
+    if (!n) return;
     const id = "apt_" + Date.now();
-    appts.push({ id, nom: n, niveau: 'Intermédiaire' });
+    appts.push({ id, nom: n });
     carrez[id] = [];
-    expanded[id] = true;
+    expanded[id] = true; // Auto-ouvrir
     saveAll();
     renderApptsList();
 }
@@ -277,56 +244,56 @@ function toggleAppt(id) {
     renderApptsList();
 }
 
-function selectAppt(id, nom) {
+function selectAptForMurs(id, nom) {
     curApptId = id;
     document.getElementById('mur-header').innerText = `🧱 Murs - ${nom}`;
-    document.getElementById('mur-inputs').classList.remove('hidden');
-    document.getElementById('mur-warning').classList.add('hidden');
+    document.getElementById('mur-form').classList.remove('hidden');
+    document.getElementById('mur-empty-msg').classList.add('hidden');
     goTab('murs');
 }
 
 function renderApptsList() {
-    const list = document.getElementById('list-appts');
-    if(!appts.length) {
-        list.innerHTML = `<div style="text-align:center; padding:40px; color:var(--text-light);">Aucun logement. Appuyez sur + Nouveau.</div>`;
+    const container = document.getElementById('list-appts');
+    if (!appts.length) {
+        container.innerHTML = '<div style="text-align:center; padding:40px; color:#64748b;">Aucun logement. Appuyez sur + Nouveau.</div>';
         return;
     }
 
-    list.innerHTML = appts.map(a => {
+    container.innerHTML = appts.map(a => {
         const id = a.id;
         const isExp = !!expanded[id];
-        const rooms = carrez[id] || [];
-        const totalSurf = rooms.reduce((s, r) => s + ((r.L * r.l) - r.ded), 0).toFixed(2);
-        const nm = murs.filter(m => m.aptId === id).length;
+        const myRooms = carrez[id] || [];
+        const totalSurf = myRooms.reduce((s, r) => s + ((r.L * r.l) - r.ded), 0).toFixed(2);
+        const nbMurs = murs.filter(m => m.aptId === id).length;
 
-        let drawerHtml = '';
-        if(isExp) {
-            drawerHtml = `
+        let drawer = '';
+        if (isExp) {
+            drawer = `
                 <div class="appt-drawer open">
                     <div class="quick-grid">
-                        <button class="q-btn" onclick="selectAppt('${id}', '${a.nom}')"><span>🧱</span>MURS</button>
+                        <button class="q-btn" onclick="selectAptForMurs('${id}', '${a.nom}')"><span>🧱</span>MURS</button>
                         <button class="q-btn" onclick="curApptId='${id}';goTab('fen')"><span>🪟</span>FENS</button>
-                        <button class="q-btn" onclick="triggerIA('plaque')"><span>🔥</span>SYST</button>
+                        <button class="q-btn" onclick="alert('IA Vision Plaque en cours...')"><span>🔥</span>SYST</button>
                         <button class="q-btn" onclick="dupAppt('${id}')"><span>📋</span>CLONE</button>
-                        <button class="q-btn" onclick="suppAppt('${id}')" style="color:var(--danger)"><span>🗑️</span>SUPPR</button>
+                        <button class="q-btn" onclick="suppAppt('${id}')" style="color:var(--err)"><span>🗑️</span>SUPPR</button>
                     </div>
 
                     <div class="carrez-box">
-                        <div style="font-size:0.7rem; font-weight:800; color:var(--primary); margin-bottom:8px;">📏 CALCULATEUR CARREZ PIÈCE / PIÈCE</div>
+                        <div style="font-size:0.75rem; font-weight:800; color:var(--p); margin-bottom:10px;">📏 CALCUL CARREZ PIÈCE PAR PIÈCE</div>
                         <div id="rooms-${id}">
-                            ${rooms.map((r, idx) => `
+                            ${myRooms.map((r, idx) => `
                                 <div class="room-row">
-                                    <input type="text" value="${r.nom}" onchange="updateRoom('${id}', ${idx}, 'nom', this.value)">
-                                    <input type="number" value="${r.L}" placeholder="L" onchange="updateRoom('${id}', ${idx}, 'L', this.value)">
-                                    <input type="number" value="${r.l}" placeholder="l" onchange="updateRoom('${id}', ${idx}, 'l', this.value)">
-                                    <input type="number" value="${r.ded}" placeholder="-1.8" onchange="updateRoom('${id}', ${idx}, 'ded', this.value)" style="background:#fee2e2;">
-                                    <button onclick="delRoom('${id}', ${idx})" style="border:none; background:none; color:var(--danger);">✕</button>
+                                    <input type="text" value="${r.nom}" onchange="updateRoom('${id}', ${idx}, 'nom', this.value)" placeholder="Nom">
+                                    <input type="number" value="${r.L}" onchange="updateRoom('${id}', ${idx}, 'L', this.value)" placeholder="L">
+                                    <input type="number" value="${r.l}" onchange="updateRoom('${id}', ${idx}, 'l', this.value)" placeholder="l">
+                                    <input type="number" value="${r.ded}" onchange="updateRoom('${id}', ${idx}, 'ded', this.value)" placeholder="-1.8" style="background:#fee2e2;">
+                                    <button onclick="delRoom('${id}', ${idx})" style="border:none; background:none; color:var(--err); font-weight:bold;">✕</button>
                                 </div>
                             `).join('')}
                         </div>
-                        <button class="btn-xs" style="width:100%; margin-top:5px;" onclick="addRoom('${id}')">+ Ajouter Pièce</button>
-                        <div style="text-align:right; font-weight:900; margin-top:10px; color:var(--primary);">
-                            Total : ${totalSurf} m²
+                        <button class="btn" style="padding:8px; font-size:0.8rem; background:#fff; border:1px solid var(--p); color:var(--p); margin-top:5px;" onclick="addRoom('${id}')">+ Ajouter une Pièce</button>
+                        <div style="text-align:right; font-weight:900; margin-top:10px; font-size:1.1rem; color:var(--p);">
+                            TOTAL : ${totalSurf} m²
                         </div>
                     </div>
                 </div>
@@ -335,46 +302,42 @@ function renderApptsList() {
 
         return `
             <div class="appt-card">
-                <div class="appt-header" onclick="toggleAppt('${id}')">
+                <div class="appt-head" onclick="toggleAppt('${id}')">
                     <div>
-                        <div class="appt-num">${a.nom} <span class="pill bg-ok" style="margin-left:5px;">${totalSurf} m²</span></div>
-                        <div style="font-size:0.75rem; color:var(--text-light);">${nm} parois relevées</div>
+                        <div style="font-weight:800; font-size:1.1rem;">${a.nom} <span style="font-size:0.8rem; background:var(--s); color:white; padding:2px 8px; border-radius:10px; margin-left:10px;">${totalSurf} m²</span></div>
+                        <div style="font-size:0.75rem; color:#64748b; margin-top:3px;">${nbMurs} murs relevés</div>
                     </div>
-                    <span class="appt-chevron ${isExp ? 'open' : ''}">▼</span>
+                    <span style="font-size:0.8rem; color:#94a3b8;">${isExp ? '▼' : '▶'}</span>
                 </div>
-                ${drawerHtml}
+                ${drawer}
             </div>
         `;
     }).join('');
 }
 
-// LOGIQUE CARREZ
+// --- CALCUL CARREZ ---
 function addRoom(aptId) {
-    if(!carrez[aptId]) carrez[aptId] = [];
+    if (!carrez[aptId]) carrez[aptId] = [];
     carrez[aptId].push({ nom: 'Pièce', L: 0, l: 0, ded: 0 });
-    saveAll();
-    renderApptsList();
+    saveAll(); renderApptsList();
 }
-
 function updateRoom(aptId, idx, field, val) {
     carrez[aptId][idx][field] = field === 'nom' ? val : parseFloat(val) || 0;
     saveAll();
 }
-
 function delRoom(aptId, idx) {
     carrez[aptId].splice(idx, 1);
-    saveAll();
-    renderApptsList();
+    saveAll(); renderApptsList();
 }
 
-// LOGIQUE MURS & RAMPANTS
+// --- MURS ---
 function updateMurUI() {
     const f = document.getElementById('mur-forme').value;
-    document.getElementById('ui-rect').className = f === 'rect' ? 'flex-row' : 'hidden';
+    document.getElementById('ui-rect').style.display = f === 'rect' ? 'flex' : 'none';
     document.getElementById('ui-ramp').className = f === 'ramp' ? '' : 'hidden';
 }
-
 function saveMur() {
+    if(!curApptId) return alert("Sélectionnez un appartement !");
     const f = document.getElementById('mur-forme').value;
     let s = 0;
     if(f === 'rect') {
@@ -385,113 +348,50 @@ function saveMur() {
         const h2 = parseFloat(document.getElementById('mur-h2').value);
         s = l * ((h1 + h2) / 2);
     }
-    murs.push({ 
-        id: Date.now(), 
-        aptId: curApptId, 
-        surface: s.toFixed(2), 
-        orient: document.getElementById('mur-orient').value,
-        type: f === 'ramp' ? 'Pignon' : 'Standard'
-    });
-    saveAll();
-    renderMurs();
+    murs.push({ id: Date.now(), aptId: curApptId, surface: s.toFixed(2), orient: document.getElementById('mur-orient').value, type: f });
+    saveAll(); renderMurs();
 }
-
 function renderMurs() {
     const list = document.getElementById('list-murs');
     const myMurs = murs.filter(m => m.aptId === curApptId);
     list.innerHTML = myMurs.map(m => `
-        <div class="card" style="padding:10px; font-size:0.85rem; display:flex; justify-content:space-between;">
-            <span><strong>${m.orient}</strong> · ${m.type}</span>
-            <span>${m.surface} m²</span>
+        <div class="card" style="display:flex; justify-content:space-between; padding:10px;">
+            <strong>${m.orient}</strong> <span>${m.surface} m² (${m.type})</span>
         </div>
     `).join('');
 }
 
-// IA VISION
-async function triggerIA(mode) {
-    const input = document.createElement('input');
-    input.type = 'file'; input.accept = 'image/*'; input.capture = 'environment';
-    input.onchange = async (e) => {
-        const file = e.target.files[0];
-        const base64 = await toBase64(file);
-        document.getElementById('ia-loader').classList.remove('hidden');
-        
-        let prompt = mode === 'plan' 
-            ? "Analyse ce plan. Liste les noms des appartements et leurs surfaces. JSON: { 'appts': [{ 'nom': 'T2', 'surf': 45 }] }"
-            : "Analyse cette plaque signalétique. Donne Marque, Modèle, Année. JSON: { 'marque': '', 'annee': '' }";
-
-        try {
-            const res = await callGemini(base64, prompt);
-            if(res && mode === 'plan') {
-                res.appts.forEach(a => {
-                    const id = "apt_" + Math.random();
-                    appts.push({ id, nom: a.nom });
-                    carrez[id] = [{ nom: 'Saisie IA', L: a.surf, l: 1, ded: 0 }];
-                });
-                saveAll(); renderApptsList();
-                alert("Plan importé !");
-            } else if(res) {
-                alert(`IA : ${res.marque} (${res.annee})`);
-            }
-        } catch(e) { console.error(e); }
-        document.getElementById('ia-loader').classList.add('hidden');
-    };
-    input.click();
-}
-
-async function callGemini(img, prompt) {
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
-    const body = { contents: [{ parts: [{ text: prompt }, { inline_data: { mime_type: "image/jpeg", data: img.split(',')[1] } }] }] };
-    const r = await fetch(url, { method: 'POST', body: JSON.stringify(body) });
-    const d = await r.json();
-    return JSON.parse(d.candidates[0].content.parts[0].text.replace(/```json|```/g, ""));
-}
-
-// EXPORT ADN ANALYSIMMO
+// --- EXPORT ADN ---
 function exportExcelADN() {
     const wb = XLSX.utils.book_new();
     const agg = murs.reduce((acc, m) => {
-        const key = `${m.type === 'Pignon' ? 'Pignon' : 'Mur'} sur Ext ${m.orient}`;
-        if(!acc[key]) acc[key] = { label: key, s: 0 };
-        acc[key].s += parseFloat(m.surface);
+        const key = `Mur sur Ext ${m.orient}`;
+        if(!acc[key]) acc[key] = { label: key, surf: 0 };
+        acc[key].surf += parseFloat(m.surface);
         return acc;
     }, {});
-
-    const data = Object.values(agg).map((m, i) => ({
-        "Code ADN": `MUR_${i+1}`,
-        "Désignation": m.label,
-        "Surface Totale (m²)": m.s.toFixed(2)
-    }));
-
+    const data = Object.values(agg).map((m, i) => ({ "Code ADN": `MUR_${i+1}`, "Désignation": m.label, "Surface (m²)": m.surf.toFixed(2) }));
     XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(data), "ADN_MURS");
-    XLSX.writeFile(wb, `EXPORT_ADN_${copro.nom || 'CHANTIER'}.xlsx`);
+    XLSX.writeFile(wb, `EXPORT_ADN_${copro.nom || 'PROJET'}.xlsx`);
 }
 
-// HELPERS
-const toBase64 = f => new Promise(res => { const r = new FileReader(); r.readAsDataURL(f); r.onload = () => res(r.result); });
-function updateSummary() {
-    document.getElementById('summary-name').innerText = copro.nom || 'Sans Nom';
-    document.getElementById('summary-stats').innerText = `${appts.length} appartements · ${murs.length} parois relevées`;
-}
 function downloadBackup() {
-    const data = { appts, murs, copro, carrez, ver: '3.5' };
-    const blob = new Blob([JSON.stringify(data)], { type: "application/json" });
-    const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
-    a.download = `SAUVEGARDE_MYDIAG_${copro.nom || 'PROJET'}.json`;
-    a.click();
+    const data = { appts, murs, copro, carrez, date: new Date().toISOString() };
+    const blob = new Blob([JSON.stringify(data)], {type:"application/json"});
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `SAVE_MYDIAG_${copro.nom || 'PROJET'}.json`; a.click();
 }
 
-function renderAide() {
-    const steps = [
-        "1. **Arrivée** : Scannez le plan de masse avec l'IA pour créer les logements.",
-        "2. **Tiroirs** : Ouvrez un tiroir d'appartement pour saisir ses murs et fenêtres.",
-        "3. **Carrez** : Utilisez le calculateur intégré par pièce pour fiabiliser la surface.",
-        "4. **ADN** : Exportez vers l'Excel aggloméré pour votre saisie au bureau."
-    ];
-    document.getElementById('aide-walkthrough').innerHTML = `<h3>💡 Walkthrough Terrain</h3>` + steps.map(s => `<p style="font-size:0.85rem;">${s}</p>`).join('');
+function renderSummary() {
+    document.getElementById('home-summary').innerHTML = `
+        <div class="card">
+            <h3>📊 Résumé Projet</h3>
+            <div style="font-size:0.9rem">
+                <strong>Logements :</strong> ${appts.length}<br>
+                <strong>Murs relevés :</strong> ${murs.length}<br>
+            </div>
+        </div>`;
 }
 
-window.onload = init;
 </script>
 </body>
 </html>
