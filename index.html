@@ -898,12 +898,31 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display',sans-serif;ba
     </div>
     <div id="recap-appts-contenu" style="padding:0 12px 12px"></div>
   </section>
+
+  <!-- ── Documents de visite ── -->
+  <div class="coll-acc-hd" onclick="toggleCollAcc('docs-acc')" style="margin:16px 16px 0">
+    <div class="coll-acc-left"><span style="font-size:18px">📄</span>
+      <div><div class="coll-acc-label">Documents de visite</div>
+      <div class="coll-acc-note">Plans, diagnostics, notes</div></div>
+    </div>
+    <span class="coll-acc-chevron" id="docs-acc-chev">▶</span>
+  </div>
+  <div class="coll-acc-body" id="docs-acc" style="padding:0 16px">
+    <label style="display:flex;align-items:center;gap:10px;padding:12px 14px;background:var(--bg);border:.5px solid var(--bor);border-radius:var(--rs);cursor:pointer;width:100%;box-sizing:border-box;margin:8px 0">
+      <span style="font-size:22px">➕</span>
+      <div><div style="font-size:14px;font-weight:600;color:var(--acc)">Ajouter un document</div>
+      <div style="font-size:11px;color:var(--tx2)">Photo, scan de plan, PDF…</div></div>
+      <input type="file" accept="image/*,application/pdf" multiple style="display:none" onchange="ajouterDocs(this)">
+    </label>
+    <div id="docs-liste"><div class="empty">Aucun document ajouté.</div></div>
+  </div>
+
 </div>
 
 <!-- ══════════════════════════════════════════════
      VUE : APPARTEMENTS
 ══════════════════════════════════════════════ -->
-<div id="vw-appts" class="vw on">
+<div id="vw-appts" class="vw">
   <!-- Formulaire nouvel appartement -->
   <div id="new-apt-form" style="display: block;">
     <div class="sl">Nouvel appartement</div>
@@ -1586,6 +1605,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display',sans-serif;ba
   <div style="display:flex;flex-direction:column;gap:10px">
     <button class="btn btn-ok" onclick="exportMyDiag()">Export format MyDiag (.xlsx)</button>
     <button class="btn btn-s" onclick="exportCSV()">Export CSV complet</button>
+    <button class="btn btn-s" style="background:#0F4C81;border-color:#0a3a63;color:#fff" onclick="exportPhotosCollectives()">📷 Export photos VMC / Chauf / ECS (.zip)</button>
+    <button class="btn btn-s" style="background:#2D6A4F;border-color:#1b4332;color:#fff" onclick="exportDocuments()">📄 Export documents copro (.zip)</button>
     <button class="btn btn-p" style="margin-top:8px;background:var(--ok);border-color:var(--ok)" onclick="sauvegarderProjet()">💾 Sauvegarder le projet (HTML complet)</button>
     <div style="font-size:12px;color:var(--tx2);margin-top:4px;margin-bottom:8px">Génère un fichier HTML autonome avec toutes les données et photos intégrées — ouvrable sur n'importe quel appareil.</div>
     <div class="sl" style="margin-top:20px">Partager &amp; Alertes</div>
@@ -1657,8 +1678,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display',sans-serif;ba
         <select id="ed-apt-etage"><option value="">—</option><option>Sous-sol</option><option>RDC</option><option>R+1</option><option>R+2</option><option>R+3</option><option>R+4</option><option>R+5</option><option>R+6</option><option>R+7</option><option>R+8</option><option>R+9</option><option>R+10</option><option>R+11</option><option>R+12</option><option>R+13</option><option>R+14</option><option>R+15</option><option>R+16</option><option>R+17</option><option>R+18</option><option>R+19</option><option>R+20</option><option>R+21</option><option>R+22</option><option>R+23</option><option>R+24</option><option>R+25</option><option>Combles</option></select>
       </div>
       <div class="fr"><span class="fl">Niveau ANNALYSSIMO</span>
-        <select id="ed-4696
-        "><option value="">—</option><option>RDC</option><option>Intermédiaire</option><option>Dernier étage</option></select>
+        <select id="ed-apt-niveau"><option value="">—</option><option>RDC</option><option>Intermédiaire</option><option>Dernier étage</option></select>
       </div>
       <div class="fr"><span class="fl">Position</span>
         <select id="ed-apt-pos"><option value="">—</option><option>Gauche</option><option>Centre</option><option>Droite</option><option>Angle gauche</option><option>Angle droit</option></select>
@@ -1841,11 +1861,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display',sans-serif;ba
 </div>
 <div class="modal-bg" id="modal-plf"><div class="modal-box"><div class="modal-handle"></div><div class="modal-title">Modifier le plafond</div><div class="card"><div class="fr"><span class="fl">Type</span><select id="ed-plf-type" onchange="toggleRampantEdit(this.value)"><option value=""></option><option value="inconnu">Inconnu</option><option value="inconnuRempl">Inconnu avec ou sans remplissage</option><option value="boisSolives">Bois sous solives bois</option><option value="boisSurSolives">Bois sur solives bois</option><option value="bardeaux">Bardeaux et remplissage</option><option value="entresolivesBoiss">Entre solives bois avec ou sans remplissage</option><option value="boisMetal">Bois sur solives métallique</option><option value="boisSousMetal">Bois sous solives métallique</option><option value="solivestMetal">Entre solives métallique avec ou sans remplissage</option><option value="entrevous">Entrevous, terre-cuite, poutrelles béton</option><option value="dalle">Dalle béton</option><option value="rampant">Combles aménagés sous rampants</option><option value="chaume">Toit de chaume</option><option value="plaquesplatre">Plaques de plâtre</option><option value="bacAcier">Toiture en bac acier</option><option value="autre">Autre</option></select></div><div class="fr"><span class="fl">Donne sur</span><select id="ed-plf-donne"><option value=""></option><option>Terrasse</option><option>Combles aménagés</option><option>Combles perdus</option><option>Local chauffé</option><option>Local non chauffé</option><option>Local non chauffé et non accessible</option><option>Circulations communes</option><option>Extérieur</option><option>Bâtiment autre qu'habitation</option><option>Véranda non chauffée, loggia fermée</option><option>Local tertiaire à l'intérieur de l'immeuble</option></select></div><div id="ed-plf-plat-fields"><div class="fr"><span class="fl">L <span class="unit">m</span></span><div class="stepper"><button type="button" class="stepper-btn" onclick="stepperDec('ed-plf-l',0.05)">−</button><input type="number" id="ed-plf-l" inputmode="decimal" min="0" step="0.05"><span class="stepper-unit">m</span><button type="button" class="stepper-btn" onclick="stepperInc('ed-plf-l',0.05)">+</button></div></div><div class="fr"><span class="fl">l <span class="unit">m</span></span><div class="stepper"><button type="button" class="stepper-btn" onclick="stepperDec('ed-plf-li',0.05)">−</button><input type="number" id="ed-plf-li" inputmode="decimal" min="0" step="0.05"><span class="stepper-unit">m</span><button type="button" class="stepper-btn" onclick="stepperInc('ed-plf-li',0.05)">+</button></div></div></div><div id="ed-plf-rampant-fields" style="display:none"><div class="fr"><span class="fl">Orientation</span><select id="ed-plf-ori"><option value=""></option><option>Nord</option><option>Est</option><option>Sud</option><option>Ouest</option></select></div><div class="fr"><span class="fl">L rampant</span><input type="number" id="ed-plf-rl" inputmode="decimal" min="0" step="0.01"></div><div class="fr"><span class="fl">l rampant</span><input type="number" id="ed-plf-rli" inputmode="decimal" min="0" step="0.01"></div><div class="fr"><span class="fl">h bas</span><input type="number" id="ed-plf-rh" inputmode="decimal" min="0" step="0.01"></div><div class="fr"><span class="fl">H haut</span><input type="number" id="ed-plf-rH" inputmode="decimal" min="0" step="0.01"></div></div><div class="fr"><span class="fl">Isolation</span><select id="ed-plf-iso-type"><option value="Aucune"></option><option>ITE</option><option>ITI</option><option>Sous rampant</option><option>Soufflé</option></select></div><div class="fr"><span class="fl">ép. <span class="unit">cm</span></span><input type="number" id="ed-plf-iso-ep" inputmode="numeric" min="0"></div></div><div class="btn-row"><button class="btn btn-s" style="flex:0 0 80px" onclick="closeModal('modal-plf')">Annuler</button><button class="btn btn-p" style="flex:1" onclick="savePlf()">Enregistrer</button></div></div></div>
 <div class="modal-bg" id="modal-pla"><div class="modal-box"><div class="modal-handle"></div><div class="modal-title">Modifier le plancher</div><div class="card"><div class="fr"><span class="fl">Type</span><select id="ed-pla-type"><option value=""></option><option>Inconnu</option><option>Inconnu avec ou sans remplissage</option><option>Entre solives bois avec ou sans remplissage</option><option>Bardeaux et remplissage</option><option>Bois sur solives bois</option><option>Entre solives métallique avec ou sans remplissage</option><option>Bois sur solives métalliques</option><option>Voutains sur solives métallique</option><option>Entrevous, terre-cuite, poutrelles béton</option><option>Dalle béton</option><option>Voutains en brique ou moellons</option><option>Entrevous isolants</option><option>Autre</option></select></div><div class="fr"><span class="fl">Donne sur</span><select id="ed-pla-donne"><option value=""></option><option>Terre-plein</option><option>Vide sanitaire</option><option>Local non chauffé</option><option>Local non chauffé et non accessible</option><option>Bâtiment autre que d'habitation</option><option>Local chauffé</option><option>Extérieur</option><option>Circulations communes</option><option>Terre (paroi enterrée)</option><option>Sous-sol non chauffé</option><option>Local tertiaire à l'intérieur de l'immeuble</option></select></div><div class="fr"><span class="fl">L × l <span class="unit">m</span></span><div class="dg"><input type="number" id="ed-pla-l" inputmode="decimal" min="0" step="0.05"><span class="ds">×</span><input type="number" id="ed-pla-li" inputmode="decimal" min="0" step="0.05"></div></div><div class="fr"><span class="fl">Isolation</span><select id="ed-pla-iso-type"><option value="Aucune"></option><option>ITE</option><option>ITI</option><option>Sous dalle</option></select></div><div class="fr"><span class="fl">ép. <span class="unit">cm</span></span><input type="number" id="ed-pla-iso-ep" inputmode="numeric" min="0"></div></div><div class="btn-row"><button class="btn btn-s" style="flex:0 0 80px" onclick="closeModal('modal-pla')">Annuler</button><button class="btn btn-p" style="flex:1" onclick="savePla()">Enregistrer</button></div></div></div>
-<div class="modal-bg" id="modal-ref"><div class="modal-box"><div class="modal-handle"></div><div class="modal-title">Modifier le refend</div><div class="card"><div class="fr"><span class="fl">Orientation</span><select id="ed-ref-ori"><option value=""></option><option>Nord</option><option>Est</option><option>Sud</option><option>Ouest</option></select></div><div class="fr"><span class="fl">Longueur droite <span class="unit">m</span></span><div class="stepper"><button type="button" class="stepper-btn" onclick="stepperDec('ed-ref-ld',0.05)">−</button><input type="number" id="ed-ref-ld" inputmode="decimal" min="0" step="0.05"><span class="stepper-unit">m</span><button type="button" class="stepper-btn" onclick="stepperInc('ed-ref-ld',0.05)">+</button></div></div><div class="fr"><span class="fl">Longueur gauche <span class="unit">m</span></span><div class="stepper"><button type="button" class="stepper-btn" onclick="stepperDec('ed-ref-lg',0.05)">−</button><input type="number" id="ed-ref-lg" inputmode="decimal" min="0" step="0.05"><span class="stepper-unit">m</span><button type="button" class="stepper-btn" onclick="stepperInc('ed-ref-lg',0.05)">+</button></div></div></div><div class="btn-row"><button class="btn btn-s" style="flex:0 0 80px" onclick="closeModal('modal-ref')">Annuler</button>
-    <button class="btn btn-p" style="flex:1" onclick="saveRef()">Enregistrer</button>
-    </div>
-  </div>
-</div>
+<div class="modal-bg" id="modal-ref"><div class="modal-box"><div class="modal-handle"></div><div class="modal-title">Modifier le refend</div></div></div>
 
 <script>
 // ══════════════════════════════════════════════
@@ -1866,6 +1882,7 @@ let photos  = JSON.parse(_get('pppt_photos', '{}'));
 let portes    = JSON.parse(_get('pppt_portes',  '[]'));
     let refs  = JSON.parse(_get('pppt_refs', '[]'));
 let dtgPhotos = JSON.parse(_get('pppt_dtg',     '[]'));
+let docs = JSON.parse(_get('pppt_docs','[]'));
 let vmc     = JSON.parse(_get('pppt_vmc',    '{}'));
 let copro   = JSON.parse(_get('pppt_copro',  '{}'));
 let curAppt = _get('pppt_cur', null) || null;
@@ -1884,6 +1901,7 @@ function save(){
   _set('pppt_portes', JSON.stringify(portes));
     _set('pppt_refs', JSON.stringify(refs));
   _set('pppt_dtg',    JSON.stringify(dtgPhotos));
+  _set('pppt_docs',   JSON.stringify(docs));
   _set('pppt_vmc',    JSON.stringify(vmc));
   _set('pppt_copro',  JSON.stringify(copro));
   _set('pppt_cur',    curAppt || '');
@@ -1903,9 +1921,9 @@ function goTab(name){
   document.querySelectorAll('.vw').forEach(v=>v.classList.remove('on'));
   const elVw=document.getElementById('vw-'+name)||document.getElementById('idvw-'+name); if(elVw)elVw.classList.add('on');
   window._tabActif=name;
-        if(name==='accueil')   renderAccueil();        if(name==='aide')      renderAide();
-  window._tabActif=name;
-if(name==='copro')     { renderCoproRecap(); setTimeout(renderRecapAppts,50); }
+  if(name==='accueil')   renderAccueil();
+  if(name==='aide')      renderAide();
+if(name==='copro')     { renderCoproRecap(); setTimeout(renderRecapAppts,50); setTimeout(renderDocs,100); }
   if(name==='appts')     renderApptsList();
   if(name==='murs')      renderMursView();
   if(name==='fen')       renderFenView();
@@ -2341,7 +2359,7 @@ function editAppt(id){
   editId=id;
   document.getElementById('ed-apt-num').value     = a.num;
   document.getElementById('ed-apt-etage').value   = a.etage||'';
-      document.getElementById('ed-4696').value  = a.niveau||'';
+      document.getElementById('ed-apt-niveau').value = a.niveau||'';
   document.getElementById('ed-apt-pos').value     = a.pos||'';
   document.getElementById('ed-apt-surf').value    = a.surf||'';
   document.getElementById('ed-apt-occupant').value= a.occupant||'';
@@ -4256,7 +4274,8 @@ async function _buildSaveBlob(){
   // 2. Sérialiser toutes les données
   const escaped = JSON.stringify({
     appts, murs, fens, plas, plfs, portes,
-    chaufs, ecss, photos, dtgPhotos: dtgPhotosResolved, vmc, copro
+    chaufs, ecss, photos, docs: typeof docs!=="undefined"?docs:[],
+    dtgPhotos: dtgPhotosResolved, vmc, copro
   })
     .replace(/\\/g,'\\\\')
     .replace(/'/g,"\\'")
@@ -4622,26 +4641,131 @@ async function partagerProjet(){
 
 
 async function sauvegarderProjet(){
-  toast('Préparation…');
+  toast('Génération du fichier…');
   const ref=(copro&&copro.nom)?copro.nom.replace(/[^a-zA-Z0-9 ]/g,'-').trim():'chantier';
   const date=new Date().toLocaleDateString('fr-FR').replace(/\//g,'-');
+  const filename='MyDiag_'+ref+'_'+date+'.html';
   const blob=await _buildSaveBlob();
   const url=URL.createObjectURL(blob);
-  const a=document.createElement('a');a.href=url;a.download='MyDiag_'+ref+'_'+date+'.html';a.click();
-  setTimeout(()=>URL.revokeObjectURL(url),1000);
+  const a=document.createElement('a');a.href=url;a.download=filename;
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
+  setTimeout(()=>URL.revokeObjectURL(url),2000);
+  toast('✓ Fichier « '+filename+' » enregistré dans Téléchargements');
   const lbl=document.getElementById('save-label'),btn=lbl?lbl.parentElement:null;
   if(btn){lbl.style.display='inline';btn.style.background='#3B6D11';setTimeout(()=>{lbl.style.display='none';btn.style.background='';},2500);}
   toast('Sauvegardé ✓');
 }
 
+
+// ── Documents copropriété ──
+function ajouterDocs(input){
+  const files=Array.from(input.files); if(!files.length) return;
+  let done=0;
+  files.forEach(file=>{
+    const r=new FileReader();
+    r.onload=e=>{
+      docs.push({
+        id:Date.now()+Math.random(),
+        nom:file.name,
+        type:file.type,
+        src:e.target.result,
+        date:new Date().toLocaleDateString('fr-FR')
+      });
+      done++;
+      if(done===files.length){ save(); renderDocs(); toast(done+' document'+(done>1?'s':'')+' ajouté'+(done>1?'s':'')+' ✓'); }
+    };
+    r.readAsDataURL(file);
+  });
+  input.value='';
+}
+
+function suppDoc(id){
+  docs=docs.filter(d=>String(d.id)!==String(id));
+  save(); renderDocs();
+}
+
+function renderDocs(){
+  const c=document.getElementById('docs-liste'); if(!c) return;
+  if(!docs.length){
+    c.innerHTML='<div class="empty">Aucun document ajouté.<br>Ajoutez plans, diagnostics, notes de visite…</div>';
+    return;
+  }
+  c.innerHTML=docs.map(d=>{
+    const isImg=d.type&&d.type.startsWith('image/');
+    const isPdf=d.type&&d.type.includes('pdf');
+    const icon=isImg?'🖼️':isPdf?'📄':'📎';
+    const preview=isImg?`<img src="${d.src}" style="max-width:100%;max-height:180px;border-radius:8px;margin-top:8px;object-fit:contain">`:
+                  isPdf?`<a href="${d.src}" target="_blank" style="display:block;margin-top:8px;color:var(--acc);font-size:13px">📄 Ouvrir le PDF</a>`:'';
+    return `<div style="background:var(--sur);border-radius:12px;border:.5px solid var(--bor);padding:12px;margin-bottom:8px">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start">
+        <div style="flex:1;min-width:0">
+          <div style="font-size:14px;font-weight:600">${icon} ${d.nom}</div>
+          <div style="font-size:11px;color:var(--tx2);margin-top:2px">${d.date}</div>
+        </div>
+        <button onclick="suppDoc('${d.id}')" style="background:none;border:none;color:var(--dan);font-size:18px;cursor:pointer;padding:0 0 0 8px;flex-shrink:0">🗑</button>
+      </div>
+      ${preview}
+    </div>`;
+  }).join('');
+}
+
+
+// ── Export photos collectives (VMC/Chauf/ECS) en ZIP ──
+async function exportPhotosCollectives(){
+  if(typeof JSZip==='undefined'){ toast('JSZip non chargé'); return; }
+  const total=Object.values(photosCollectif).reduce((s,arr)=>s+(arr||[]).length,0);
+  if(!total){ toast('Aucune photo collective à exporter'); return; }
+  toast('Préparation ZIP photos collectives…');
+  const zip=new JSZip();
+  const types={'vmc':'VMC','chauf_col':'Chauffage_Collectif','ecs_col':'ECS_Collective'};
+  for(const [key,label] of Object.entries(types)){
+    const arr=photosCollectif[key]||[];
+    arr.forEach((src,i)=>{
+      const ext=src.includes('pdf')?'pdf':'jpg';
+      const b64=src.split(',')[1];
+      if(b64) zip.file(`${label}_${String(i+1).padStart(2,'0')}.${ext}`, b64, {base64:true});
+    });
+  }
+  const ref=slug((copro&&copro.nom)||'chantier');
+  const blob=await zip.generateAsync({type:'blob',compression:'DEFLATE'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');a.href=url;
+  a.download='Photos_Collectives_'+ref+'.zip';
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  toast('✓ ZIP photos collectives prêt ('+total+' photos)');
+}
+
+// ── Export documents copro en ZIP ──
+async function exportDocuments(){
+  if(typeof JSZip==='undefined'){ toast('JSZip non chargé'); return; }
+  if(!docs.length){ toast('Aucun document à exporter'); return; }
+  toast('Préparation ZIP documents…');
+  const zip=new JSZip();
+  docs.forEach((d,i)=>{
+    const ext=d.type&&d.type.includes('pdf')?'pdf':
+              d.type&&d.type.includes('png')?'png':'jpg';
+    const b64=d.src.split(',')[1];
+    if(b64){
+      const nom=d.nom.replace(/[^a-zA-Z0-9._-]/g,'_');
+      zip.file(`${String(i+1).padStart(2,'0')}_${nom}`, b64, {base64:true});
+    }
+  });
+  const ref=slug((copro&&copro.nom)||'chantier');
+  const blob=await zip.generateAsync({type:'blob',compression:'DEFLATE'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');a.href=url;
+  a.download='Documents_'+ref+'.zip';
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  toast('✓ ZIP documents prêt ('+docs.length+' fichiers)');
+}
+
 loadCopro();
 loadVMC();
-renderApptsList();
-renderCoproRecap();
-renderDTG();
 updateHeader();
 updateExportView();
-renderAccueil();
+goTab('accueil');
 refreshMailVisite();
 document.addEventListener('DOMContentLoaded',refreshMailVisite);
 /* ============================================================
@@ -4723,7 +4847,6 @@ const TUTO_STEPS=[
 function renderAide(){const c=document.getElementById('tuto-list');if(!c)return;c.innerHTML=TUTO_STEPS.map((s,i)=>`<div class="tuto-item" id="tuto-${i}"><div class="tuto-head" onclick="toggleTuto(${i})"><span class="tuto-icon">${s.icon}</span><span class="tuto-titre">${s.titre}</span><span class="tuto-chevron" id="chev-${i}">▶</span></div><div class="tuto-body" id="tbody-${i}" style="display:none">${s.contenu}</div></div>`).join('');}
 function toggleTuto(i){const b=document.getElementById(`tbody-${i}`),ch=document.getElementById(`chev-${i}`);const open=b.style.display!=='none';b.style.display=open?'none':'block';ch.textContent=open?'▶':'▼';}
 function ouvrirTutoOnglet(nom){const map={accueil:0,copro:1,appts:2,murs:3,fen:4,plafonds:5,planchers:6,refends:7,totaux:8,export:9};goTab('aide');setTimeout(()=>{renderAide();const idx=map[nom];if(idx!==undefined){const b=document.getElementById(`tbody-${idx}`),ch=document.getElementById(`chev-${idx}`);if(b)b.style.display='block';if(ch)ch.textContent='▼';document.getElementById(`tuto-${idx}`)?.scrollIntoView({behavior:'smooth',block:'start'});}},120);}
-
 
 
 
