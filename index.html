@@ -35,7 +35,7 @@
         
         .fr { display: flex; align-items: center; padding: 0 14px; border-bottom: 1px solid var(--bor); min-height: 50px; }
         .fr:last-child { border-bottom: none; }
-        .fl { font-size: 13px; color: var(--tx); min-width: 110px; flex-shrink: 0; font-weight: 600; line-height:1.2;}
+        .fl { font-size: 13px; color: var(--tx); min-width: 90px; flex-shrink: 0; font-weight: 600; line-height:1.2;}
         .fr select, .fr input { flex: 1; border: none; background: transparent; font-size: 13px; color: var(--acc); text-align: right; outline: none; padding: 10px 0; font-weight: 600; -webkit-appearance: none; direction: rtl;}
         .fr select option { direction: ltr; }
         .fr input::placeholder { color: #94A3B8; font-weight: 400; }
@@ -83,7 +83,7 @@
 <input type="file" id="global-uploader" style="display:none;" accept="image/*,application/pdf" capture="environment">
 
 <div class="hd">
-    <div class="hd-title">MyDiag <span style="font-size:10px; color:#94A3B8; font-weight:normal;">v4.2 Moteur BIM 2D</span></div>
+    <div class="hd-title">MyDiag <span style="font-size:10px; color:#94A3B8; font-weight:normal;">v4.3 Surfaces Directes</span></div>
     <button class="btn-save" onclick="sauvegarderLocal()">💾 Sauvegarder</button>
 </div>
 
@@ -234,7 +234,7 @@
         <div class="fr"><span class="fl">Ép. Lame (mm)</span><input type="number" id="f-ep" placeholder="ex: 16" inputmode="numeric"></div>
         <div class="fr"><span class="fl">Fermeture</span><select id="f-fer"></select></div>
         <div class="fr"><span class="fl">L x H (cm)</span><input type="number" id="f-l" placeholder="Larg." style="margin-right:5px;" inputmode="numeric"><input type="number" id="f-h" placeholder="Haut." inputmode="numeric"></div>
-        <div class="fr"><span class="fl">Quantité / Motifs</span><input type="number" id="f-nb" placeholder="Qté" style="margin-right:5px;" value="1" inputmode="numeric"><input type="number" id="f-motifs" placeholder="Motifs" value="1" inputmode="numeric"></div>
+        <div class="fr"><span class="fl">Qté / Motifs</span><input type="number" id="f-nb" placeholder="Qté" style="margin-right:5px;" value="1" inputmode="numeric"><input type="number" id="f-motifs" placeholder="Motifs" value="1" inputmode="numeric"></div>
     </div>
     <button class="btn btn-p" id="btn-save-fens" onclick="sauverParoi('fens')">Enregistrer cette fenêtre</button>
     <div class="sl" style="margin-top:20px;">Fenêtres saisies pour ce lot</div>
@@ -246,7 +246,11 @@
     <div class="card">
         <div class="fr"><span class="fl">Type ADN</span><select id="p-type"></select></div>
         <div class="fr"><span class="fl">Donne sur</span><select id="p-donne"></select></div>
-        <div class="fr"><span class="fl">L x l (m)</span><input type="number" id="p-l" placeholder="Long." style="margin-right:5px;" inputmode="decimal"><input type="number" id="p-larg" placeholder="Larg." inputmode="decimal"></div>
+        <div class="fr"><span class="fl">Dimensions</span>
+            <input type="number" id="p-l" placeholder="L (m)" style="margin-right:5px;" inputmode="decimal">
+            <input type="number" id="p-larg" placeholder="l (m)" style="margin-right:5px;" inputmode="decimal">
+            <input type="number" id="p-s" placeholder="OU Surf(m²)" style="background:#e0f2fe; color:#0369a1;" inputmode="decimal">
+        </div>
     </div>
     <button class="btn btn-p" id="btn-save-plfs" onclick="sauverParoi('plfs')">Enregistrer ce plafond</button>
     <div class="sl" style="margin-top:20px;">Plafonds saisis pour ce lot</div>
@@ -258,7 +262,11 @@
     <div class="card">
         <div class="fr"><span class="fl">Type ADN</span><select id="s-type"></select></div>
         <div class="fr"><span class="fl">Donne sur</span><select id="s-donne"></select></div>
-        <div class="fr"><span class="fl">L x l (m)</span><input type="number" id="s-l" placeholder="Long." style="margin-right:5px;" inputmode="decimal"><input type="number" id="s-larg" placeholder="Larg." inputmode="decimal"></div>
+        <div class="fr"><span class="fl">Dimensions</span>
+            <input type="number" id="s-l" placeholder="L (m)" style="margin-right:5px;" inputmode="decimal">
+            <input type="number" id="s-larg" placeholder="l (m)" style="margin-right:5px;" inputmode="decimal">
+            <input type="number" id="s-s" placeholder="OU Surf(m²)" style="background:#e0f2fe; color:#0369a1;" inputmode="decimal">
+        </div>
     </div>
     <button class="btn btn-p" id="btn-save-plas" onclick="sauverParoi('plas')">Enregistrer ce plancher</button>
     <div class="sl" style="margin-top:20px;">Planchers saisis pour ce lot</div>
@@ -318,7 +326,7 @@
     let currentUploadTarget = null;
 
     async function sauvegarderLocal() { 
-        try { await localforage.setItem('mydiag_v4_2', db); } 
+        try { await localforage.setItem('mydiag_v4_3', db); } 
         catch (err) { console.error("Erreur de sauvegarde", err); }
     }
 
@@ -420,8 +428,6 @@
 
         mursApt.forEach(m => {
             let l = parseFloat(m.l) || 0;
-            // Traduction Cartographique standard :
-            // Nord = Haut (Y-), Sud = Bas (Y+), Est = Droite (X+), Ouest = Gauche (X-)
             if (m.ori === 'Nord') curY -= l;
             else if (m.ori === 'Est') curX += l;
             else if (m.ori === 'Sud') curY += l;
@@ -429,11 +435,8 @@
             points.push({ x: curX, y: curY });
         });
 
-        // Calcul de la surface via la Formule de Gauss (Shoelace)
         let area = 0;
-        for (let i = 0; i < points.length - 1; i++) {
-            area += points[i].x * points[i+1].y - points[i+1].x * points[i].y;
-        }
+        for (let i = 0; i < points.length - 1; i++) { area += points[i].x * points[i+1].y - points[i+1].x * points[i].y; }
         area += points[points.length - 1].x * points[0].y - points[0].x * points[points.length - 1].y;
         area = Math.abs(area) / 2;
 
@@ -441,13 +444,12 @@
         let minY = Math.min(...points.map(p => p.y)); let maxY = Math.max(...points.map(p => p.y));
 
         let width = Math.max(maxX - minX, 0.1); let height = Math.max(maxY - minY, 0.1);
-        let padding = 40; // Plus d'espace pour les cotes
+        let padding = 40; 
         let scaleX = (cw - padding * 2) / width; let scaleY = (ch - padding * 2) / height;
         let scale = Math.min(scaleX, scaleY);
 
         let offsetX = (cw - (width * scale)) / 2; let offsetY = (ch - (height * scale)) / 2;
 
-        // Tracé des lignes (Murs)
         ctx.beginPath(); ctx.strokeStyle = '#2563EB'; ctx.lineWidth = 4; ctx.lineJoin = 'round'; ctx.lineCap = 'round';
         points.forEach((p, i) => {
             let px = offsetX + (p.x - minX) * scale; let py = offsetY + (p.y - minY) * scale;
@@ -455,17 +457,12 @@
         });
         ctx.stroke();
 
-        // Tracé des Cotes
-        ctx.font = "bold 11px sans-serif";
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
+        ctx.font = "bold 11px sans-serif"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
         for (let i = 0; i < points.length - 1; i++) {
             let p1 = points[i]; let p2 = points[i+1];
             let midX = (p1.x + p2.x) / 2; let midY = (p1.y + p2.y) / 2;
-            let px = offsetX + (midX - minX) * scale;
-            let py = offsetY + (midY - minY) * scale;
+            let px = offsetX + (midX - minX) * scale; let py = offsetY + (midY - minY) * scale;
 
-            // Décalage perpendiculaire pour ne pas écrire sur la ligne
             let dx = p2.x - p1.x; let dy = p2.y - p1.y;
             let len = Math.hypot(dx, dy);
             let nx = -dy / len; let ny = dx / len;
@@ -474,22 +471,17 @@
             let text = mursApt[i].l + "m";
             let tw = ctx.measureText(text).width;
             
-            // Fond blanc pour lisibilité
             ctx.fillStyle = "rgba(255, 255, 255, 0.85)";
             ctx.fillRect(textPx - tw/2 - 2, textPy - 8, tw + 4, 16);
-            
-            ctx.fillStyle = "#0F172A";
-            ctx.fillText(text, textPx, textPy);
+            ctx.fillStyle = "#0F172A"; ctx.fillText(text, textPx, textPy);
         }
 
-        // Boussole
         let compX = 20; let compY = 20;
         ctx.beginPath(); ctx.moveTo(compX, compY - 10); ctx.lineTo(compX, compY + 10); ctx.moveTo(compX - 10, compY); ctx.lineTo(compX + 10, compY);
         ctx.strokeStyle = "#CBD5E1"; ctx.lineWidth = 2; ctx.stroke();
         ctx.beginPath(); ctx.moveTo(compX, compY - 12); ctx.lineTo(compX - 4, compY - 2); ctx.lineTo(compX + 4, compY - 2); ctx.fillStyle = "#DC2626"; ctx.fill();
         ctx.fillStyle = "#334155"; ctx.font = "bold 10px sans-serif"; ctx.fillText("N", compX, compY + 18);
 
-        // Point de départ et arrivée
         let startP = points[0]; let endP = points[points.length - 1];
         let startPx = offsetX + (startP.x - minX) * scale; let startPy = offsetY + (startP.y - minY) * scale;
         let endPx = offsetX + (endP.x - minX) * scale; let endPy = offsetY + (endP.y - minY) * scale;
@@ -497,7 +489,6 @@
         ctx.beginPath(); ctx.arc(startPx, startPy, 6, 0, 2 * Math.PI); ctx.fillStyle = '#16A34A'; ctx.fill(); ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.stroke();
         ctx.beginPath(); ctx.arc(endPx, endPy, 6, 0, 2 * Math.PI); ctx.fillStyle = '#DC2626'; ctx.fill(); ctx.stroke();
 
-        // Calculs et Messages
         let err = Math.sqrt(Math.pow(endP.x - startP.x, 2) + Math.pow(endP.y - startP.y, 2));
         let txt = '';
         if (mursApt.length < 3) {
@@ -830,8 +821,8 @@
         
         if(type === 'murs') { el.ori = document.getElementById('m-ori').value; el.donne = document.getElementById('m-donne').value; el.mat = document.getElementById('m-mat').value; el.l = document.getElementById('m-l').value; el.h = document.getElementById('m-h').value; el.iso = document.getElementById('m-iso').value; }
         else if (type === 'fens') { el.ori = document.getElementById('f-ori').value; el.type = document.getElementById('f-type').value; el.mat = document.getElementById('f-mat').value; el.vit = document.getElementById('f-vit').value; el.ep = document.getElementById('f-ep').value; el.fer = document.getElementById('f-fer').value; el.l = document.getElementById('f-l').value; el.h = document.getElementById('f-h').value; el.nb = document.getElementById('f-nb').value; el.motifs = document.getElementById('f-motifs').value; }
-        else if (type === 'plfs') { el.type = document.getElementById('p-type').value; el.donne = document.getElementById('p-donne').value; el.l = document.getElementById('p-l').value; el.larg = document.getElementById('p-larg').value;}
-        else if (type === 'plas') { el.type = document.getElementById('s-type').value; el.donne = document.getElementById('s-donne').value; el.l = document.getElementById('s-l').value; el.larg = document.getElementById('s-larg').value;}
+        else if (type === 'plfs') { el.type = document.getElementById('p-type').value; el.donne = document.getElementById('p-donne').value; el.l = document.getElementById('p-l').value; el.larg = document.getElementById('p-larg').value; el.s = document.getElementById('p-s').value;}
+        else if (type === 'plas') { el.type = document.getElementById('s-type').value; el.donne = document.getElementById('s-donne').value; el.l = document.getElementById('s-l').value; el.larg = document.getElementById('s-larg').value; el.s = document.getElementById('s-s').value;}
         
         if(!editParoiId) db[type].push(el);
         
@@ -852,8 +843,8 @@
         
         if(type === 'murs') { document.getElementById('m-ori').value = p.ori; document.getElementById('m-donne').value = p.donne; document.getElementById('m-mat').value = p.mat; document.getElementById('m-l').value = p.l; document.getElementById('m-h').value = p.h; document.getElementById('m-iso').value = p.iso; document.getElementById('btn-save-murs').textContent = "Modifier ce mur"; }
         else if (type === 'fens') { document.getElementById('f-ori').value = p.ori || 'Nord'; document.getElementById('f-type').value = p.type; document.getElementById('f-mat').value = p.mat; document.getElementById('f-vit').value = p.vit; document.getElementById('f-ep').value = p.ep || ''; document.getElementById('f-fer').value = p.fer; document.getElementById('f-l').value = p.l; document.getElementById('f-h').value = p.h; document.getElementById('f-nb').value = p.nb || '1'; document.getElementById('f-motifs').value = p.motifs || '1'; document.getElementById('btn-save-fens').textContent = "Modifier cette fenêtre"; }
-        else if (type === 'plfs') { document.getElementById('p-type').value = p.type; document.getElementById('p-donne').value = p.donne; document.getElementById('p-l').value = p.l; document.getElementById('p-larg').value = p.larg; document.getElementById('btn-save-plfs').textContent = "Modifier ce plafond"; }
-        else if (type === 'plas') { document.getElementById('s-type').value = p.type; document.getElementById('s-donne').value = p.donne; document.getElementById('s-l').value = p.l; document.getElementById('s-larg').value = p.larg; document.getElementById('btn-save-plas').textContent = "Modifier ce plancher"; }
+        else if (type === 'plfs') { document.getElementById('p-type').value = p.type; document.getElementById('p-donne').value = p.donne; document.getElementById('p-l').value = p.l || ''; document.getElementById('p-larg').value = p.larg || ''; document.getElementById('p-s').value = p.s || ''; document.getElementById('btn-save-plfs').textContent = "Modifier ce plafond"; }
+        else if (type === 'plas') { document.getElementById('s-type').value = p.type; document.getElementById('s-donne').value = p.donne; document.getElementById('s-l').value = p.l || ''; document.getElementById('s-larg').value = p.larg || ''; document.getElementById('s-s').value = p.s || ''; document.getElementById('btn-save-plas').textContent = "Modifier ce plancher"; }
         
         window.scrollTo(0,0);
     }
@@ -869,8 +860,15 @@
         if(tabId === 'planchers') { cont = document.getElementById('list-plas'); data = db.plas; type = 'plas'; }
 
         cont.innerHTML = data.filter(x => x.aid === curAppt).map(x => {
-            let dimText = `Dim: ${x.l||'?'} x ${x.h||x.larg||'?'}`;
-            if(type === 'fens') dimText = `Dim: ${x.l||'?'}x${x.h||'?'}cm | Lame: ${x.ep||'?'}mm | Qté: ${x.nb||1} (Motifs: ${x.motifs||1})`;
+            let dimText = "";
+            if (type === 'fens') {
+                dimText = `Dim: ${x.l||'?'}x${x.h||'?'}cm | Lame: ${x.ep||'?'}mm | Qté: ${x.nb||1} (Motifs: ${x.motifs||1})`;
+            } else if (type === 'plfs' || type === 'plas') {
+                if (x.s) dimText = `Surf: ${x.s}m²`;
+                else dimText = `Dim: ${x.l||'?'} x ${x.larg||'?'}m`;
+            } else {
+                dimText = `Dim: ${x.l||'?'} x ${x.h||'?'}m`;
+            }
             const badgeText = type === 'fens' ? (x.ori || 'N/A') : (x.ori || 'Surf.');
 
             return `
@@ -899,7 +897,7 @@
     window.onload = async () => {
         peuplerSelects();
         try {
-            const savedData = await localforage.getItem('mydiag_v4_2');
+            const savedData = await localforage.getItem('mydiag_v4_3');
             if (savedData) { db = savedData; if(!db.docs) db.docs = []; }
             
             ['copro-ref','copro-nom','copro-adresse','copro-annee','copro-batiments','copro-etages'].forEach(id => { const k = id.replace('copro-',''); if(db.copro[k]) document.getElementById(id).value = db.copro[k]; });
