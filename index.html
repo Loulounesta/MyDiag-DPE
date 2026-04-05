@@ -109,7 +109,7 @@
 <input type="file" id="global-uploader" style="display:none;" accept="image/*,application/pdf" capture="environment">
 
 <div class="hd">
-    <div class="hd-title">MyDiag - DPE <span style="font-size:10px; color:#94A3B8; font-weight:normal;">v6.4 UI & Dashboard</span></div>
+    <div class="hd-title">MyDiag - DPE <span style="font-size:10px; color:#94A3B8; font-weight:normal;">v6.5 Complète</span></div>
     <button class="btn-save" onclick="sauvegarderLocal()">💾 Sauvegarder</button>
 </div>
 
@@ -339,15 +339,15 @@
         <div class="fr" style="border-bottom:none;">
             <span class="fl" style="color:#0369a1;">Bibliothèque</span>
             <select id="f-bibli" onchange="chargerModeleFen(this.value)" style="color:#0369a1;">
-                <option value="">-- Nouvelle Fenêtre --</option>
+                <option value="">-- Modèles sauvegardés --</option>
             </select>
         </div>
     </div>
 
     <div class="card">
         <div class="fr"><span class="fl">Orientation</span><select id="f-ori"><option>Nord</option><option>Sud</option><option>Est</option><option>Ouest</option><option>Horizontal</option></select></div>
-        <div class="fr"><span class="fl">Type</span><select id="f-type"></select></div>
         <div class="fr"><span class="fl">Matière</span><select id="f-mat"></select></div>
+        <div class="fr"><span class="fl">Type</span><select id="f-type"></select></div>
         <div class="fr"><span class="fl">Vitrage</span><select id="f-vit"></select></div>
         <div class="fr"><span class="fl">Ép. Lame (mm)</span><input type="number" inputmode="numeric" pattern="[0-9]*" id="f-ep" placeholder="ex: 16" style="text-align:right;"></div>
         <div class="fr"><span class="fl">Fermeture</span><select id="f-fer"></select></div>
@@ -376,9 +376,43 @@
 <div id="vw-portes" class="vw">
     <div id="por-apt-banner" class="active-apt-banner">Aucun appartement sélectionné</div>
     <div class="card">
-        <div class="fr"><span class="fl">Type Porte</span><select id="po-type"><option>Porte opaque pleine</option><option>Porte vitrée</option><option>Porte semi-vitrée</option><option>Inconnu</option></select></div>
-        <div class="fr"><span class="fl">Donne sur</span><select id="po-donne"><option>Extérieur</option><option>Circulations communes</option><option>Local non chauffé</option><option>Autre</option></select></div>
-        
+        <div class="fr"><span class="fl">Type Porte</span>
+            <select id="po-type">
+                <option>Porte opaque pleine</option>
+                <option>Porte vitrée</option>
+                <option>Porte semi-vitrée</option>
+                <option>Porte avec moins de 30% de vitrage</option>
+                <option>Porte avec 30 à 60% de vitrage</option>
+            </select>
+        </div>
+        <div class="fr"><span class="fl">Matière</span>
+            <select id="po-mat">
+                <option>Bois</option>
+                <option>PVC</option>
+                <option>Métal</option>
+                <option>Inconnu</option>
+            </select>
+        </div>
+        <div class="fr"><span class="fl">Donne sur</span>
+            <select id="po-donne">
+                <option>Extérieur</option>
+                <option>Circulations communes</option>
+                <option>Local non chauffé</option>
+                <option>Autre</option>
+            </select>
+        </div>
+        <div class="fr"><span class="fl">Isolation</span>
+            <select id="po-iso">
+                <option>Non isolée / Inconnue</option>
+                <option>Isolée</option>
+            </select>
+        </div>
+        <div class="fr"><span class="fl">Présence Sas</span>
+            <select id="po-sas">
+                <option>Non</option>
+                <option>Oui</option>
+            </select>
+        </div>
         <div class="dim-block">
             <div class="dim-title">Dimensions L x H (m)</div>
             <div class="dim-inputs">
@@ -464,7 +498,7 @@
         DONNE_SUR_MURS: ["Extérieur", "Local non chauffé (autre que véranda)", "Local non chauffé et non accessible", "Circulations communes", "Local chauffé", "Bâtiment ou espace autre qu'habitation", "Comble", "Terre (paroi enterrée)", "Sous-sol non chauffé"],
         FEN_TYPE: ["Fenêtres battantes", "Fenêtres coulissantes", "Portes-fenêtres coulissantes", "Portes-fenêtres battantes sans soubassement", "Portes-fenêtres battantes avec soubassement", "Fenêtres sans ouverture possible", "Portes-fenêtres sans ouverture possible"],
         FEN_VITRAGE: ["Simple vitrage vertical", "Double vitrage vertical", "Survitrage vertical", "Triple vitrage vertical", "Brique de verre pleine", "Brique de verre creuse", "Polycarbonate"],
-        FEN_MATIERE: ["Menuiserie métallique à rupture de pont thermique", "Menuiserie métallique sans rupture de pont thermique", "Menuiserie PVC", "Menuiserie Bois", "Menuiserie Bois / Métal"],
+        FEN_MATIERE: ["Menuiserie PVC", "Menuiserie Bois", "Menuiserie métallique à rupture de pont thermique", "Menuiserie métallique sans rupture de pont thermique", "Menuiserie Bois / Métal", "Inconnu"],
         FEN_FERMETURE: ["Jalousie accordéon", "Fermeture sans ajours, volets roulants Alu", "Volet roulant PVC ou bois (épaisseur tablier ≤ 12mm)", "Persienne coulissante", "Volet roulant PVC ou bois (épaisseur tablier > 12mm)"],
         PLAFONDS: ["Dalle béton", "Bois sous solives bois", "Bois sur solives bois", "Entre solives bois", "Bois sur solives métallique", "Bois sous solives métallique", "Entrevous, terre-cuite, poutrelles béton", "Combles aménagés sous rampants", "Plaques de plâtre", "Inconnu"],
         DONNE_SUR_PLAFOND: ["Terrasse", "Combles aménagés", "Combles perdus", "Local chauffé", "Local non chauffé", "Circulations communes", "Extérieur"],
@@ -503,7 +537,7 @@
     let lastCalc = {};
 
     async function sauvegarderLocal() { 
-        try { await localforage.setItem('mydiag_v6_4', db); } 
+        try { await localforage.setItem('mydiag_v6_5', db); } 
         catch (err) { console.error("Erreur de sauvegarde", err); }
     }
 
@@ -808,7 +842,7 @@
             if (curAptObj && (!curAptObj.surf || curAptObj.surf === "")) {
                 curAptObj.surf = area.toFixed(1);
                 sauvegarderLocal();
-                // Update only the input if the tab is open, otherwise let render handle it
+                // Met à jour la valeur de l'input si l'onglet est ouvert
                 let surfInput = document.querySelector(`#vw-appts input[value="${curAptObj.surf}"]`);
                 if(surfInput) surfInput.value = area.toFixed(1);
                 toast("Surface calculée (" + area.toFixed(1) + " m²) reportée !");
@@ -830,10 +864,10 @@
     function renderBibliFens() {
         const sel = document.getElementById('f-bibli');
         if(!sel) return;
-        let html = '<option value="">-- Nouvelle Fenêtre --</option>';
+        let html = '<option value="">-- Modèles sauvegardés --</option>';
         if(db.modelesFens) {
             db.modelesFens.forEach(m => {
-                html += `<option value="${m.id}">${m.nom} (${m.l}x${m.h} - ${m.mat})</option>`;
+                html += `<option value="${m.id}">${m.nom}</option>`;
             });
         }
         sel.innerHTML = html;
@@ -1001,16 +1035,39 @@
     function dupAppt(id) {
         const src = db.appts.find(a => a.id === id);
         if(!src) return;
-        const newNum = prompt("Numéro de la copie ?", src.num + " (Copie)");
-        if(!newNum) return;
+        
+        let maxNum = 0;
+        db.appts.forEach(apt => {
+            let digits = apt.num.match(/\d+/);
+            if(digits) {
+                let n = parseInt(digits[0]);
+                if(n > maxNum) maxNum = n;
+            }
+        });
+        let newNumStr = "E" + String(maxNum + 1).padStart(2, '0');
         
         const newId = String(Date.now());
-        const newApt = {...src, id: newId, num: newNum};
+        const newApt = {...src, id: newId, num: newNumStr};
         db.appts.push(newApt);
         
         const cloneItems = (arrName, fk) => {
             const items = db[arrName].filter(x => x[fk] === id);
-            items.forEach(item => { db[arrName].push({...item, id: Date.now() + Math.random(), [fk]: newId}); });
+            items.forEach(item => { 
+                let clone = {...item, id: Date.now() + Math.random(), [fk]: newId};
+                if(arrName === 'fens') {
+                    let maxFen = 0;
+                    db.fens.forEach(f => {
+                        if(f.nom) {
+                            let m = f.nom.match(/Fenêtre (\d+)/);
+                            if(m && parseInt(m[1]) > maxFen) maxFen = parseInt(m[1]);
+                        }
+                    });
+                    clone.nom = "Fenêtre " + (maxFen + 1);
+                    db.fens.push(clone);
+                } else {
+                    db[arrName].push(clone);
+                }
+            });
         };
         
         cloneItems('murs', 'aid'); cloneItems('fens', 'aid'); cloneItems('portes', 'aid');
@@ -1018,7 +1075,7 @@
         cloneItems('chaufs', 'aptId'); cloneItems('ecss', 'aptId');
         
         curAppt = newId; expAppts[newId] = true;
-        sauvegarderLocal(); renderApptsList(); toast("Appartement dupliqué ✓");
+        sauvegarderLocal(); renderApptsList(); toast("Appartement dupliqué sous " + newNumStr + " ✓");
     }
 
     function toggleAppt(id) { expAppts[id] = !expAppts[id]; renderApptsList(); }
@@ -1052,11 +1109,13 @@
     }
 
     function buildChaufListHTML(aptId) {
+        const apt = db.appts.find(a => a.id === aptId);
+        const aptNum = apt ? apt.num : '';
         const myC = db.chaufs.filter(c => c.aptId === aptId);
-        return myC.map(c => `
+        return myC.map((c, index) => `
             <div class="item-row" style="flex-direction:column; align-items:flex-start;">
                 <div style="display:flex; width:100%; justify-content:space-between;">
-                    <div>🔥 ${c.energie} · ${c.gen}</div>
+                    <div>🔥 Chauff. ${aptNum} - ${index + 1} : ${c.energie} · ${c.gen}</div>
                     <div style="display:flex; gap:5px;">
                         ${c.photo ? `<img src="${c.photo}" class="thumb" style="margin:0;" onclick="viewImage('${c.photo}')">` : ''}
                         <button class="btn-xs" style="background:var(--acc-l); color:var(--acc);" onclick="triggerUpload('chaufInd', '${c.id}')">📷 Photo</button>
@@ -1072,11 +1131,13 @@
     }
 
     function buildEcsListHTML(aptId) {
+        const apt = db.appts.find(a => a.id === aptId);
+        const aptNum = apt ? apt.num : '';
         const myE = db.ecss.filter(e => e.aptId === aptId);
-        return myE.map(e => `
+        return myE.map((e, index) => `
             <div class="item-row" style="flex-direction:column; align-items:flex-start;">
                 <div style="display:flex; width:100%; justify-content:space-between;">
-                    <div>🚿 ${e.energie} · ${e.type}</div>
+                    <div>🚿 ECS ${aptNum} - ${index + 1} : ${e.energie} · ${e.type}</div>
                     <div style="display:flex; gap:5px;">
                         ${e.photo ? `<img src="${e.photo}" class="thumb" style="margin:0;" onclick="viewImage('${e.photo}')">` : ''}
                         <button class="btn-xs" style="background:var(--acc-l); color:var(--acc);" onclick="triggerUpload('ecsInd', '${e.id}')">📷 Photo</button>
@@ -1127,7 +1188,6 @@
             btn.textContent = "Ajouter Chauffage"; btn.removeAttribute('data-edit-id');
         } else { db.chaufs.push(obj); }
         
-        // Reset local form inputs
         document.getElementById('ifc-energie-'+aptId).value = ''; document.getElementById('ifc-gen-'+aptId).value = '';
         document.getElementById('ifc-emetteur-'+aptId).value = ''; document.getElementById('ifc-annee-'+aptId).value = '';
         document.getElementById('ifc-puissance-'+aptId).value = '';
@@ -1329,12 +1389,30 @@
         }
         else if (type === 'fens') { 
             let ftype = document.getElementById('f-type').value; let fmat = document.getElementById('f-mat').value; let fvit = document.getElementById('f-vit').value; let fep = document.getElementById('f-ep').value; let ffer = document.getElementById('f-fer').value; let fl = document.getElementById('f-l').value; let fh = document.getElementById('f-h').value;
-            let existingMod = db.modelesFens.find(m => m.type === ftype && m.mat === fmat && m.vit === fvit && m.ep === fep && m.fer === ffer && m.l === fl && m.h === fh);
-            if(!existingMod) { existingMod = { id: 'mod_' + Date.now(), nom: 'Fenêtre ' + (db.modelesFens.length + 1), type:ftype, mat:fmat, vit:fvit, ep:fep, fer:ffer, l:fl, h:fh }; db.modelesFens.push(existingMod); renderBibliFens(); }
             
-            el.nom = existingMod.nom; el.ori = document.getElementById('f-ori').value; el.type = ftype; el.mat = fmat; el.vit = fvit; el.ep = fep; el.fer = ffer; el.l = fl; el.h = fh; el.nb = document.getElementById('f-nb').value; el.motifs = document.getElementById('f-motifs').value; 
+            let modName = `Modèle ${db.modelesFens.length + 1} (${fmat} ${fl}x${fh})`;
+            let existingMod = db.modelesFens.find(m => m.type === ftype && m.mat === fmat && m.vit === fvit && m.ep === fep && m.fer === ffer && m.l === fl && m.h === fh);
+            if(!existingMod) { existingMod = { id: 'mod_' + Date.now(), nom: modName, type:ftype, mat:fmat, vit:fvit, ep:fep, fer:ffer, l:fl, h:fh }; db.modelesFens.push(existingMod); renderBibliFens(); }
+            
+            if (!editParoiId) {
+                let maxFen = 0;
+                db.fens.forEach(f => {
+                    if(f.nom) { let m = f.nom.match(/Fenêtre (\d+)/); if(m && parseInt(m[1]) > maxFen) maxFen = parseInt(m[1]); }
+                });
+                el.nom = "Fenêtre " + (maxFen + 1);
+            }
+            
+            el.ori = document.getElementById('f-ori').value; el.type = ftype; el.mat = fmat; el.vit = fvit; el.ep = fep; el.fer = ffer; el.l = fl; el.h = fh; el.nb = document.getElementById('f-nb').value; el.motifs = document.getElementById('f-motifs').value; 
         }
-        else if (type === 'portes') { el.type = document.getElementById('po-type').value; el.donne = document.getElementById('po-donne').value; el.l = document.getElementById('po-l').value; el.h = document.getElementById('po-h').value; }
+        else if (type === 'portes') { 
+            el.type = document.getElementById('po-type').value; 
+            el.mat = document.getElementById('po-mat').value; 
+            el.donne = document.getElementById('po-donne').value; 
+            el.iso = document.getElementById('po-iso').value; 
+            el.sas = document.getElementById('po-sas').value; 
+            el.l = document.getElementById('po-l').value; 
+            el.h = document.getElementById('po-h').value; 
+        }
         else if (type === 'plfs') { el.type = document.getElementById('p-type').value; el.donne = document.getElementById('p-donne').value; el.l = document.getElementById('p-l').value; el.larg = document.getElementById('p-larg').value; el.s = document.getElementById('p-s').value;}
         else if (type === 'plas') { el.type = document.getElementById('s-type').value; el.donne = document.getElementById('s-donne').value; el.l = document.getElementById('s-l').value; el.larg = document.getElementById('s-larg').value; el.s = document.getElementById('s-s').value;}
         
@@ -1367,7 +1445,7 @@
             document.getElementById('btn-save-murs').textContent = "Modifier ce mur"; 
         }
         else if (type === 'fens') { document.getElementById('f-bibli').value = ''; document.getElementById('f-ori').value = p.ori || 'Nord'; document.getElementById('f-type').value = p.type; document.getElementById('f-mat').value = p.mat; document.getElementById('f-vit').value = p.vit; document.getElementById('f-ep').value = p.ep || ''; document.getElementById('f-fer').value = p.fer; document.getElementById('f-l').value = p.l; document.getElementById('f-h').value = p.h; document.getElementById('f-nb').value = p.nb || '1'; document.getElementById('f-motifs').value = p.motifs || '1'; document.getElementById('btn-save-fens').textContent = "Modifier cette fenêtre"; }
-        else if (type === 'portes') { document.getElementById('po-type').value = p.type; document.getElementById('po-donne').value = p.donne; document.getElementById('po-l').value = p.l; document.getElementById('po-h').value = p.h; document.getElementById('btn-save-portes').textContent = "Modifier cette porte"; }
+        else if (type === 'portes') { document.getElementById('po-type').value = p.type || 'Porte opaque pleine'; document.getElementById('po-mat').value = p.mat || 'Bois'; document.getElementById('po-donne').value = p.donne || 'Extérieur'; document.getElementById('po-iso').value = p.iso || 'Non isolée / Inconnue'; document.getElementById('po-sas').value = p.sas || 'Non'; document.getElementById('po-l').value = p.l || ''; document.getElementById('po-h').value = p.h || ''; document.getElementById('btn-save-portes').textContent = "Modifier cette porte"; }
         else if (type === 'plfs') { document.getElementById('p-type').value = p.type; document.getElementById('p-donne').value = p.donne; document.getElementById('p-l').value = p.l || ''; document.getElementById('p-larg').value = p.larg || ''; document.getElementById('p-s').value = p.s || ''; document.getElementById('btn-save-plfs').textContent = "Modifier ce plafond"; }
         else if (type === 'plas') { document.getElementById('s-type').value = p.type; document.getElementById('s-donne').value = p.donne; document.getElementById('s-l').value = p.l || ''; document.getElementById('s-larg').value = p.larg || ''; document.getElementById('s-s').value = p.s || ''; document.getElementById('btn-save-plas').textContent = "Modifier ce plancher"; }
         
@@ -1378,6 +1456,15 @@
         const src = db[type].find(x => x.id === id);
         if(!src) return;
         const clone = {...src, id: Date.now() + Math.random()};
+        
+        if (type === 'fens') {
+            let maxFen = 0;
+            db.fens.forEach(f => {
+                if(f.nom) { let m = f.nom.match(/Fenêtre (\d+)/); if(m && parseInt(m[1]) > maxFen) maxFen = parseInt(m[1]); }
+            });
+            clone.nom = "Fenêtre " + (maxFen + 1);
+        }
+        
         db[type].push(clone);
         sauvegarderLocal(); renderElementsList(type); 
         if(type === 'murs') drawCroquis(); 
@@ -1407,7 +1494,8 @@
                 dimText = `Dim: ${x.l||'?'} x ${x.h||'?'}m | Doub: ${x.doub||'Absent'} | Iso: ${x.iso||'Non isolé'}`;
                 if (x.vectX !== undefined) titleText = "Mur (Fermeture auto)";
             } else if (type === 'portes') {
-                dimText = `Dim: ${x.l||'?'} x ${x.h||'?'}m`;
+                dimText = `Dim: ${x.l||'?'} x ${x.h||'?'}m | Iso: ${x.iso||'Non'} | Sas: ${x.sas||'Non'}`;
+                titleText = `${x.type} (${x.mat || '?'})`;
             }
             const badgeText = type === 'fens' ? (x.ori || 'N/A') : (type === 'portes' ? 'Porte' : (x.ori || 'Surf.'));
 
@@ -1441,7 +1529,7 @@
     window.onload = async () => {
         peuplerSelects();
         try {
-            const savedData = await localforage.getItem('mydiag_v6_4');
+            const savedData = await localforage.getItem('mydiag_v6_5');
             if (savedData) { 
                 db = savedData; 
                 if(!db.docs) db.docs = []; 
