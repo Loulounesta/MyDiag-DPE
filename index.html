@@ -127,7 +127,7 @@
 <input type="file" id="global-uploader" style="display:none;" accept="image/*,application/pdf" capture="environment">
 
 <div class="hd">
-    <div class="hd-title">MyDiag - DPE <span style="font-size:10px; color:#94A3B8; font-weight:normal;">v7.6 (Loi Carrez)</span></div>
+    <div class="hd-title">MyDiag - DPE <span style="font-size:10px; color:#94A3B8; font-weight:normal;">v7.7 (Mémorisation)</span></div>
     <button class="btn-save" onclick="sauvegarderLocal()">💾 Sauvegarder</button>
 </div>
 
@@ -677,7 +677,7 @@
     let totauxSortAsc = true;
 
     async function sauvegarderLocal() { 
-        try { await localforage.setItem('mydiag_v7_6', db); } 
+        try { await localforage.setItem('mydiag_v7_7', db); } 
         catch (err) { console.error("Erreur de sauvegarde", err); }
     }
 
@@ -1881,7 +1881,7 @@
         sauvegarderLocal();
         renderElementsList(type);
         
-        if(type === 'murs') { document.getElementById('m-l').value = ''; document.getElementById('m-ep').value = ''; document.getElementById('m-iso-ep').value = ''; document.getElementById('m-doub').value = 'ABSENT'; drawCroquis(); } 
+        if(type === 'murs') { document.getElementById('m-l').value = ''; drawCroquis(); } 
         else if (type === 'fens') { document.getElementById('f-bibli').value = ''; document.getElementById('f-l').value = ''; document.getElementById('f-h').value = ''; document.getElementById('f-ep').value = ''; document.getElementById('f-diam').value = ''; document.getElementById('f-nb').value = '1'; document.getElementById('f-motifs').value = '1'; }
         else { 
             document.querySelectorAll(`#vw-${type} input[type="number"]`).forEach(i => i.value = ''); 
@@ -2157,7 +2157,7 @@
     window.onload = async () => {
         peuplerSelects();
         try {
-            const savedData = await localforage.getItem('mydiag_v7_6');
+            const savedData = await localforage.getItem('mydiag_v7_7');
             if (savedData) { 
                 db = savedData; 
                 if(!db.docs) db.docs = []; 
