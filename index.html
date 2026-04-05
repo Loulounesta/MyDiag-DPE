@@ -72,6 +72,11 @@
         /* PHOTOS ET MINIATURES */
         .thumb { height: 40px; width: 40px; object-fit: cover; border-radius: 6px; border: 1px solid var(--bor); cursor: pointer; background: #fff;}
         .doc-item { display:flex; justify-content:space-between; align-items:center; background:#F8FAFC; border:1px solid #E2E8F0; padding:10px; border-radius:8px; margin-bottom:8px; }
+
+        /* BADGES TDB APPARTEMENT */
+        .badge-elem { background: #E2E8F0; color: #334155; padding: 3px 6px; border-radius: 6px; font-size: 11px; font-weight: 800; display: inline-block; }
+        .badge-ok { background: var(--ok-l); color: var(--ok); border: 1px solid #BFE4C9;}
+        .badge-warn { background: var(--warn-l); color: var(--warn); border: 1px solid #F9DCA7;}
     </style>
 </head>
 <body>
@@ -83,7 +88,7 @@
 <input type="file" id="global-uploader" style="display:none;" accept="image/*,application/pdf" capture="environment">
 
 <div class="hd">
-    <div class="hd-title">MyDiag <span style="font-size:10px; color:#94A3B8; font-weight:normal;">v4.3 Surfaces Directes</span></div>
+    <div class="hd-title">MyDiag <span style="font-size:10px; color:#94A3B8; font-weight:normal;">v4.4 Mini TdB</span></div>
     <button class="btn-save" onclick="sauvegarderLocal()">💾 Sauvegarder</button>
 </div>
 
@@ -93,6 +98,7 @@
     <div class="tab" onclick="goTab('appts')">🚪 Appts</div>
     <div class="tab" onclick="goTab('murs')">🧱 Murs</div>
     <div class="tab" onclick="goTab('fen')">🪟 Fenêtres</div>
+    <div class="tab" onclick="goTab('portes')">🚪 Portes</div>
     <div class="tab" onclick="goTab('plafonds')">🔝 Plafonds</div>
     <div class="tab" onclick="goTab('planchers')">🔽 Planchers</div>
     <div class="tab" onclick="goTab('export')">📤 Export</div>
@@ -217,11 +223,7 @@
         <div class="fr"><span class="fl">Isolant</span><select id="m-iso"><option>Non isolé</option><option>Isolation Intérieure (ITI)</option><option>Isolation Extérieure (ITE)</option></select></div>
     </div>
     <button class="btn btn-p" id="btn-save-murs" onclick="sauverParoi('murs')">Enregistrer ce mur</button>
-    
-    <div class="sl" style="margin-top:20px; display:flex; justify-content:space-between;">
-        <span>Murs saisis pour ce lot</span>
-    </div>
-    <div id="list-murs"></div>
+    <div id="list-murs" style="margin-top:15px;"></div>
 </div>
 
 <div id="vw-fen" class="vw">
@@ -237,8 +239,18 @@
         <div class="fr"><span class="fl">Qté / Motifs</span><input type="number" id="f-nb" placeholder="Qté" style="margin-right:5px;" value="1" inputmode="numeric"><input type="number" id="f-motifs" placeholder="Motifs" value="1" inputmode="numeric"></div>
     </div>
     <button class="btn btn-p" id="btn-save-fens" onclick="sauverParoi('fens')">Enregistrer cette fenêtre</button>
-    <div class="sl" style="margin-top:20px;">Fenêtres saisies pour ce lot</div>
-    <div id="list-fens"></div>
+    <div id="list-fens" style="margin-top:15px;"></div>
+</div>
+
+<div id="vw-portes" class="vw">
+    <div id="por-apt-banner" class="active-apt-banner">Aucun appartement sélectionné</div>
+    <div class="card">
+        <div class="fr"><span class="fl">Type de Porte</span><select id="po-type"><option>Porte opaque pleine</option><option>Porte vitrée</option><option>Porte semi-vitrée</option><option>Inconnu</option></select></div>
+        <div class="fr"><span class="fl">Donne sur</span><select id="po-donne"><option>Extérieur</option><option>Circulations communes</option><option>Local non chauffé</option><option>Autre</option></select></div>
+        <div class="fr"><span class="fl">L x H (m)</span><input type="number" id="po-l" placeholder="Larg." style="margin-right:5px;" inputmode="decimal"><input type="number" id="po-h" placeholder="Haut." inputmode="decimal"></div>
+    </div>
+    <button class="btn btn-p" id="btn-save-portes" onclick="sauverParoi('portes')">Enregistrer cette porte</button>
+    <div id="list-portes" style="margin-top:15px;"></div>
 </div>
 
 <div id="vw-plafonds" class="vw">
@@ -253,8 +265,7 @@
         </div>
     </div>
     <button class="btn btn-p" id="btn-save-plfs" onclick="sauverParoi('plfs')">Enregistrer ce plafond</button>
-    <div class="sl" style="margin-top:20px;">Plafonds saisis pour ce lot</div>
-    <div id="list-plfs"></div>
+    <div id="list-plfs" style="margin-top:15px;"></div>
 </div>
 
 <div id="vw-planchers" class="vw">
@@ -269,8 +280,7 @@
         </div>
     </div>
     <button class="btn btn-p" id="btn-save-plas" onclick="sauverParoi('plas')">Enregistrer ce plancher</button>
-    <div class="sl" style="margin-top:20px;">Planchers saisis pour ce lot</div>
-    <div id="list-plas"></div>
+    <div id="list-plas" style="margin-top:15px;"></div>
 </div>
 
 <div id="vw-export" class="vw">
@@ -319,14 +329,14 @@
     };
 
     // --- 2. BASE DE DONNÉES GLOBALE (MOTEUR INDEXEDDB) ---
-    let db = {copro:{}, docs:[], vmc:{}, chaufCol:{}, ecsCol:{}, appts:[], chaufs:[], ecss:[], murs:[], fens:[], plfs:[], plas:[]};
+    let db = {copro:{}, docs:[], vmc:{}, chaufCol:{}, ecsCol:{}, appts:[], chaufs:[], ecss:[], murs:[], fens:[], portes:[], plfs:[], plas:[]};
     let expAppts = {};
     let curAppt = null;
     let editParoiId = null;
     let currentUploadTarget = null;
 
     async function sauvegarderLocal() { 
-        try { await localforage.setItem('mydiag_v4_3', db); } 
+        try { await localforage.setItem('mydiag_v4_4', db); } 
         catch (err) { console.error("Erreur de sauvegarde", err); }
     }
 
@@ -542,7 +552,7 @@
         event.currentTarget.classList.add('on');
         
         if(tabId === 'appts') renderApptsList();
-        else if (['murs', 'fen', 'plafonds', 'planchers'].includes(tabId)) {
+        else if (['murs', 'fen', 'portes', 'plafonds', 'planchers'].includes(tabId)) {
             editParoiId = null;
             document.getElementById('btn-save-' + (tabId==='fen'?'fens':tabId)).textContent = "Enregistrer";
             verifierAptActif(tabId); 
@@ -622,7 +632,20 @@
     }
     
     function toggleAppt(id) { expAppts[id] = !expAppts[id]; renderApptsList(); }
-    function suppAppt(id) { if(confirm("Supprimer ?")) { db.appts = db.appts.filter(a=>a.id!==id); db.murs=db.murs.filter(m=>m.aid!==id); sauvegarderLocal(); renderApptsList(); } }
+    
+    function suppAppt(id) { 
+        if(confirm("Supprimer définitivement l'appartement et toutes ses parois/systèmes ?")) { 
+            db.appts = db.appts.filter(a=>a.id!==id); 
+            db.murs = db.murs.filter(m=>m.aid!==id); 
+            db.fens = db.fens.filter(f=>f.aid!==id); 
+            db.portes = db.portes.filter(p=>p.aid!==id); 
+            db.plfs = db.plfs.filter(p=>p.aid!==id); 
+            db.plas = db.plas.filter(p=>p.aid!==id); 
+            db.chaufs = db.chaufs.filter(c=>c.aptId!==id); 
+            db.ecss = db.ecss.filter(e=>e.aptId!==id); 
+            sauvegarderLocal(); renderApptsList(); 
+        } 
+    }
     
     function updateApptField(id, field, value) { const a = db.appts.find(x => x.id === id); if(a) { a[field] = value; sauvegarderLocal(); } }
 
@@ -711,6 +734,8 @@
             const isExp = expAppts[a.id];
             const myC = db.chaufs.filter(c => c.aptId === a.id); const myE = db.ecss.filter(e => e.aptId === a.id);
             const m = db.murs.filter(x=>x.aid===a.id).length; const f = db.fens.filter(x=>x.aid===a.id).length;
+            const p = db.plfs.filter(x=>x.aid===a.id).length; const s = db.plas.filter(x=>x.aid===a.id).length;
+            const po = db.portes.filter(x=>x.aid===a.id).length;
             
             let body = '';
             if(isExp) {
@@ -720,7 +745,7 @@
                             <div>🔥 ${c.energie} · ${c.gen}</div>
                             <div style="display:flex; gap:5px;">
                                 ${c.photo ? `<img src="${c.photo}" class="thumb" style="margin:0;" onclick="viewImage('${c.photo}')">` : ''}
-                                <button class="btn-xs" style="background:var(--acc-l); color:var(--acc);" onclick="triggerUpload('chaufInd', '${c.id}')">📷</button>
+                                <button class="btn-xs" style="background:var(--acc-l); color:var(--acc);" onclick="triggerUpload('chaufInd', '${c.id}')">📷 Photo</button>
                             </div>
                         </div>
                         <div style="color:var(--tx2); font-size:11px; margin-top:4px;">${c.emetteur||''} | ${c.puissance?c.puissance+'kW':''} | ${c.annee?c.annee:''}</div>
@@ -733,7 +758,7 @@
                             <div>🚿 ${e.energie} · ${e.type}</div>
                             <div style="display:flex; gap:5px;">
                                 ${e.photo ? `<img src="${e.photo}" class="thumb" style="margin:0;" onclick="viewImage('${e.photo}')">` : ''}
-                                <button class="btn-xs" style="background:var(--acc-l); color:var(--acc);" onclick="triggerUpload('ecsInd', '${e.id}')">📷</button>
+                                <button class="btn-xs" style="background:var(--acc-l); color:var(--acc);" onclick="triggerUpload('ecsInd', '${e.id}')">📷 Photo</button>
                             </div>
                         </div>
                         <div style="color:var(--tx2); font-size:11px; margin-top:4px;">${e.vol?e.vol+'L':''} | ${e.annee?e.annee:''}</div>
@@ -755,11 +780,12 @@
                         </div>
                     </div>
 
-                    <div class="quick-btns">
+                    <div class="quick-btns" style="grid-template-columns: repeat(3, 1fr);">
                         <button class="qbtn" onclick="curAppt='${a.id}'; goTab('murs')">🧱 Murs (${m})</button>
                         <button class="qbtn" onclick="curAppt='${a.id}'; goTab('fen')">🪟 Fen (${f})</button>
-                        <button class="qbtn" onclick="curAppt='${a.id}'; goTab('plafonds')">🔝 Plafonds</button>
-                        <button class="qbtn" onclick="curAppt='${a.id}'; goTab('planchers')">🔽 Planchers</button>
+                        <button class="qbtn" onclick="curAppt='${a.id}'; goTab('portes')">🚪 Portes (${po})</button>
+                        <button class="qbtn" onclick="curAppt='${a.id}'; goTab('plafonds')">🔝 Plaf (${p})</button>
+                        <button class="qbtn" onclick="curAppt='${a.id}'; goTab('planchers')">🔽 Plan (${s})</button>
                     </div>
 
                     <div style="background:#F8FAFC; padding:10px; border-radius:8px; border:1px solid var(--bor); margin-top:10px;">
@@ -787,8 +813,19 @@
             const isCur = curAppt === a.id ? 'border: 2px solid var(--acc); background: #F8FAFC;' : '';
             return `<div class="appt-card" style="${isCur}">
                 <div class="appt-header" onclick="toggleAppt('${a.id}')">
-                    <div class="appt-num">${a.num} <span style="font-size:12px; color:gray; font-weight:normal;">${a.surf?a.surf+'m²':''}</span></div>
-                    <div style="font-size:12px;">${myC.length?'✅':'❌'} Chauf | ${myE.length?'✅':'❌'} ECS</div>
+                    <div style="flex:1;">
+                        <div class="appt-num">${a.num} <span style="font-size:12px; color:gray; font-weight:normal;">${a.surf?a.surf+'m²':''}</span></div>
+                        <div style="margin-top:6px; display:flex; gap:4px; flex-wrap:wrap;">
+                            <span class="badge-elem">🧱 ${m}</span>
+                            <span class="badge-elem">🪟 ${f}</span>
+                            <span class="badge-elem">🚪 ${po}</span>
+                            <span class="badge-elem">🔝 ${p}</span>
+                            <span class="badge-elem">🔽 ${s}</span>
+                            <span class="badge-elem ${myC.length?'badge-ok':'badge-warn'}">🔥 ${myC.length}</span>
+                            <span class="badge-elem ${myE.length?'badge-ok':'badge-warn'}">🚿 ${myE.length}</span>
+                        </div>
+                    </div>
+                    <span style="color:var(--tx2); font-size:14px; padding-left:10px;">${isExp ? '▼' : '▶'}</span>
                 </div>
                 ${body}
             </div>`;
@@ -797,7 +834,7 @@
 
     // --- 9. PAROIS ---
     function verifierAptActif(tab) {
-        let prefix = tab === 'murs' ? 'murs' : tab === 'fen' ? 'fen' : tab === 'plafonds' ? 'plf' : 'pla';
+        let prefix = tab === 'murs' ? 'murs' : tab === 'fen' ? 'fen' : tab === 'portes' ? 'por' : tab === 'plafonds' ? 'plf' : 'pla';
         let banner = document.getElementById(prefix + '-apt-banner');
         if(!curAppt) {
             banner.textContent = "⚠ Sélectionnez un appartement dans l'onglet 'Appts'";
@@ -821,6 +858,7 @@
         
         if(type === 'murs') { el.ori = document.getElementById('m-ori').value; el.donne = document.getElementById('m-donne').value; el.mat = document.getElementById('m-mat').value; el.l = document.getElementById('m-l').value; el.h = document.getElementById('m-h').value; el.iso = document.getElementById('m-iso').value; }
         else if (type === 'fens') { el.ori = document.getElementById('f-ori').value; el.type = document.getElementById('f-type').value; el.mat = document.getElementById('f-mat').value; el.vit = document.getElementById('f-vit').value; el.ep = document.getElementById('f-ep').value; el.fer = document.getElementById('f-fer').value; el.l = document.getElementById('f-l').value; el.h = document.getElementById('f-h').value; el.nb = document.getElementById('f-nb').value; el.motifs = document.getElementById('f-motifs').value; }
+        else if (type === 'portes') { el.type = document.getElementById('po-type').value; el.donne = document.getElementById('po-donne').value; el.l = document.getElementById('po-l').value; el.h = document.getElementById('po-h').value; }
         else if (type === 'plfs') { el.type = document.getElementById('p-type').value; el.donne = document.getElementById('p-donne').value; el.l = document.getElementById('p-l').value; el.larg = document.getElementById('p-larg').value; el.s = document.getElementById('p-s').value;}
         else if (type === 'plas') { el.type = document.getElementById('s-type').value; el.donne = document.getElementById('s-donne').value; el.l = document.getElementById('s-l').value; el.larg = document.getElementById('s-larg').value; el.s = document.getElementById('s-s').value;}
         
@@ -830,7 +868,7 @@
         document.getElementById('btn-save-' + type).textContent = "Enregistrer";
         
         sauvegarderLocal();
-        renderElementsList(type === 'murs' ? 'murs' : type === 'fens' ? 'fen' : type === 'plfs' ? 'plafonds' : 'planchers');
+        renderElementsList(type);
         
         if(type === 'murs') { document.getElementById('m-l').value = ''; drawCroquis(); } 
         else if (type === 'fens') { document.getElementById('f-l').value = ''; document.getElementById('f-h').value = ''; document.getElementById('f-ep').value = ''; document.getElementById('f-nb').value = '1'; document.getElementById('f-motifs').value = '1'; }
@@ -843,21 +881,23 @@
         
         if(type === 'murs') { document.getElementById('m-ori').value = p.ori; document.getElementById('m-donne').value = p.donne; document.getElementById('m-mat').value = p.mat; document.getElementById('m-l').value = p.l; document.getElementById('m-h').value = p.h; document.getElementById('m-iso').value = p.iso; document.getElementById('btn-save-murs').textContent = "Modifier ce mur"; }
         else if (type === 'fens') { document.getElementById('f-ori').value = p.ori || 'Nord'; document.getElementById('f-type').value = p.type; document.getElementById('f-mat').value = p.mat; document.getElementById('f-vit').value = p.vit; document.getElementById('f-ep').value = p.ep || ''; document.getElementById('f-fer').value = p.fer; document.getElementById('f-l').value = p.l; document.getElementById('f-h').value = p.h; document.getElementById('f-nb').value = p.nb || '1'; document.getElementById('f-motifs').value = p.motifs || '1'; document.getElementById('btn-save-fens').textContent = "Modifier cette fenêtre"; }
+        else if (type === 'portes') { document.getElementById('po-type').value = p.type; document.getElementById('po-donne').value = p.donne; document.getElementById('po-l').value = p.l; document.getElementById('po-h').value = p.h; document.getElementById('btn-save-portes').textContent = "Modifier cette porte"; }
         else if (type === 'plfs') { document.getElementById('p-type').value = p.type; document.getElementById('p-donne').value = p.donne; document.getElementById('p-l').value = p.l || ''; document.getElementById('p-larg').value = p.larg || ''; document.getElementById('p-s').value = p.s || ''; document.getElementById('btn-save-plfs').textContent = "Modifier ce plafond"; }
         else if (type === 'plas') { document.getElementById('s-type').value = p.type; document.getElementById('s-donne').value = p.donne; document.getElementById('s-l').value = p.l || ''; document.getElementById('s-larg').value = p.larg || ''; document.getElementById('s-s').value = p.s || ''; document.getElementById('btn-save-plas').textContent = "Modifier ce plancher"; }
         
         window.scrollTo(0,0);
     }
 
-    function suppElement(type, id) { db[type] = db[type].filter(x => x.id !== id); sauvegarderLocal(); renderElementsList(type === 'murs' ? 'murs' : type === 'fens' ? 'fen' : type === 'plfs' ? 'plafonds' : 'planchers'); if(type === 'murs') drawCroquis(); }
+    function suppElement(type, id) { db[type] = db[type].filter(x => x.id !== id); sauvegarderLocal(); renderElementsList(type); if(type === 'murs') drawCroquis(); }
     
     function renderElementsList(tabId) {
         if(!curAppt) return;
         let cont, data, type;
         if(tabId === 'murs') { cont = document.getElementById('list-murs'); data = db.murs; type = 'murs'; }
-        if(tabId === 'fen') { cont = document.getElementById('list-fens'); data = db.fens; type = 'fens'; }
-        if(tabId === 'plafonds') { cont = document.getElementById('list-plfs'); data = db.plfs; type = 'plfs'; }
-        if(tabId === 'planchers') { cont = document.getElementById('list-plas'); data = db.plas; type = 'plas'; }
+        else if(tabId === 'fen' || tabId === 'fens') { cont = document.getElementById('list-fens'); data = db.fens; type = 'fens'; }
+        else if(tabId === 'portes') { cont = document.getElementById('list-portes'); data = db.portes; type = 'portes'; }
+        else if(tabId === 'plafonds' || tabId === 'plfs') { cont = document.getElementById('list-plfs'); data = db.plfs; type = 'plfs'; }
+        else if(tabId === 'planchers' || tabId === 'plas') { cont = document.getElementById('list-plas'); data = db.plas; type = 'plas'; }
 
         cont.innerHTML = data.filter(x => x.aid === curAppt).map(x => {
             let dimText = "";
@@ -869,7 +909,7 @@
             } else {
                 dimText = `Dim: ${x.l||'?'} x ${x.h||'?'}m`;
             }
-            const badgeText = type === 'fens' ? (x.ori || 'N/A') : (x.ori || 'Surf.');
+            const badgeText = type === 'fens' ? (x.ori || 'N/A') : (type === 'portes' ? 'Porte' : (x.ori || 'Surf.'));
 
             return `
             <div class="item-row">
@@ -897,8 +937,12 @@
     window.onload = async () => {
         peuplerSelects();
         try {
-            const savedData = await localforage.getItem('mydiag_v4_3');
-            if (savedData) { db = savedData; if(!db.docs) db.docs = []; }
+            const savedData = await localforage.getItem('mydiag_v4_4');
+            if (savedData) { 
+                db = savedData; 
+                if(!db.docs) db.docs = []; 
+                if(!db.portes) db.portes = []; // Migration sécurité
+            }
             
             ['copro-ref','copro-nom','copro-adresse','copro-annee','copro-batiments','copro-etages'].forEach(id => { const k = id.replace('copro-',''); if(db.copro[k]) document.getElementById(id).value = db.copro[k]; });
             if(db.vmc.type) { document.getElementById('vmc-type').value = db.vmc.type; document.getElementById('vmc-periode').value = db.vmc.periode; }
