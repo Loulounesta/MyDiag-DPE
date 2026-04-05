@@ -96,7 +96,7 @@
 <input type="file" id="global-uploader" style="display:none;" accept="image/*,application/pdf" capture="environment">
 
 <div class="hd">
-    <div class="hd-title">MyDiag - DPE <span style="font-size:10px; color:#94A3B8; font-weight:normal;">v5.2</span></div>
+    <div class="hd-title">MyDiag - DPE <span style="font-size:10px; color:#94A3B8; font-weight:normal;">v5.3</span></div>
     <button class="btn-save" onclick="sauvegarderLocal()">💾 Sauvegarder</button>
 </div>
 
@@ -363,7 +363,7 @@
     let currentUploadTarget = null;
 
     async function sauvegarderLocal() { 
-        try { await localforage.setItem('mydiag_v5_2', db); } 
+        try { await localforage.setItem('mydiag_v5_3', db); } 
         catch (err) { console.error("Erreur de sauvegarde", err); }
     }
 
@@ -448,7 +448,11 @@
         let curX = 0, curY = 0;
         mursApt.forEach(m => {
             let l = parseFloat(m.l) || 0;
-            // Horaire : N(+X), E(+Y), S(-X), O(-Y)
+            // Sens horaire : l'extérieur est à gauche.
+            // Nord : de l'Ouest vers l'Est (+X)
+            // Est : du Nord vers le Sud (+Y)
+            // Sud : de l'Est vers l'Ouest (-X)
+            // Ouest : du Sud vers le Nord (-Y)
             if (m.ori === 'Nord') curX += l;
             else if (m.ori === 'Est') curY += l;
             else if (m.ori === 'Sud') curX -= l;
@@ -483,11 +487,11 @@
 
         mursApt.forEach(m => {
             let l = parseFloat(m.l) || 0;
-            // Repère Cartographique avec dessin horaire
-            if (m.ori === 'Nord') curY -= l;
-            else if (m.ori === 'Est') curX += l;
-            else if (m.ori === 'Sud') curY += l;
-            else if (m.ori === 'Ouest') curX -= l;
+            // Correction Axe (Horaire)
+            if (m.ori === 'Nord') curX += l;
+            else if (m.ori === 'Est') curY += l;
+            else if (m.ori === 'Sud') curX -= l;
+            else if (m.ori === 'Ouest') curY -= l;
             points.push({ x: curX, y: curY });
         });
 
@@ -500,7 +504,7 @@
         let minY = Math.min(...points.map(p => p.y)); let maxY = Math.max(...points.map(p => p.y));
 
         let width = Math.max(maxX - minX, 0.1); let height = Math.max(maxY - minY, 0.1);
-        let padding = 40; 
+        let padding = 45; 
         let scaleX = (cw - padding * 2) / width; let scaleY = (ch - padding * 2) / height;
         let scale = Math.min(scaleX, scaleY);
 
@@ -532,11 +536,12 @@
             ctx.fillStyle = "#0F172A"; ctx.fillText(text, textPx, textPy);
         }
 
-        let compX = 20; let compY = 20;
+        // Boussole corrigée
+        let compX = 25; let compY = 30;
         ctx.beginPath(); ctx.moveTo(compX, compY - 10); ctx.lineTo(compX, compY + 10); ctx.moveTo(compX - 10, compY); ctx.lineTo(compX + 10, compY);
         ctx.strokeStyle = "#CBD5E1"; ctx.lineWidth = 2; ctx.stroke();
         ctx.beginPath(); ctx.moveTo(compX, compY - 12); ctx.lineTo(compX - 4, compY - 2); ctx.lineTo(compX + 4, compY - 2); ctx.fillStyle = "#DC2626"; ctx.fill();
-        ctx.fillStyle = "#334155"; ctx.font = "bold 10px sans-serif"; ctx.fillText("N", compX, compY + 18);
+        ctx.fillStyle = "#334155"; ctx.font = "bold 11px sans-serif"; ctx.fillText("N", compX, compY - 18);
 
         let startP = points[0]; let endP = points[points.length - 1];
         let startPx = offsetX + (startP.x - minX) * scale; let startPy = offsetY + (startP.y - minY) * scale;
@@ -1067,7 +1072,7 @@
     window.onload = async () => {
         peuplerSelects();
         try {
-            const savedData = await localforage.getItem('mydiag_v5_2');
+            const savedData = await localforage.getItem('mydiag_v5_3');
             if (savedData) { 
                 db = savedData; 
                 if(!db.docs) db.docs = []; 
