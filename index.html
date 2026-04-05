@@ -85,6 +85,10 @@
         .badge-elem { background: #E2E8F0; color: #334155; padding: 3px 6px; border-radius: 6px; font-size: 11px; font-weight: 800; display: inline-block; margin-top: 4px;}
         .badge-ok { background: var(--ok-l); color: var(--ok); border: 1px solid #BFE4C9;}
         .badge-warn { background: var(--warn-l); color: var(--warn); border: 1px solid #F9DCA7;}
+
+        /* TOAST NOTIFICATION */
+        .toast { position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%); background: rgba(15,23,42,0.9); color: #fff; padding: 12px 24px; border-radius: 30px; font-size: 14px; font-weight: 600; opacity: 0; pointer-events: none; transition: opacity 0.3s; z-index: 9999; box-shadow: 0 4px 12px rgba(0,0,0,0.15); text-align:center; white-space: nowrap;}
+        .toast.show { opacity: 1; }
     </style>
 </head>
 <body>
@@ -96,7 +100,7 @@
 <input type="file" id="global-uploader" style="display:none;" accept="image/*,application/pdf" capture="environment">
 
 <div class="hd">
-    <div class="hd-title">MyDiag - DPE <span style="font-size:10px; color:#94A3B8; font-weight:normal;">v5.3</span></div>
+    <div class="hd-title">MyDiag - DPE <span style="font-size:10px; color:#94A3B8; font-weight:normal;">v6.0</span></div>
     <button class="btn-save" onclick="sauvegarderLocal()">💾 Sauvegarder</button>
 </div>
 
@@ -240,6 +244,54 @@
         <div class="fr"><span class="fl">Isolant</span><select id="m-iso"><option>Non isolé</option><option>Isolation Intérieure (ITI)</option><option>Isolation Extérieure (ITE)</option></select></div>
     </div>
     <button class="btn btn-p" id="btn-save-murs" onclick="sauverParoi('murs')">Enregistrer ce mur</button>
+
+    <div class="coll-acc-hd" onclick="toggleAcc('calc-ramp', this)" style="margin-top:20px; background:#F8FAFC;">
+        <span>📐 Calculateur Géométrique (Combles)</span> <span style="color:var(--acc);">▼</span>
+    </div>
+    <div class="coll-acc-body" id="calc-ramp">
+        <div class="card" style="padding:15px;">
+            <div style="font-size:12px; color:var(--tx2); margin-bottom:15px; line-height:1.4;">Saisissez les 4 cotes pour générer automatiquement les murs et plafonds sous vos combles ou rampants.</div>
+            
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:15px;">
+                <div>
+                    <div style="font-size:11px; font-weight:700; color:var(--acc); margin-bottom:4px;">L - Long. façade (m)</div>
+                    <input type="number" id="calc-L" placeholder="ex: 8" inputmode="decimal" oninput="runCalc()" style="width:100%; border:1px solid var(--bor); padding:10px; border-radius:8px; font-size:14px; font-weight:bold;">
+                </div>
+                <div>
+                    <div style="font-size:11px; font-weight:700; color:var(--ok); margin-bottom:4px;">l - Prof. pignon (m)</div>
+                    <input type="number" id="calc-l" placeholder="ex: 4" inputmode="decimal" oninput="runCalc()" style="width:100%; border:1px solid var(--bor); padding:10px; border-radius:8px; font-size:14px; font-weight:bold;">
+                </div>
+                <div>
+                    <div style="font-size:11px; font-weight:700; color:var(--acc); margin-bottom:4px;">h - Hauteur basse (m)</div>
+                    <input type="number" id="calc-h" placeholder="ex: 1.5" inputmode="decimal" oninput="runCalc()" style="width:100%; border:1px solid var(--bor); padding:10px; border-radius:8px; font-size:14px; font-weight:bold;">
+                </div>
+                <div>
+                    <div style="font-size:11px; font-weight:700; color:var(--ok); margin-bottom:4px;">H - Haut. faîtage (m)</div>
+                    <input type="number" id="calc-H" placeholder="ex: 3.5" inputmode="decimal" oninput="runCalc()" style="width:100%; border:1px solid var(--bor); padding:10px; border-radius:8px; font-size:14px; font-weight:bold;">
+                </div>
+            </div>
+
+            <div id="calc-res" style="display:none;">
+                <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--bor); padding-top:10px; margin-top:5px;">
+                    <div><div style="font-size:13px; font-weight:700;">Mur Façade (L×h)</div><div style="font-size:16px; font-weight:800; color:var(--acc);" id="res-mur">--</div></div>
+                    <button class="btn-xs" style="background:var(--acc-l); color:var(--acc); padding:8px 12px; flex:0 0 auto;" onclick="addCalc('mur')">+ Ajouter Mur</button>
+                </div>
+                <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--bor); padding-top:10px; margin-top:10px;">
+                    <div><div style="font-size:13px; font-weight:700;">Mur Pignon ((h+H)/2 × l)</div><div style="font-size:16px; font-weight:800; color:var(--ok);" id="res-pig">--</div></div>
+                    <button class="btn-xs" style="background:var(--ok-l); color:var(--ok); padding:8px 12px; flex:0 0 auto;" onclick="addCalc('pig')">+ Ajouter Mur</button>
+                </div>
+                <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--bor); padding-top:10px; margin-top:10px;">
+                    <div><div style="font-size:13px; font-weight:700;">Plafond Rampant</div><div style="font-size:16px; font-weight:800; color:var(--warn);" id="res-ramp">--</div></div>
+                    <button class="btn-xs" style="background:var(--warn-l); color:var(--warn); padding:8px 12px; flex:0 0 auto;" onclick="addCalc('ramp')">+ Ajouter Plafond</button>
+                </div>
+                <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--bor); padding-top:10px; margin-top:10px;">
+                    <div><div style="font-size:13px; font-weight:700;">Plafond Plat (L×l)</div><div style="font-size:16px; font-weight:800; color:#0F172A;" id="res-plat">--</div></div>
+                    <button class="btn-xs" style="background:#E2E8F0; color:#0F172A; padding:8px 12px; flex:0 0 auto;" onclick="addCalc('plat')">+ Ajouter Plafond</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div id="list-murs" style="margin-top:15px;"></div>
 </div>
 
@@ -318,7 +370,16 @@
     </div>
 </div>
 
+<div id="sys-toast" class="toast">Action effectuée ✓</div>
+
 <script>
+    function toast(msg) {
+        let el = document.getElementById('sys-toast');
+        el.textContent = msg;
+        el.classList.add('show');
+        setTimeout(() => el.classList.remove('show'), 2500);
+    }
+
     // --- 1. NOMENCLATURES ADN ---
     const ADN = {
         MURS: ["Pierre de taille moellons constitués d'un seul matériau / inconnu", "Pierre de taille moellons avec remplissage tout venant", "Pisé ou béton de terre stabilisée", "Pans de bois sans remplissage", "Briques pleines simples", "Briques creuses", "Blocs de béton pleins", "Blocs de béton creux", "Béton banché", "Brique terre cuite alvéolaire", "Ossature bois sans remplissage", "Inconnu"],
@@ -361,10 +422,74 @@
     let curAppt = null;
     let editParoiId = null;
     let currentUploadTarget = null;
+    let lastCalc = {};
 
     async function sauvegarderLocal() { 
-        try { await localforage.setItem('mydiag_v5_3', db); } 
+        try { await localforage.setItem('mydiag_v6_0', db); } 
         catch (err) { console.error("Erreur de sauvegarde", err); }
+    }
+
+    // --- CALCULATEUR GEOMETRIQUE ---
+    function runCalc() {
+        let L = parseFloat(document.getElementById('calc-L').value);
+        let l = parseFloat(document.getElementById('calc-l').value);
+        let h = parseFloat(document.getElementById('calc-h').value);
+        let H = parseFloat(document.getElementById('calc-H').value);
+        let resDiv = document.getElementById('calc-res');
+
+        if(isNaN(L) || isNaN(l) || isNaN(h) || isNaN(H) || H < h) {
+            resDiv.style.display = 'none';
+            return;
+        }
+        
+        let sMur = L * h;
+        let sPig = ((h + H) / 2) * l;
+        let hyp = Math.sqrt(Math.pow(H - h, 2) + Math.pow(l, 2));
+        let sRamp = L * hyp;
+        let sPlat = L * l;
+
+        lastCalc = { sMur: sMur.toFixed(2), sPig: sPig.toFixed(2), sRamp: sRamp.toFixed(2), sPlat: sPlat.toFixed(2) };
+
+        document.getElementById('res-mur').textContent = lastCalc.sMur + ' m²';
+        document.getElementById('res-pig').textContent = lastCalc.sPig + ' m²';
+        document.getElementById('res-ramp').textContent = lastCalc.sRamp + ' m²';
+        document.getElementById('res-plat').textContent = lastCalc.sPlat + ' m²';
+        resDiv.style.display = 'block';
+    }
+
+    function addCalc(type) {
+        if(!curAppt) return alert("Sélectionnez un appartement !");
+        let el = { id: Date.now(), aid: curAppt };
+        
+        if(type === 'mur') {
+            el.mat = 'Inconnu'; el.ori = ''; el.donne = 'Extérieur'; 
+            el.l = document.getElementById('calc-L').value; 
+            el.h = document.getElementById('calc-h').value; 
+            el.doub = 'Absent'; el.iso = 'Non isolé';
+            db.murs.push(el);
+            toast("Mur Façade ajouté. Modifiez-le ✏️");
+        } else if(type === 'pig') {
+            el.mat = 'Inconnu'; el.ori = ''; el.donne = 'Extérieur'; 
+            el.l = document.getElementById('calc-l').value; 
+            let hMoy = (parseFloat(document.getElementById('calc-h').value) + parseFloat(document.getElementById('calc-H').value)) / 2;
+            el.h = hMoy.toFixed(2); 
+            el.doub = 'Absent'; el.iso = 'Non isolé';
+            db.murs.push(el);
+            toast("Mur Pignon ajouté. Modifiez-le ✏️");
+        } else if(type === 'ramp') {
+            el.type = 'Combles aménagés sous rampants'; el.donne = 'Extérieur'; 
+            el.s = lastCalc.sRamp;
+            db.plfs.push(el);
+            toast("Plafond rampant ajouté. Modifiez-le ✏️");
+        } else if(type === 'plat') {
+            el.type = 'Inconnu'; el.donne = 'Combles perdus'; 
+            el.s = lastCalc.sPlat;
+            db.plfs.push(el);
+            toast("Plafond plat ajouté. Modifiez-le ✏️");
+        }
+        sauvegarderLocal();
+        renderElementsList(type === 'mur' || type === 'pig' ? 'murs' : 'plfs');
+        if(type === 'mur' || type === 'pig') drawCroquis();
     }
 
     // --- 3. MOTEUR UPLOAD & COMPRESSION PHOTOS ---
@@ -448,11 +573,6 @@
         let curX = 0, curY = 0;
         mursApt.forEach(m => {
             let l = parseFloat(m.l) || 0;
-            // Sens horaire : l'extérieur est à gauche.
-            // Nord : de l'Ouest vers l'Est (+X)
-            // Est : du Nord vers le Sud (+Y)
-            // Sud : de l'Est vers l'Ouest (-X)
-            // Ouest : du Sud vers le Nord (-Y)
             if (m.ori === 'Nord') curX += l;
             else if (m.ori === 'Est') curY += l;
             else if (m.ori === 'Sud') curX -= l;
@@ -487,7 +607,7 @@
 
         mursApt.forEach(m => {
             let l = parseFloat(m.l) || 0;
-            // Correction Axe (Horaire)
+            // Repère Cartographique avec dessin horaire
             if (m.ori === 'Nord') curX += l;
             else if (m.ori === 'Est') curY += l;
             else if (m.ori === 'Sud') curX -= l;
@@ -504,7 +624,7 @@
         let minY = Math.min(...points.map(p => p.y)); let maxY = Math.max(...points.map(p => p.y));
 
         let width = Math.max(maxX - minX, 0.1); let height = Math.max(maxY - minY, 0.1);
-        let padding = 45; 
+        let padding = 40; 
         let scaleX = (cw - padding * 2) / width; let scaleY = (ch - padding * 2) / height;
         let scale = Math.min(scaleX, scaleY);
 
@@ -536,8 +656,7 @@
             ctx.fillStyle = "#0F172A"; ctx.fillText(text, textPx, textPy);
         }
 
-        // Boussole corrigée
-        let compX = 25; let compY = 30;
+        let compX = 20; let compY = 30;
         ctx.beginPath(); ctx.moveTo(compX, compY - 10); ctx.lineTo(compX, compY + 10); ctx.moveTo(compX - 10, compY); ctx.lineTo(compX + 10, compY);
         ctx.strokeStyle = "#CBD5E1"; ctx.lineWidth = 2; ctx.stroke();
         ctx.beginPath(); ctx.moveTo(compX, compY - 12); ctx.lineTo(compX - 4, compY - 2); ctx.lineTo(compX + 4, compY - 2); ctx.fillStyle = "#DC2626"; ctx.fill();
@@ -717,7 +836,7 @@
         }
     }
 
-    // --- 8. APPARTEMENTS ---
+    // --- 8. APPARTEMENTS & CLONAGE ---
     function showNouvelAppt() { 
         document.getElementById('apt-num').innerHTML = getAptNumOptionsHtml();
         updateEtageOptions('apt-etage');
@@ -737,6 +856,33 @@
         sauvegarderLocal(); document.getElementById('apt-num').value = ''; document.getElementById('apt-hsp').value = ''; hideNouvelAppt(); renderApptsList();
     }
     
+    function dupAppt(id) {
+        const src = db.appts.find(a => a.id === id);
+        if(!src) return;
+        const newNum = prompt("Numéro de la copie ?", src.num + " (Copie)");
+        if(!newNum) return;
+        
+        const newId = String(Date.now());
+        const newApt = {...src, id: newId, num: newNum};
+        db.appts.push(newApt);
+        
+        const cloneItems = (arrName, fk) => {
+            const items = db[arrName].filter(x => x[fk] === id);
+            items.forEach(item => { db[arrName].push({...item, id: Date.now() + Math.random(), [fk]: newId}); });
+        };
+        
+        cloneItems('murs', 'aid');
+        cloneItems('fens', 'aid');
+        cloneItems('portes', 'aid');
+        cloneItems('plfs', 'aid');
+        cloneItems('plas', 'aid');
+        cloneItems('chaufs', 'aptId');
+        cloneItems('ecss', 'aptId');
+        
+        curAppt = newId; expAppts[newId] = true;
+        sauvegarderLocal(); renderApptsList(); toast("Appartement dupliqué ✓");
+    }
+
     function toggleAppt(id) { expAppts[id] = !expAppts[id]; renderApptsList(); }
     
     function suppAppt(id) { 
@@ -774,9 +920,7 @@
     function ajouterChauf(aptId) {
         const e = document.getElementById('ifc-energie-'+aptId).value; const g = document.getElementById('ifc-gen-'+aptId).value;
         const btn = document.getElementById('btn-chauf-'+aptId); const editId = btn.getAttribute('data-edit-id');
-        
         if(!e||!g) return alert("Énergie et générateur requis");
-        
         let obj = {
             id: editId || String(Date.now()), aptId, energie: e, gen: g, 
             emetteur: document.getElementById('ifc-emetteur-'+aptId).value, annee: document.getElementById('ifc-annee-'+aptId).value, puissance: document.getElementById('ifc-puissance-'+aptId).value
@@ -789,6 +933,13 @@
         sauvegarderLocal(); renderApptsList();
     }
     
+    function clonerChauf(id) {
+        const src = db.chaufs.find(x => x.id === id);
+        if(!src) return;
+        db.chaufs.push({...src, id: Date.now() + Math.random()});
+        sauvegarderLocal(); renderApptsList(); toast("Chauffage cloné ✓");
+    }
+
     function editerChauf(aptId, chaufId) {
         const c = db.chaufs.find(x => x.id === chaufId);
         document.getElementById(`ifc-energie-${aptId}`).value = c.energie;
@@ -805,12 +956,8 @@
     function ajouterEcs(aptId) {
         const e = document.getElementById('ife-energie-'+aptId).value; const t = document.getElementById('ife-type-'+aptId).value;
         const btn = document.getElementById('btn-ecs-'+aptId); const editId = btn.getAttribute('data-edit-id');
-
         if(!e||!t) return alert("Type et énergie requis");
-        let obj = {
-            id: editId || String(Date.now()), aptId, type: t, energie: e, annee: document.getElementById('ife-annee-'+aptId).value, vol: document.getElementById('ife-vol-'+aptId).value
-        };
-
+        let obj = { id: editId || String(Date.now()), aptId, type: t, energie: e, annee: document.getElementById('ife-annee-'+aptId).value, vol: document.getElementById('ife-vol-'+aptId).value };
         if(editId) { 
             const old = db.ecss.find(x => x.id === editId);
             if(old && old.photo) obj.photo = old.photo;
@@ -819,6 +966,13 @@
         sauvegarderLocal(); renderApptsList();
     }
     
+    function clonerEcs(id) {
+        const src = db.ecss.find(x => x.id === id);
+        if(!src) return;
+        db.ecss.push({...src, id: Date.now() + Math.random()});
+        sauvegarderLocal(); renderApptsList(); toast("ECS clonée ✓");
+    }
+
     function editerEcs(aptId, ecsId) {
         const e = db.ecss.find(x => x.id === ecsId);
         document.getElementById(`ife-energie-${aptId}`).value = e.energie;
@@ -858,7 +1012,11 @@
                             </div>
                         </div>
                         <div style="color:var(--tx2); font-size:11px; margin-top:4px;">${c.emetteur||''} | ${c.puissance?c.puissance+'kW':''} | ${c.annee?c.annee:''}</div>
-                        <div style="align-self:flex-end; margin-top:-20px;"><button class="btn-xs" style="color:var(--acc); margin-right:5px;" onclick="editerChauf('${a.id}','${c.id}')">✏️</button><button class="btn-xs" style="color:red;" onclick="suppChauf('${c.id}')">X</button></div>
+                        <div style="align-self:flex-end; margin-top:-20px;">
+                            <button class="btn-xs" style="color:var(--ok); border:1px solid var(--ok-l); margin-right:5px;" onclick="clonerChauf('${c.id}')">🔄</button>
+                            <button class="btn-xs" style="color:var(--acc); margin-right:5px;" onclick="editerChauf('${a.id}','${c.id}')">✏️</button>
+                            <button class="btn-xs" style="color:red;" onclick="suppChauf('${c.id}')">X</button>
+                        </div>
                     </div>`).join('');
                 
                 const eList = myE.map(e => `
@@ -871,7 +1029,11 @@
                             </div>
                         </div>
                         <div style="color:var(--tx2); font-size:11px; margin-top:4px;">${e.vol?e.vol+'L':''} | ${e.annee?e.annee:''}</div>
-                        <div style="align-self:flex-end; margin-top:-20px;"><button class="btn-xs" style="color:var(--acc); margin-right:5px;" onclick="editerEcs('${a.id}','${e.id}')">✏️</button><button class="btn-xs" style="color:red;" onclick="suppEcs('${e.id}')">X</button></div>
+                        <div style="align-self:flex-end; margin-top:-20px;">
+                            <button class="btn-xs" style="color:var(--ok); border:1px solid var(--ok-l); margin-right:5px;" onclick="clonerEcs('${e.id}')">🔄</button>
+                            <button class="btn-xs" style="color:var(--acc); margin-right:5px;" onclick="editerEcs('${a.id}','${e.id}')">✏️</button>
+                            <button class="btn-xs" style="color:red;" onclick="suppEcs('${e.id}')">X</button>
+                        </div>
                     </div>`).join('');
                 
                 body = `<div class="appt-body open">
@@ -896,6 +1058,7 @@
                         <button class="qbtn" onclick="curAppt='${a.id}'; goTab('portes')">🚪 Portes (${po})</button>
                         <button class="qbtn" onclick="curAppt='${a.id}'; goTab('plafonds')">🔝 Plaf (${p})</button>
                         <button class="qbtn" onclick="curAppt='${a.id}'; goTab('planchers')">🔽 Plan (${s})</button>
+                        <button class="qbtn" style="color:var(--ok); border-color:var(--ok-l);" onclick="dupAppt('${a.id}')">🔄 Dupliquer Appt</button>
                     </div>
 
                     <div style="background:#F8FAFC; padding:10px; border-radius:8px; border:1px solid var(--bor); margin-top:10px;">
@@ -998,6 +1161,7 @@
         if(type === 'murs') { document.getElementById('m-l').value = ''; document.getElementById('m-doub').value = 'Absent'; drawCroquis(); } 
         else if (type === 'fens') { document.getElementById('f-bibli').value = ''; document.getElementById('f-l').value = ''; document.getElementById('f-h').value = ''; document.getElementById('f-ep').value = ''; document.getElementById('f-nb').value = '1'; document.getElementById('f-motifs').value = '1'; }
         else { document.querySelectorAll(`#vw-${type} input[type="number"]`).forEach(i => i.value = ''); }
+        toast("Élément enregistré ✓");
     }
 
     function editerParoi(type, id) {
@@ -1020,6 +1184,16 @@
         else if (type === 'plas') { document.getElementById('s-type').value = p.type; document.getElementById('s-donne').value = p.donne; document.getElementById('s-l').value = p.l || ''; document.getElementById('s-larg').value = p.larg || ''; document.getElementById('s-s').value = p.s || ''; document.getElementById('btn-save-plas').textContent = "Modifier ce plancher"; }
         
         window.scrollTo(0,0);
+    }
+
+    function clonerParoi(type, id) {
+        const src = db[type].find(x => x.id === id);
+        if(!src) return;
+        const clone = {...src, id: Date.now() + Math.random()};
+        db[type].push(clone);
+        sauvegarderLocal(); renderElementsList(type); 
+        if(type === 'murs') drawCroquis(); 
+        toast("Élément cloné ✓");
     }
 
     function suppElement(type, id) { db[type] = db[type].filter(x => x.id !== id); sauvegarderLocal(); renderElementsList(type); if(type === 'murs') drawCroquis(); }
@@ -1049,7 +1223,11 @@
             return `
             <div class="item-row">
                 <div class="item-details"><span class="badge">${badgeText}</span> <b>${titleText}</b> <br><span style="color:var(--tx2); font-size:11px;">${dimText}</span></div>
-                <div><button class="btn-xs" style="color:var(--acc); margin-right:5px;" onclick="editerParoi('${type}', ${x.id})">✏️</button><button class="btn-xs" style="background:var(--dan-l); color:var(--dan);" onclick="suppElement('${type}', ${x.id})">X</button></div>
+                <div>
+                    <button class="btn-xs" style="color:var(--ok); border:1px solid var(--ok-l); margin-right:5px;" onclick="clonerParoi('${type}', ${x.id})">🔄</button>
+                    <button class="btn-xs" style="color:var(--acc); margin-right:5px;" onclick="editerParoi('${type}', ${x.id})">✏️</button>
+                    <button class="btn-xs" style="background:var(--dan-l); color:var(--dan);" onclick="suppElement('${type}', ${x.id})">X</button>
+                </div>
             </div>
             `;
         }).join('');
@@ -1072,7 +1250,7 @@
     window.onload = async () => {
         peuplerSelects();
         try {
-            const savedData = await localforage.getItem('mydiag_v5_3');
+            const savedData = await localforage.getItem('mydiag_v6_0');
             if (savedData) { 
                 db = savedData; 
                 if(!db.docs) db.docs = []; 
