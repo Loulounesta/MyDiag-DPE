@@ -100,7 +100,7 @@
 <input type="file" id="global-uploader" style="display:none;" accept="image/*,application/pdf" capture="environment">
 
 <div class="hd">
-    <div class="hd-title">MyDiag - DPE <span style="font-size:10px; color:#94A3B8; font-weight:normal;">v6.0</span></div>
+    <div class="hd-title">MyDiag - DPE <span style="font-size:10px; color:#94A3B8; font-weight:normal;">v6.1 Fermeture Auto</span></div>
     <button class="btn-save" onclick="sauvegarderLocal()">💾 Sauvegarder</button>
 </div>
 
@@ -425,7 +425,7 @@
     let lastCalc = {};
 
     async function sauvegarderLocal() { 
-        try { await localforage.setItem('mydiag_v6_0', db); } 
+        try { await localforage.setItem('mydiag_v6_1', db); } 
         catch (err) { console.error("Erreur de sauvegarde", err); }
     }
 
@@ -573,6 +573,7 @@
         let curX = 0, curY = 0;
         mursApt.forEach(m => {
             let l = parseFloat(m.l) || 0;
+            // Horaire : N(+X), E(+Y), S(-X), O(-Y)
             if (m.ori === 'Nord') curX += l;
             else if (m.ori === 'Est') curY += l;
             else if (m.ori === 'Sud') curX -= l;
@@ -582,6 +583,36 @@
         let err = Math.sqrt(curX*curX + curY*curY);
         return err <= 0.15;
     }
+
+    // --- FONCTION FERMETURE AUTOMATIQUE ---
+    window.fermerPolygone = function(aptId, cX, cY) {
+        let dx = -cX;
+        let dy = -cY;
+        let l = Math.sqrt(dx*dx + dy*dy).toFixed(2);
+        let ori = '';
+        if (Math.abs(dx) >= Math.abs(dy)) {
+            ori = dx >= 0 ? 'Nord' : 'Sud';
+        } else {
+            ori = dy >= 0 ? 'Est' : 'Ouest';
+        }
+
+        let m = {
+            id: Date.now(),
+            aid: aptId,
+            ori: ori,
+            donne: 'Extérieur',
+            mat: 'Inconnu',
+            l: String(l),
+            h: '',
+            doub: 'Absent',
+            iso: 'Non isolé'
+        };
+        db.murs.push(m);
+        sauvegarderLocal();
+        renderElementsList('murs');
+        drawCroquis();
+        toast('Mur de fermeture (' + l + 'm) généré. Cliquez sur ✏️ pour le compléter.');
+    };
 
     function drawCroquis() {
         const canvas = document.getElementById('croquis-canvas');
@@ -624,7 +655,7 @@
         let minY = Math.min(...points.map(p => p.y)); let maxY = Math.max(...points.map(p => p.y));
 
         let width = Math.max(maxX - minX, 0.1); let height = Math.max(maxY - minY, 0.1);
-        let padding = 40; 
+        let padding = 45; 
         let scaleX = (cw - padding * 2) / width; let scaleY = (ch - padding * 2) / height;
         let scale = Math.min(scaleX, scaleY);
 
@@ -656,7 +687,8 @@
             ctx.fillStyle = "#0F172A"; ctx.fillText(text, textPx, textPy);
         }
 
-        let compX = 20; let compY = 30;
+        // Boussole corrigée
+        let compX = 25; let compY = 30;
         ctx.beginPath(); ctx.moveTo(compX, compY - 10); ctx.lineTo(compX, compY + 10); ctx.moveTo(compX - 10, compY); ctx.lineTo(compX + 10, compY);
         ctx.strokeStyle = "#CBD5E1"; ctx.lineWidth = 2; ctx.stroke();
         ctx.beginPath(); ctx.moveTo(compX, compY - 12); ctx.lineTo(compX - 4, compY - 2); ctx.lineTo(compX + 4, compY - 2); ctx.fillStyle = "#DC2626"; ctx.fill();
@@ -671,10 +703,10 @@
 
         let err = Math.sqrt(Math.pow(curX, 2) + Math.pow(curY, 2));
         let txt = '';
-        if (mursApt.length < 3) {
-            txt = '<span style="color:#94A3B8;">Tracez au moins 3 murs pour fermer le polygone...</span>';
+        if (mursApt.length < 2) {
+            txt = '<span style="color:#94A3B8;">Tracez au moins 2 murs pour pouvoir fermer le polygone...</span>';
         } else if (err > 0.15) {
-            txt = `<span style="color:#DC2626;">⚠️ Écart fermeture : ${err.toFixed(2)} m</span><br><span style="color:#16A34A;">Surface estimée : ${area.toFixed(1)} m²</span>`;
+            txt = `<span style="color:#DC2626;">⚠️ Écart fermeture : ${err.toFixed(2)} m</span><br><span style="color:#16A34A;">Surface estimée : ${area.toFixed(1)} m²</span><br><button class="btn-xs" style="margin-top:8px; padding:6px 12px; background:var(--warn-l); color:var(--warn); border:1px solid #F9DCA7; cursor:pointer;" onclick="fermerPolygone('${curAppt}', ${curX}, ${curY})">🔗 Fermer automatiquement</button>`;
             ctx.beginPath(); ctx.setLineDash([5, 5]); ctx.moveTo(endPx, endPy); ctx.lineTo(startPx, startPy); ctx.strokeStyle = '#DC2626'; ctx.lineWidth = 2; ctx.stroke(); ctx.setLineDash([]);
         } else {
             txt = `<span style="color:#16A34A;">✅ Périmètre fermé</span><br>Surface géométrique : <b>${area.toFixed(1)} m²</b>`;
@@ -920,7 +952,9 @@
     function ajouterChauf(aptId) {
         const e = document.getElementById('ifc-energie-'+aptId).value; const g = document.getElementById('ifc-gen-'+aptId).value;
         const btn = document.getElementById('btn-chauf-'+aptId); const editId = btn.getAttribute('data-edit-id');
+        
         if(!e||!g) return alert("Énergie et générateur requis");
+        
         let obj = {
             id: editId || String(Date.now()), aptId, energie: e, gen: g, 
             emetteur: document.getElementById('ifc-emetteur-'+aptId).value, annee: document.getElementById('ifc-annee-'+aptId).value, puissance: document.getElementById('ifc-puissance-'+aptId).value
@@ -956,6 +990,7 @@
     function ajouterEcs(aptId) {
         const e = document.getElementById('ife-energie-'+aptId).value; const t = document.getElementById('ife-type-'+aptId).value;
         const btn = document.getElementById('btn-ecs-'+aptId); const editId = btn.getAttribute('data-edit-id');
+
         if(!e||!t) return alert("Type et énergie requis");
         let obj = { id: editId || String(Date.now()), aptId, type: t, energie: e, annee: document.getElementById('ife-annee-'+aptId).value, vol: document.getElementById('ife-vol-'+aptId).value };
         if(editId) { 
@@ -1250,7 +1285,7 @@
     window.onload = async () => {
         peuplerSelects();
         try {
-            const savedData = await localforage.getItem('mydiag_v6_0');
+            const savedData = await localforage.getItem('mydiag_v6_1');
             if (savedData) { 
                 db = savedData; 
                 if(!db.docs) db.docs = []; 
