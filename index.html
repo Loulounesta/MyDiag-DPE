@@ -64,7 +64,7 @@
         .active-apt-banner { background: var(--acc-l); color: var(--acc); padding: 10px; border-radius: var(--rs); font-weight: 800; text-align: center; margin-bottom: 15px; border: 1px solid #B5D4F4;}
 
         .canvas-container { background:#fff; border: 1px solid var(--bor); border-radius: var(--r); padding:15px; margin-bottom:15px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
-        #croquis-canvas { width: 100%; height: 220px; background: #F8FAFC; border-radius: 8px; border: 1px dashed #CBD5E1; margin-top: 10px;}
+        #croquis-canvas { width: 100%; height: 260px; background: #F8FAFC; border-radius: 8px; border: 1px dashed #CBD5E1; margin-top: 10px;}
         .croquis-header { display: flex; justify-content: space-between; align-items: center; }
         .croquis-title { font-size: 12px; font-weight: 800; color: var(--acc); text-transform: uppercase; }
         .croquis-badge { background: #1E293B; color: #FFF; font-size: 10px; padding: 3px 6px; border-radius: 4px; font-weight: bold;}
@@ -83,7 +83,7 @@
 <input type="file" id="global-uploader" style="display:none;" accept="image/*,application/pdf" capture="environment">
 
 <div class="hd">
-    <div class="hd-title">MyDiag <span style="font-size:10px; color:#94A3B8; font-weight:normal;">v4.0 IndexedDB</span></div>
+    <div class="hd-title">MyDiag <span style="font-size:10px; color:#94A3B8; font-weight:normal;">v4.2 Moteur BIM 2D</span></div>
     <button class="btn-save" onclick="sauvegarderLocal()">💾 Sauvegarder</button>
 </div>
 
@@ -202,11 +202,11 @@
     
     <div class="canvas-container" id="croquis-container" style="display:none;">
         <div class="croquis-header">
-            <span class="croquis-title">📐 Cohérence Géométrique</span>
+            <span class="croquis-title">📐 Topographie du lot</span>
             <span class="croquis-badge">Saisie Horaire ↻</span>
         </div>
-        <canvas id="croquis-canvas" width="400" height="220"></canvas>
-        <div id="croquis-msg" style="text-align:center; font-size:13px; font-weight:700; margin-top:12px;"></div>
+        <canvas id="croquis-canvas" width="400" height="260"></canvas>
+        <div id="croquis-msg" style="text-align:center; font-size:13px; font-weight:500; margin-top:12px; line-height:1.4;"></div>
     </div>
 
     <div class="card">
@@ -220,7 +220,6 @@
     
     <div class="sl" style="margin-top:20px; display:flex; justify-content:space-between;">
         <span>Murs saisis pour ce lot</span>
-        <span style="color:#94A3B8; text-transform:none; font-weight:normal;">Saisie horaire (↻)</span>
     </div>
     <div id="list-murs"></div>
 </div>
@@ -228,11 +227,14 @@
 <div id="vw-fen" class="vw">
     <div id="fen-apt-banner" class="active-apt-banner">Aucun appartement sélectionné</div>
     <div class="card">
+        <div class="fr"><span class="fl">Orientation</span><select id="f-ori"><option>Nord</option><option>Sud</option><option>Est</option><option>Ouest</option><option>Horizontal</option></select></div>
         <div class="fr"><span class="fl">Type</span><select id="f-type"></select></div>
         <div class="fr"><span class="fl">Matière</span><select id="f-mat"></select></div>
         <div class="fr"><span class="fl">Vitrage</span><select id="f-vit"></select></div>
+        <div class="fr"><span class="fl">Ép. Lame (mm)</span><input type="number" id="f-ep" placeholder="ex: 16" inputmode="numeric"></div>
         <div class="fr"><span class="fl">Fermeture</span><select id="f-fer"></select></div>
         <div class="fr"><span class="fl">L x H (cm)</span><input type="number" id="f-l" placeholder="Larg." style="margin-right:5px;" inputmode="numeric"><input type="number" id="f-h" placeholder="Haut." inputmode="numeric"></div>
+        <div class="fr"><span class="fl">Quantité / Motifs</span><input type="number" id="f-nb" placeholder="Qté" style="margin-right:5px;" value="1" inputmode="numeric"><input type="number" id="f-motifs" placeholder="Motifs" value="1" inputmode="numeric"></div>
     </div>
     <button class="btn btn-p" id="btn-save-fens" onclick="sauverParoi('fens')">Enregistrer cette fenêtre</button>
     <div class="sl" style="margin-top:20px;">Fenêtres saisies pour ce lot</div>
@@ -267,7 +269,7 @@
     <div class="card" style="padding:20px; text-align:center;">
         <button class="btn btn-p" onclick="exportData()">📊 EXPORTER LE DOSSIER (JSON)</button>
         <div style="font-size:12px; color:var(--tx2); margin-top:10px;">Comprend toutes les données, plans et photos.</div>
-        <button class="btn" style="background:var(--dan); color:white; margin-top:30px;" onclick="resetTotal()">🗑️ RESET TOTAL DU PROJET</button>
+        <button class="btn" style="background:var(--dan); color:white; margin-top:30px;" onclick="if(confirm('Tout effacer?')) {localforage.clear(); location.reload();}">🗑️ RESET TOTAL DU PROJET</button>
     </div>
 </div>
 
@@ -315,13 +317,9 @@
     let editParoiId = null;
     let currentUploadTarget = null;
 
-    // Sauvegarde Asynchrone avec localForage
     async function sauvegarderLocal() { 
-        try {
-            await localforage.setItem('mydiag_v4_0', db);
-        } catch (err) {
-            console.error("Erreur de sauvegarde", err);
-        }
+        try { await localforage.setItem('mydiag_v4_2', db); } 
+        catch (err) { console.error("Erreur de sauvegarde", err); }
     }
 
     // --- 3. MOTEUR UPLOAD & COMPRESSION PHOTOS ---
@@ -362,18 +360,11 @@
 
     function saveFileToTarget(fileObj) {
         const t = currentUploadTarget;
-        if(t.type === 'doc') {
-            db.docs.push({ id: Date.now(), name: fileObj.name, type: fileObj.type, data: fileObj.data });
-            renderDocs();
-        } else if (t.type === 'chaufCol') {
-            db.chaufCol.photo = fileObj.data; renderCoproPhotos();
-        } else if (t.type === 'ecsCol') {
-            db.ecsCol.photo = fileObj.data; renderCoproPhotos();
-        } else if (t.type === 'chaufInd') {
-            const c = db.chaufs.find(x => x.id === t.id); if(c) c.photo = fileObj.data; renderApptsList();
-        } else if (t.type === 'ecsInd') {
-            const e = db.ecss.find(x => x.id === t.id); if(e) e.photo = fileObj.data; renderApptsList();
-        }
+        if(t.type === 'doc') { db.docs.push({ id: Date.now(), name: fileObj.name, type: fileObj.type, data: fileObj.data }); renderDocs(); } 
+        else if (t.type === 'chaufCol') { db.chaufCol.photo = fileObj.data; renderCoproPhotos(); } 
+        else if (t.type === 'ecsCol') { db.ecsCol.photo = fileObj.data; renderCoproPhotos(); } 
+        else if (t.type === 'chaufInd') { const c = db.chaufs.find(x => x.id === t.id); if(c) c.photo = fileObj.data; renderApptsList(); } 
+        else if (t.type === 'ecsInd') { const e = db.ecss.find(x => x.id === t.id); if(e) e.photo = fileObj.data; renderApptsList(); }
         sauvegarderLocal();
     }
 
@@ -400,12 +391,11 @@
     function renderCoproPhotos() {
         const chImg = document.getElementById('img-chaufCol');
         if(db.chaufCol.photo) { chImg.src = db.chaufCol.photo; chImg.style.display = 'block'; } else { chImg.style.display = 'none'; }
-        
         const ecsImg = document.getElementById('img-ecsCol');
         if(db.ecsCol.photo) { ecsImg.src = db.ecsCol.photo; ecsImg.style.display = 'block'; } else { ecsImg.style.display = 'none'; }
     }
 
-    // --- 4. MOTEUR DE DESSIN 2D ---
+    // --- 4. MOTEUR DE DESSIN 2D (BIM) ---
     function drawCroquis() {
         const canvas = document.getElementById('croquis-canvas');
         if (!canvas) return;
@@ -418,7 +408,6 @@
         if (mursApt.length === 0) { container.style.display = 'none'; return; }
 
         container.style.display = 'block';
-        
         const rect = canvas.getBoundingClientRect();
         canvas.width = rect.width * 2; canvas.height = rect.height * 2;
         ctx.scale(2, 2);
@@ -431,23 +420,34 @@
 
         mursApt.forEach(m => {
             let l = parseFloat(m.l) || 0;
-            if (m.ori === 'Nord') curX += l;
-            else if (m.ori === 'Est') curY += l;
-            else if (m.ori === 'Sud') curX -= l;
-            else if (m.ori === 'Ouest') curY -= l;
+            // Traduction Cartographique standard :
+            // Nord = Haut (Y-), Sud = Bas (Y+), Est = Droite (X+), Ouest = Gauche (X-)
+            if (m.ori === 'Nord') curY -= l;
+            else if (m.ori === 'Est') curX += l;
+            else if (m.ori === 'Sud') curY += l;
+            else if (m.ori === 'Ouest') curX -= l;
             points.push({ x: curX, y: curY });
         });
+
+        // Calcul de la surface via la Formule de Gauss (Shoelace)
+        let area = 0;
+        for (let i = 0; i < points.length - 1; i++) {
+            area += points[i].x * points[i+1].y - points[i+1].x * points[i].y;
+        }
+        area += points[points.length - 1].x * points[0].y - points[0].x * points[points.length - 1].y;
+        area = Math.abs(area) / 2;
 
         let minX = Math.min(...points.map(p => p.x)); let maxX = Math.max(...points.map(p => p.x));
         let minY = Math.min(...points.map(p => p.y)); let maxY = Math.max(...points.map(p => p.y));
 
         let width = Math.max(maxX - minX, 0.1); let height = Math.max(maxY - minY, 0.1);
-        let padding = 20;
+        let padding = 40; // Plus d'espace pour les cotes
         let scaleX = (cw - padding * 2) / width; let scaleY = (ch - padding * 2) / height;
         let scale = Math.min(scaleX, scaleY);
 
         let offsetX = (cw - (width * scale)) / 2; let offsetY = (ch - (height * scale)) / 2;
 
+        // Tracé des lignes (Murs)
         ctx.beginPath(); ctx.strokeStyle = '#2563EB'; ctx.lineWidth = 4; ctx.lineJoin = 'round'; ctx.lineCap = 'round';
         points.forEach((p, i) => {
             let px = offsetX + (p.x - minX) * scale; let py = offsetY + (p.y - minY) * scale;
@@ -455,6 +455,41 @@
         });
         ctx.stroke();
 
+        // Tracé des Cotes
+        ctx.font = "bold 11px sans-serif";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        for (let i = 0; i < points.length - 1; i++) {
+            let p1 = points[i]; let p2 = points[i+1];
+            let midX = (p1.x + p2.x) / 2; let midY = (p1.y + p2.y) / 2;
+            let px = offsetX + (midX - minX) * scale;
+            let py = offsetY + (midY - minY) * scale;
+
+            // Décalage perpendiculaire pour ne pas écrire sur la ligne
+            let dx = p2.x - p1.x; let dy = p2.y - p1.y;
+            let len = Math.hypot(dx, dy);
+            let nx = -dy / len; let ny = dx / len;
+            let textPx = px + nx * 14; let textPy = py + ny * 14;
+
+            let text = mursApt[i].l + "m";
+            let tw = ctx.measureText(text).width;
+            
+            // Fond blanc pour lisibilité
+            ctx.fillStyle = "rgba(255, 255, 255, 0.85)";
+            ctx.fillRect(textPx - tw/2 - 2, textPy - 8, tw + 4, 16);
+            
+            ctx.fillStyle = "#0F172A";
+            ctx.fillText(text, textPx, textPy);
+        }
+
+        // Boussole
+        let compX = 20; let compY = 20;
+        ctx.beginPath(); ctx.moveTo(compX, compY - 10); ctx.lineTo(compX, compY + 10); ctx.moveTo(compX - 10, compY); ctx.lineTo(compX + 10, compY);
+        ctx.strokeStyle = "#CBD5E1"; ctx.lineWidth = 2; ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(compX, compY - 12); ctx.lineTo(compX - 4, compY - 2); ctx.lineTo(compX + 4, compY - 2); ctx.fillStyle = "#DC2626"; ctx.fill();
+        ctx.fillStyle = "#334155"; ctx.font = "bold 10px sans-serif"; ctx.fillText("N", compX, compY + 18);
+
+        // Point de départ et arrivée
         let startP = points[0]; let endP = points[points.length - 1];
         let startPx = offsetX + (startP.x - minX) * scale; let startPy = offsetY + (startP.y - minY) * scale;
         let endPx = offsetX + (endP.x - minX) * scale; let endPy = offsetY + (endP.y - minY) * scale;
@@ -462,17 +497,19 @@
         ctx.beginPath(); ctx.arc(startPx, startPy, 6, 0, 2 * Math.PI); ctx.fillStyle = '#16A34A'; ctx.fill(); ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.stroke();
         ctx.beginPath(); ctx.arc(endPx, endPy, 6, 0, 2 * Math.PI); ctx.fillStyle = '#DC2626'; ctx.fill(); ctx.stroke();
 
-        let err = Math.sqrt(Math.pow(curX, 2) + Math.pow(curY, 2));
-        
+        // Calculs et Messages
+        let err = Math.sqrt(Math.pow(endP.x - startP.x, 2) + Math.pow(endP.y - startP.y, 2));
+        let txt = '';
         if (mursApt.length < 3) {
-            msg.innerHTML = '<span style="color:#94A3B8;">Tracez au moins 3 murs pour fermer le polygone...</span>';
+            txt = '<span style="color:#94A3B8;">Tracez au moins 3 murs pour fermer le polygone...</span>';
         } else if (err > 0.15) {
-            msg.innerHTML = `<span style="color:#DC2626;">⚠️ Écart de fermeture : ${err.toFixed(2)} m</span>`;
+            txt = `<span style="color:#DC2626;">⚠️ Écart fermeture : ${err.toFixed(2)} m</span><br><span style="color:#16A34A;">Surface estimée : ${area.toFixed(1)} m²</span>`;
             ctx.beginPath(); ctx.setLineDash([5, 5]); ctx.moveTo(endPx, endPy); ctx.lineTo(startPx, startPy); ctx.strokeStyle = '#DC2626'; ctx.lineWidth = 2; ctx.stroke(); ctx.setLineDash([]);
         } else {
-            msg.innerHTML = `<span style="color:#16A34A;">✅ Périmètre fermé (Écart: ${err.toFixed(2)} m)</span>`;
+            txt = `<span style="color:#16A34A;">✅ Périmètre fermé</span><br>Surface géométrique : <b>${area.toFixed(1)} m²</b>`;
             ctx.beginPath(); ctx.moveTo(endPx, endPy); ctx.lineTo(startPx, startPy); ctx.strokeStyle = '#16A34A'; ctx.lineWidth = 2; ctx.stroke();
         }
+        msg.innerHTML = txt;
     }
 
     // --- 5. PEUPLEMENT DES SELECTS ---
@@ -624,8 +661,7 @@
             id: editId || String(Date.now()), aptId, energie: e, gen: g, 
             emetteur: document.getElementById('ifc-emetteur-'+aptId).value, annee: document.getElementById('ifc-annee-'+aptId).value, puissance: document.getElementById('ifc-puissance-'+aptId).value
         };
-        // Préserver la photo existante lors de la modification
-        if(editId) {
+        if(editId) { 
             const old = db.chaufs.find(x => x.id === editId);
             if(old && old.photo) obj.photo = old.photo;
             db.chaufs[db.chaufs.findIndex(x => x.id === editId)] = obj; 
@@ -654,8 +690,8 @@
         let obj = {
             id: editId || String(Date.now()), aptId, type: t, energie: e, annee: document.getElementById('ife-annee-'+aptId).value, vol: document.getElementById('ife-vol-'+aptId).value
         };
-        // Préserver la photo
-        if(editId) {
+
+        if(editId) { 
             const old = db.ecss.find(x => x.id === editId);
             if(old && old.photo) obj.photo = old.photo;
             db.ecss[db.ecss.findIndex(x => x.id === editId)] = obj; 
@@ -793,26 +829,29 @@
         let el = editParoiId ? db[type].find(x => x.id === editParoiId) : { id: Date.now(), aid: curAppt };
         
         if(type === 'murs') { el.ori = document.getElementById('m-ori').value; el.donne = document.getElementById('m-donne').value; el.mat = document.getElementById('m-mat').value; el.l = document.getElementById('m-l').value; el.h = document.getElementById('m-h').value; el.iso = document.getElementById('m-iso').value; }
-        else if (type === 'fens') { el.type = document.getElementById('f-type').value; el.mat = document.getElementById('f-mat').value; el.vit = document.getElementById('f-vit').value; el.fer = document.getElementById('f-fer').value; el.l = document.getElementById('f-l').value; el.h = document.getElementById('f-h').value; }
+        else if (type === 'fens') { el.ori = document.getElementById('f-ori').value; el.type = document.getElementById('f-type').value; el.mat = document.getElementById('f-mat').value; el.vit = document.getElementById('f-vit').value; el.ep = document.getElementById('f-ep').value; el.fer = document.getElementById('f-fer').value; el.l = document.getElementById('f-l').value; el.h = document.getElementById('f-h').value; el.nb = document.getElementById('f-nb').value; el.motifs = document.getElementById('f-motifs').value; }
         else if (type === 'plfs') { el.type = document.getElementById('p-type').value; el.donne = document.getElementById('p-donne').value; el.l = document.getElementById('p-l').value; el.larg = document.getElementById('p-larg').value;}
         else if (type === 'plas') { el.type = document.getElementById('s-type').value; el.donne = document.getElementById('s-donne').value; el.l = document.getElementById('s-l').value; el.larg = document.getElementById('s-larg').value;}
         
         if(!editParoiId) db[type].push(el);
         
-        editParoiId = null; document.getElementById('btn-save-' + type).textContent = "Enregistrer";
+        editParoiId = null;
+        document.getElementById('btn-save-' + type).textContent = "Enregistrer";
         
         sauvegarderLocal();
         renderElementsList(type === 'murs' ? 'murs' : type === 'fens' ? 'fen' : type === 'plfs' ? 'plafonds' : 'planchers');
         
         if(type === 'murs') { document.getElementById('m-l').value = ''; drawCroquis(); } 
+        else if (type === 'fens') { document.getElementById('f-l').value = ''; document.getElementById('f-h').value = ''; document.getElementById('f-ep').value = ''; document.getElementById('f-nb').value = '1'; document.getElementById('f-motifs').value = '1'; }
         else { document.querySelectorAll(`#vw-${type} input[type="number"]`).forEach(i => i.value = ''); }
     }
 
     function editerParoi(type, id) {
-        editParoiId = id; const p = db[type].find(x => x.id === id);
+        editParoiId = id;
+        const p = db[type].find(x => x.id === id);
         
         if(type === 'murs') { document.getElementById('m-ori').value = p.ori; document.getElementById('m-donne').value = p.donne; document.getElementById('m-mat').value = p.mat; document.getElementById('m-l').value = p.l; document.getElementById('m-h').value = p.h; document.getElementById('m-iso').value = p.iso; document.getElementById('btn-save-murs').textContent = "Modifier ce mur"; }
-        else if (type === 'fens') { document.getElementById('f-type').value = p.type; document.getElementById('f-mat').value = p.mat; document.getElementById('f-vit').value = p.vit; document.getElementById('f-fer').value = p.fer; document.getElementById('f-l').value = p.l; document.getElementById('f-h').value = p.h; document.getElementById('btn-save-fens').textContent = "Modifier cette fenêtre"; }
+        else if (type === 'fens') { document.getElementById('f-ori').value = p.ori || 'Nord'; document.getElementById('f-type').value = p.type; document.getElementById('f-mat').value = p.mat; document.getElementById('f-vit').value = p.vit; document.getElementById('f-ep').value = p.ep || ''; document.getElementById('f-fer').value = p.fer; document.getElementById('f-l').value = p.l; document.getElementById('f-h').value = p.h; document.getElementById('f-nb').value = p.nb || '1'; document.getElementById('f-motifs').value = p.motifs || '1'; document.getElementById('btn-save-fens').textContent = "Modifier cette fenêtre"; }
         else if (type === 'plfs') { document.getElementById('p-type').value = p.type; document.getElementById('p-donne').value = p.donne; document.getElementById('p-l').value = p.l; document.getElementById('p-larg').value = p.larg; document.getElementById('btn-save-plfs').textContent = "Modifier ce plafond"; }
         else if (type === 'plas') { document.getElementById('s-type').value = p.type; document.getElementById('s-donne').value = p.donne; document.getElementById('s-l').value = p.l; document.getElementById('s-larg').value = p.larg; document.getElementById('btn-save-plas').textContent = "Modifier ce plancher"; }
         
@@ -829,12 +868,18 @@
         if(tabId === 'plafonds') { cont = document.getElementById('list-plfs'); data = db.plfs; type = 'plfs'; }
         if(tabId === 'planchers') { cont = document.getElementById('list-plas'); data = db.plas; type = 'plas'; }
 
-        cont.innerHTML = data.filter(x => x.aid === curAppt).map(x => `
+        cont.innerHTML = data.filter(x => x.aid === curAppt).map(x => {
+            let dimText = `Dim: ${x.l||'?'} x ${x.h||x.larg||'?'}`;
+            if(type === 'fens') dimText = `Dim: ${x.l||'?'}x${x.h||'?'}cm | Lame: ${x.ep||'?'}mm | Qté: ${x.nb||1} (Motifs: ${x.motifs||1})`;
+            const badgeText = type === 'fens' ? (x.ori || 'N/A') : (x.ori || 'Surf.');
+
+            return `
             <div class="item-row">
-                <div class="item-details"><span class="badge">${x.ori || 'Surf.'}</span> <b>${x.mat || x.type}</b> <br><span style="color:var(--tx2); font-size:11px;">Dim: ${x.l||'?'} x ${x.h||x.larg||'?'}</span></div>
+                <div class="item-details"><span class="badge">${badgeText}</span> <b>${x.mat || x.type}</b> <br><span style="color:var(--tx2); font-size:11px;">${dimText}</span></div>
                 <div><button class="btn-xs" style="color:var(--acc); margin-right:5px;" onclick="editerParoi('${type}', ${x.id})">✏️</button><button class="btn-xs" style="background:var(--dan-l); color:var(--dan);" onclick="suppElement('${type}', ${x.id})">X</button></div>
             </div>
-        `).join('');
+            `;
+        }).join('');
     }
 
     // --- 10. EXPORT ET RESET ---
@@ -845,10 +890,8 @@
     
     async function resetTotal() {
         if(confirm('Attention, cela effacera définitivement tout le projet actuel et ses photos de la mémoire du téléphone. Continuer ?')) {
-            try {
-                await localforage.clear();
-                location.reload();
-            } catch(e) { alert("Erreur lors de la suppression."); }
+            try { await localforage.clear(); location.reload(); } 
+            catch(e) { alert("Erreur lors de la suppression."); }
         }
     }
 
@@ -856,14 +899,9 @@
     window.onload = async () => {
         peuplerSelects();
         try {
-            const savedData = await localforage.getItem('mydiag_v4_0');
-            if (savedData) {
-                db = savedData;
-                // Protection contre les anciennes versions (Migration structure)
-                if(!db.docs) db.docs = [];
-            }
+            const savedData = await localforage.getItem('mydiag_v4_2');
+            if (savedData) { db = savedData; if(!db.docs) db.docs = []; }
             
-            // Restauration Copro
             ['copro-ref','copro-nom','copro-adresse','copro-annee','copro-batiments','copro-etages'].forEach(id => { const k = id.replace('copro-',''); if(db.copro[k]) document.getElementById(id).value = db.copro[k]; });
             if(db.vmc.type) { document.getElementById('vmc-type').value = db.vmc.type; document.getElementById('vmc-periode').value = db.vmc.periode; }
             if(db.chaufCol.energie) { document.getElementById('col-chauf-energie').value = db.chaufCol.energie; updateChaufGen('col-chauf-energie', 'col-chauf-gen', 'col-chauf-emetteur'); setTimeout(() => { document.getElementById('col-chauf-gen').value = db.chaufCol.gen || ''; document.getElementById('col-chauf-emetteur').value = db.chaufCol.emetteur || ''; }, 10); document.getElementById('col-chauf-puissance').value = db.chaufCol.puissance || ''; document.getElementById('col-chauf-annee').value = db.chaufCol.annee || '';}
@@ -871,10 +909,7 @@
             
             document.getElementById('acc-copro-name').textContent = db.copro.nom || "Aucune copropriété saisie";
             
-            // Rendu des listes et photos
-            renderApptsList();
-            renderDocs();
-            renderCoproPhotos();
+            renderApptsList(); renderDocs(); renderCoproPhotos();
             
         } catch (err) {
             console.error("Erreur de chargement IndexedDB", err);
