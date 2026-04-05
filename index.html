@@ -18,9 +18,9 @@
 
     <style>
         :root {
-            --bg: #F4F7F9; /* Fond général plus doux */
+            --bg: #F4F7F9; 
             --sur: #FFFFFF; 
-            --bor: #E2E8F0; /* Bordures plus claires */
+            --bor: #E2E8F0; 
             --tx: #0F172A; 
             --tx2: #475569;
             --acc: #2563EB; 
@@ -31,7 +31,7 @@
             --dan-l: #FEF2F2;
             --warn: #F59E0B; 
             --warn-l: #FFFBEB;
-            --r: 16px; /* Bords de cartes plus ronds */
+            --r: 16px; 
             --rs: 10px;
         }
         * { box-sizing: border-box; margin: 0; padding: 0; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
@@ -44,7 +44,7 @@
         .btn-save { background: rgba(255,255,255,0.1); color: #fff; border: 1px solid rgba(255,255,255,0.2); border-radius: 20px; padding: 8px 16px; font-size: 13px; font-weight: 700; cursor: pointer; transition: 0.2s; backdrop-filter: blur(5px); }
         .btn-save:active { background: rgba(255,255,255,0.2); transform: scale(0.95); }
 
-        /* TABS (Modern Pills) */
+        /* TABS */
         .tabs { background: #0F172A; display: flex; overflow-x: auto; -webkit-overflow-scrolling: touch; position: sticky; top: 56px; z-index: 19; padding: 10px 16px; gap: 8px; border-bottom: 1px solid rgba(255,255,255,0.05); }
         .tabs::-webkit-scrollbar { display: none; }
         .tab { flex: 0 0 auto; padding: 8px 16px; font-size: 13px; font-weight: 600; color: #94A3B8; border-radius: 20px; cursor: pointer; white-space: nowrap; transition: 0.2s; background: rgba(255,255,255,0.05); }
@@ -65,8 +65,8 @@
         .fr:last-child { border-bottom: none; }
         .fl { font-size: 14px; color: var(--tx); min-width: 100px; flex-shrink: 0; font-weight: 600; line-height:1.3;}
         
-        /* INPUTS & SELECTS MODERNES */
-        .fr select, .fr input { flex: 1; background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 8px; padding: 10px 12px; font-size: 14px; color: var(--acc); text-align: right; outline: none; font-weight: 700; transition: 0.2s; -webkit-appearance: none; margin-left: 10px; }
+        /* INPUTS & SELECTS */
+        .fr select, .fr input { flex: 1; background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 8px; padding: 10px 12px; font-size: 14px; color: var(--acc); text-align: right; outline: none; font-weight: 700; transition: 0.2s; -webkit-appearance: none; margin-left: 10px; min-width:0; }
         .fr select:focus, .fr input:focus { background: #FFF; border-color: var(--acc); box-shadow: 0 0 0 3px var(--acc-l); }
         .fr select option { direction: ltr; font-weight: normal; color: var(--tx); }
         .fr input::placeholder { color: #94A3B8; font-weight: 500; }
@@ -94,13 +94,13 @@
         .appt-body { display: none; padding: 16px; background: #F8FAFC; border-top: 1px solid var(--bor); }
         .appt-body.open { display: block; }
         
-        /* QUICK BTNS INSIDE APPT */
+        /* QUICK BTNS */
         .quick-btns { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 16px 0; }
         .qbtn { padding: 12px 6px; border-radius: 10px; border: 1px solid var(--bor); background: var(--sur); color: var(--acc); font-size: 12px; font-weight: 700; cursor: pointer; text-align: center; transition: 0.2s; box-shadow: 0 2px 6px rgba(0,0,0,0.02);}
         .qbtn:active { transform: scale(0.95); background: #F1F5F9; }
         
         /* LIST ITEMS */
-        .item-row { background: var(--sur); border-radius: 12px; border: 1px solid var(--bor); padding: 14px; margin-bottom: 10px; font-size: 14px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 8px rgba(0,0,0,0.02);}
+        .item-row { background: var(--sur); border-radius: 12px; border: 1px solid var(--bor); padding: 14px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: flex-start; box-shadow: 0 2px 8px rgba(0,0,0,0.02);}
         
         /* BADGES */
         .badge { background: #F1F5F9; padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 800; margin-right: 8px; color: #475569;}
@@ -126,12 +126,12 @@
         .toast { position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%); background: #0F172A; color: #fff; padding: 14px 28px; border-radius: 30px; font-size: 14px; font-weight: 700; opacity: 0; pointer-events: none; transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55); z-index: 9999; box-shadow: 0 10px 30px rgba(15,23,42,0.3); text-align:center; white-space: nowrap;}
         .toast.show { opacity: 1; transform: translateX(-50%) translateY(-10px); }
         
-        /* CHAMPS DIMENSIONS LARGES */
+        /* CHAMPS DIMENSIONS DYNAMIQUES */
         .dim-block { padding: 16px; border-bottom: 1px solid var(--bor); }
         .dim-block:last-child { border-bottom: none; }
         .dim-title { font-size:14px; color:var(--tx); font-weight:800; margin-bottom:12px; }
-        .dim-inputs { display:flex; gap:12px; }
-        .dim-inputs input { flex:1; background:#F8FAFC; border:1px solid var(--bor); border-radius:10px; padding:14px; font-size:16px; text-align:center; font-weight:800; color:var(--acc); transition: 0.2s;}
+        .dim-inputs { display:flex; gap:8px; align-items: center; }
+        .dim-inputs input { flex:1; min-width: 0; background:#F8FAFC; border:1px solid var(--bor); border-radius:10px; padding:12px 6px; font-size:16px; text-align:center; font-weight:800; color:var(--acc); transition: 0.2s;}
         .dim-inputs input:focus { background:#FFF; border-color:var(--acc); box-shadow: 0 0 0 3px var(--acc-l); }
         .dim-inputs span { display:flex; align-items:center; font-weight:800; color:#94A3B8; font-size:16px;}
         .surf-directe { background:var(--acc-l) !important; color:var(--acc) !important; border: 2px solid #BFDBFE !important; font-size:20px !important;}
@@ -142,13 +142,7 @@
         .niv-off { background:var(--sur); color:var(--tx2); border:1px solid var(--bor);}
 
         /* BIM TETRIS */
-        .tetris-block {
-            background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
-            border-bottom: 5px solid #1E3A8A; border-right: 4px solid #1D4ED8;
-            border-radius: 6px; color: #FFF; display: flex; flex-direction: column;
-            align-items: center; justify-content: center; font-size: 12px; font-weight: 800;
-            text-shadow: 1px 1px 0 rgba(0,0,0,0.2); height: 48px; transition: 0.3s;
-        }
+        .tetris-block { background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%); border-bottom: 5px solid #1E3A8A; border-right: 4px solid #1D4ED8; border-radius: 6px; color: #FFF; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; text-shadow: 1px 1px 0 rgba(0,0,0,0.2); height: 48px; transition: 0.3s; }
 
         /* TABLEAU TOTAUX */
         .tbl-container { overflow-x: auto; background: var(--sur); border-radius: var(--r); border: 1px solid var(--bor); box-shadow: 0 8px 24px rgba(15,23,42,0.04);}
@@ -175,7 +169,7 @@
             <path d="M256 120 L96 280 H144 V400 H256 V120 Z" fill="#38BDF8" opacity="0.8"/>
             <circle cx="256" cy="300" r="40" fill="#16A34A"/>
         </svg>
-        MyDiag - DPE <span style="font-size:11px; color:#94A3B8; font-weight:600; margin-left:4px; opacity:0.8;">v8.1</span>
+        MyDiag - DPE <span style="font-size:11px; color:#94A3B8; font-weight:600; margin-left:4px; opacity:0.8;">v8.2 (Mobile Fix)</span>
     </div>
     <button class="btn-save" onclick="sauvegarderLocal()">Sauvegarder</button>
 </div>
@@ -728,7 +722,7 @@
     let totauxSortAsc = true;
 
     async function sauvegarderLocal() { 
-        try { await localforage.setItem('mydiag_v8_1', db); } 
+        try { await localforage.setItem('mydiag_v8_2', db); } 
         catch (err) { console.error("Erreur de sauvegarde", err); }
     }
 
@@ -1008,7 +1002,7 @@
         if(type === 'mur' || type === 'pig') drawCroquis();
     }
 
-    // --- 3. MOTEUR UPLOAD & COMPRESSION PHOTOS (PNG FIX) ---
+    // --- 3. MOTEUR UPLOAD & COMPRESSION PHOTOS ---
     function triggerUpload(type, id = null) {
         currentUploadTarget = { type, id };
         document.getElementById('global-uploader').click();
@@ -1580,19 +1574,19 @@
         const aptNum = apt ? apt.num : '';
         const myC = db.chaufs.filter(c => c.aptId === aptId);
         return myC.map((c, index) => `
-            <div class="item-row" style="flex-direction:column; align-items:flex-start;">
-                <div style="display:flex; width:100%; justify-content:space-between;">
-                    <div>🔥 Chauff. ${aptNum} - ${index + 1} : ${c.energie} · ${c.gen}</div>
-                    <div style="display:flex; gap:5px;">
+            <div class="item-row" style="align-items:flex-start;">
+                <div style="flex:1; padding-right:12px; min-width:0;">
+                    <div style="font-weight:800; color:var(--tx); font-size:14px; margin-bottom:6px;">🔥 Chauff. ${aptNum} - ${index + 1}</div>
+                    <div style="color:var(--tx2); font-size:12px; line-height:1.4;">${c.energie} · ${c.gen}<br>${c.emetteur||''} | ${c.puissance?c.puissance+'kW':''} | ${c.annee?c.annee:''}</div>
+                    <div style="margin-top:8px;">
                         ${c.photo ? `<img src="${c.photo}" class="thumb" style="margin:0;" onclick="viewImage('${c.photo}')">` : ''}
-                        <button class="btn-xs" style="background:var(--acc-l); color:var(--acc);" onclick="triggerUpload('chaufInd', '${c.id}')">📷 Photo</button>
+                        <button class="btn-xs" style="background:var(--acc-l); color:var(--acc); margin-top:4px;" onclick="triggerUpload('chaufInd', '${c.id}')">📷 Photo</button>
                     </div>
                 </div>
-                <div style="color:var(--tx2); font-size:11px; margin-top:4px;">${c.emetteur||''} | ${c.puissance?c.puissance+'kW':''} | ${c.annee?c.annee:''}</div>
-                <div style="align-self:flex-end; margin-top:-20px;">
-                    <button class="btn-xs" style="color:var(--ok); border:1px solid var(--ok-l); margin-right:5px;" onclick="clonerChauf('${c.id}')">🔄</button>
-                    <button class="btn-xs" style="color:var(--acc); margin-right:5px;" onclick="editerChauf('${aptId}','${c.id}')">✏️</button>
-                    <button class="btn-xs" style="color:red;" onclick="suppChauf('${c.id}', '${aptId}')">X</button>
+                <div style="display:flex; gap:6px; flex-wrap:wrap; width: 94px; justify-content:flex-start; flex-shrink:0;">
+                    <button class="btn-xs" style="color:var(--ok); background:var(--ok-l); border:1px solid #BBF7D0; width:44px; height:44px; padding:0; display:flex; align-items:center; justify-content:center; font-size:18px; border-radius:10px;" onclick="clonerChauf('${c.id}')">🔄</button>
+                    <button class="btn-xs" style="color:var(--acc); background:var(--acc-l); border:1px solid #BFDBFE; width:44px; height:44px; padding:0; display:flex; align-items:center; justify-content:center; font-size:18px; border-radius:10px;" onclick="editerChauf('${aptId}','${c.id}')">✏️</button>
+                    <button class="btn-xs" style="color:var(--dan); background:var(--dan-l); border:1px solid #FECACA; width:44px; height:44px; padding:0; display:flex; align-items:center; justify-content:center; font-size:18px; border-radius:10px;" onclick="suppChauf('${c.id}', '${aptId}')">❌</button>
                 </div>
             </div>`).join('');
     }
@@ -1602,19 +1596,19 @@
         const aptNum = apt ? apt.num : '';
         const myE = db.ecss.filter(e => e.aptId === aptId);
         return myE.map((e, index) => `
-            <div class="item-row" style="flex-direction:column; align-items:flex-start;">
-                <div style="display:flex; width:100%; justify-content:space-between;">
-                    <div>🚿 ECS ${aptNum} - ${index + 1} : ${e.energie} · ${e.type}</div>
-                    <div style="display:flex; gap:5px;">
+            <div class="item-row" style="align-items:flex-start;">
+                <div style="flex:1; padding-right:12px; min-width:0;">
+                    <div style="font-weight:800; color:var(--tx); font-size:14px; margin-bottom:6px;">🚿 ECS ${aptNum} - ${index + 1}</div>
+                    <div style="color:var(--tx2); font-size:12px; line-height:1.4;">${e.energie} · ${e.type}<br>${e.vol?e.vol+'L':''} | ${e.annee?e.annee:''}</div>
+                    <div style="margin-top:8px;">
                         ${e.photo ? `<img src="${e.photo}" class="thumb" style="margin:0;" onclick="viewImage('${e.photo}')">` : ''}
-                        <button class="btn-xs" style="background:var(--acc-l); color:var(--acc);" onclick="triggerUpload('ecsInd', '${e.id}')">📷 Photo</button>
+                        <button class="btn-xs" style="background:var(--acc-l); color:var(--acc); margin-top:4px;" onclick="triggerUpload('ecsInd', '${e.id}')">📷 Photo</button>
                     </div>
                 </div>
-                <div style="color:var(--tx2); font-size:11px; margin-top:4px;">${e.vol?e.vol+'L':''} | ${e.annee?e.annee:''}</div>
-                <div style="align-self:flex-end; margin-top:-20px;">
-                    <button class="btn-xs" style="color:var(--ok); border:1px solid var(--ok-l); margin-right:5px;" onclick="clonerEcs('${e.id}')">🔄</button>
-                    <button class="btn-xs" style="color:var(--acc); margin-right:5px;" onclick="editerEcs('${aptId}','${e.id}')">✏️</button>
-                    <button class="btn-xs" style="color:red;" onclick="suppEcs('${e.id}', '${aptId}')">X</button>
+                <div style="display:flex; gap:6px; flex-wrap:wrap; width: 94px; justify-content:flex-start; flex-shrink:0;">
+                    <button class="btn-xs" style="color:var(--ok); background:var(--ok-l); border:1px solid #BBF7D0; width:44px; height:44px; padding:0; display:flex; align-items:center; justify-content:center; font-size:18px; border-radius:10px;" onclick="clonerEcs('${e.id}')">🔄</button>
+                    <button class="btn-xs" style="color:var(--acc); background:var(--acc-l); border:1px solid #BFDBFE; width:44px; height:44px; padding:0; display:flex; align-items:center; justify-content:center; font-size:18px; border-radius:10px;" onclick="editerEcs('${aptId}','${e.id}')">✏️</button>
+                    <button class="btn-xs" style="color:var(--dan); background:var(--dan-l); border:1px solid #FECACA; width:44px; height:44px; padding:0; display:flex; align-items:center; justify-content:center; font-size:18px; border-radius:10px;" onclick="suppEcs('${e.id}', '${aptId}')">❌</button>
                 </div>
             </div>`).join('');
     }
@@ -1930,8 +1924,20 @@
         sauvegarderLocal();
         renderElementsList(type);
         
-        if(type === 'murs') { document.getElementById('m-l').value = ''; drawCroquis(); } 
-        else if (type === 'fens') { document.getElementById('f-bibli').value = ''; document.getElementById('f-l').value = ''; document.getElementById('f-h').value = ''; document.getElementById('f-ep').value = ''; document.getElementById('f-diam').value = ''; document.getElementById('f-nb').value = '1'; document.getElementById('f-motifs').value = '1'; }
+        // REINITIALISATIONS SPECIFIQUES PAR CATEGORIES
+        if(type === 'murs') { 
+            document.getElementById('m-l').value = ''; 
+            drawCroquis(); 
+        } 
+        else if (type === 'fens') { 
+            document.getElementById('f-bibli').value = ''; 
+            document.getElementById('f-l').value = ''; 
+            document.getElementById('f-h').value = ''; 
+            // Note : f-ep n'est PLUS effacé ici ! (Mémorisation de la lame)
+            document.getElementById('f-diam').value = ''; 
+            document.getElementById('f-nb').value = '1'; 
+            document.getElementById('f-motifs').value = '1'; 
+        }
         else { 
             document.querySelectorAll(`#vw-${type} input[type="number"]`).forEach(i => i.value = ''); 
         }
@@ -2033,12 +2039,15 @@
             const badgeText = type === 'fens' ? (x.ori || 'N/A') : (type === 'portes' ? 'Porte' : (x.ori || 'Surf.'));
 
             return `
-            <div class="item-row">
-                <div class="item-details"><span class="badge">${badgeText}</span> <b>${titleText}</b> <br><span style="color:var(--tx2); font-size:11px;">${dimText}</span></div>
-                <div>
-                    <button class="btn-xs" style="color:var(--ok); border:1px solid var(--ok-l); margin-right:5px;" onclick="clonerParoi('${type}', ${x.id})">🔄</button>
-                    <button class="btn-xs" style="color:var(--acc); margin-right:5px;" onclick="editerParoi('${type}', ${x.id})">✏️</button>
-                    <button class="btn-xs" style="background:var(--dan-l); color:var(--dan);" onclick="suppElement('${type}', ${x.id})">X</button>
+            <div class="item-row" style="align-items: flex-start;">
+                <div class="item-details" style="flex:1; padding-right:12px; min-width:0;">
+                    <div style="margin-bottom: 6px;"><span class="badge">${badgeText}</span> <b style="font-size:14px; color:var(--tx);">${titleText}</b></div>
+                    <div style="color:var(--tx2); font-size:12px; line-height:1.5; word-wrap: break-word;">${dimText}</div>
+                </div>
+                <div style="display:flex; gap:6px; flex-wrap:wrap; width: 94px; justify-content:flex-start; flex-shrink:0;">
+                    <button class="btn-xs" style="color:var(--ok); background:var(--ok-l); border:1px solid #BBF7D0; width:44px; height:44px; padding:0; display:flex; align-items:center; justify-content:center; font-size:18px; border-radius:10px;" onclick="clonerParoi('${type}', ${x.id})">🔄</button>
+                    <button class="btn-xs" style="color:var(--acc); background:var(--acc-l); border:1px solid #BFDBFE; width:44px; height:44px; padding:0; display:flex; align-items:center; justify-content:center; font-size:18px; border-radius:10px;" onclick="editerParoi('${type}', ${x.id})">✏️</button>
+                    <button class="btn-xs" style="color:var(--dan); background:var(--dan-l); border:1px solid #FECACA; width:44px; height:44px; padding:0; display:flex; align-items:center; justify-content:center; font-size:18px; border-radius:10px;" onclick="suppElement('${type}', ${x.id})">❌</button>
                 </div>
             </div>
             `;
@@ -2206,7 +2215,7 @@
     window.onload = async () => {
         peuplerSelects();
         try {
-            const savedData = await localforage.getItem('mydiag_v8_1');
+            const savedData = await localforage.getItem('mydiag_v8_2');
             if (savedData) { 
                 db = savedData; 
                 if(!db.docs) db.docs = []; 
