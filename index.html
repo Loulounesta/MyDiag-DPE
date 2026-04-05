@@ -99,11 +99,10 @@
         .niv-on { background:var(--acc); color:#fff; }
         .niv-off { background:#E2E8F0; color:#334155; border:1px solid var(--bor);}
 
-        /* Style 3D TETRIS BIM */
         .tetris-block {
             background: #3B82F6;
-            border-bottom: 5px solid #1E3A8A; /* 3D effect bottom */
-            border-right: 4px solid #2563EB; /* 3D effect right */
+            border-bottom: 5px solid #1E3A8A;
+            border-right: 4px solid #2563EB;
             border-radius: 4px;
             color: #FFF;
             display: flex;
@@ -127,7 +126,7 @@
 <input type="file" id="global-uploader" style="display:none;" accept="image/*,application/pdf" capture="environment">
 
 <div class="hd">
-    <div class="hd-title">MyDiag - DPE <span style="font-size:10px; color:#94A3B8; font-weight:normal;">v6.9 BIM & Expts</span></div>
+    <div class="hd-title">MyDiag - DPE <span style="font-size:10px; color:#94A3B8; font-weight:normal;">v7.0</span></div>
     <button class="btn-save" onclick="sauvegarderLocal()">💾 Sauvegarder</button>
 </div>
 
@@ -279,7 +278,7 @@
         <div class="croquis-header">
             <span class="croquis-title">📐 Topographie du niveau</span>
             <div>
-                <button class="btn-xs" style="background:#0F172A; color:#FFF; margin-right:5px;" onclick="exporterCroquis()">💾 Exporter PNG</button>
+                <button class="btn-xs" style="background:#0F172A; color:#FFF; margin-right:5px;" onclick="exporterCroquis()">💾 PNG</button>
                 <span class="croquis-badge">Saisie Horaire ↻</span>
             </div>
         </div>
@@ -292,6 +291,8 @@
         <div class="fr"><span class="fl">Donne sur</span><select id="m-donne"></select></div>
         <div class="fr"><span class="fl">Matériau (ADN)</span><select id="m-mat"></select></div>
         
+        <div class="fr"><span class="fl">Ép. Mur (cm)</span><input type="number" inputmode="numeric" pattern="[0-9]*" id="m-ep" placeholder="ex: 20"></div>
+
         <div class="dim-block">
             <div class="dim-title">Dimensions L x H (m)</div>
             <div class="dim-inputs">
@@ -305,11 +306,20 @@
             <select id="m-doub">
                 <option value="Absent">Absent</option>
                 <option value="Inconnu">Inconnu</option>
+                <option value="Connu : Plâtre, bois, brique...">Connu : Plâtre, bois, brique...</option>
                 <option value="Connu avec lame d'air de moins de 15 mm">Connu avec lame d'air de moins de 15 mm</option>
                 <option value="Connu avec lame d'air de 15 mm ou plus">Connu avec lame d'air de 15 mm ou plus</option>
             </select>
         </div>
-        <div class="fr"><span class="fl">Isolant</span><select id="m-iso"><option>Non isolé</option><option>Isolation Intérieure (ITI)</option><option>Isolation Extérieure (ITE)</option></select></div>
+        <div class="fr">
+            <span class="fl">Isolant</span>
+            <select id="m-iso" style="flex:1;">
+                <option>Non isolé</option>
+                <option>Isolation Intérieure (ITI)</option>
+                <option>Isolation Extérieure (ITE)</option>
+            </select>
+            <input type="number" id="m-iso-ep" placeholder="Ép. cm" inputmode="numeric" pattern="[0-9]*" style="flex:0 0 70px; margin-left:5px;">
+        </div>
     </div>
     <button class="btn btn-p" id="btn-save-murs" onclick="sauverParoi('murs')">Enregistrer ce mur</button>
 
@@ -465,6 +475,14 @@
     <div class="card">
         <div class="fr"><span class="fl">Type ADN</span><select id="p-type"></select></div>
         <div class="fr"><span class="fl">Donne sur</span><select id="p-donne"></select></div>
+        <div class="fr">
+            <span class="fl">Isolant</span>
+            <select id="p-iso" style="flex:1;">
+                <option>Non isolé</option>
+                <option>Isolé</option>
+            </select>
+            <input type="number" id="p-iso-ep" placeholder="Ép. cm" inputmode="numeric" pattern="[0-9]*" style="flex:0 0 70px; margin-left:5px;">
+        </div>
         
         <div class="dim-block">
             <div class="dim-title">Dimensions L x l (m)</div>
@@ -490,6 +508,14 @@
     <div class="card">
         <div class="fr"><span class="fl">Type ADN</span><select id="s-type"></select></div>
         <div class="fr"><span class="fl">Donne sur</span><select id="s-donne"></select></div>
+        <div class="fr">
+            <span class="fl">Isolant</span>
+            <select id="s-iso" style="flex:1;">
+                <option>Non isolé</option>
+                <option>Isolé</option>
+            </select>
+            <input type="number" id="s-iso-ep" placeholder="Ép. cm" inputmode="numeric" pattern="[0-9]*" style="flex:0 0 70px; margin-left:5px;">
+        </div>
         
         <div class="dim-block">
             <div class="dim-title">Dimensions L x l (m)</div>
@@ -511,9 +537,15 @@
 
 <div id="vw-export" class="vw">
     <div class="card" style="padding:20px; text-align:center;">
-        <button class="btn btn-p" onclick="exportData()">📊 EXPORTER LE DOSSIER (JSON)</button>
-        <div style="font-size:12px; color:var(--tx2); margin-top:10px;">Comprend toutes les données, plans et photos.</div>
-        <button class="btn" style="background:var(--dan); color:white; margin-top:30px;" onclick="if(confirm('Tout effacer?')) {localforage.clear(); location.reload();}">🗑️ RESET TOTAL DU PROJET</button>
+        <div style="font-size:18px; font-weight:800; margin-bottom:15px; color:var(--acc);">Phase finale du diagnostic</div>
+        <div style="font-size:13px; color:var(--tx2); margin-bottom:20px; line-height:1.5;">
+            L'exportation rassemble la totalité des échantillons, des systèmes, des extrapolations et des photos pour le transfert vers le logiciel certifié.
+        </div>
+        
+        <button class="btn btn-p" onclick="exportData()" style="font-size:16px; padding:18px;">📥 TÉLÉCHARGER LE JSON</button>
+        <div style="font-size:11px; color:#94A3B8; margin-top:10px;">Fichier complet prêt pour traitement.</div>
+        
+        <button class="btn" style="background:var(--dan); color:white; margin-top:40px;" onclick="if(confirm('Attention, action irréversible. Tout effacer ?')) {localforage.clear(); location.reload();}">🗑️ RESET TOTAL DU PROJET</button>
     </div>
 </div>
 
@@ -573,7 +605,7 @@
     let lastCalc = {};
 
     async function sauvegarderLocal() { 
-        try { await localforage.setItem('mydiag_v6_9', db); } 
+        try { await localforage.setItem('mydiag_v7_0', db); } 
         catch (err) { console.error("Erreur de sauvegarde", err); }
     }
 
@@ -699,6 +731,7 @@
             el.mat = 'Inconnu'; el.ori = ''; el.donne = 'Extérieur'; 
             el.l = document.getElementById('calc-L').value; 
             el.h = document.getElementById('calc-h').value; 
+            el.ep = ''; el.isoEp = '';
             el.doub = 'Absent'; el.iso = 'Non isolé';
             db.murs.push(el); toast("Mur Façade ajouté. Modifiez-le ✏️");
         } else if(type === 'pig') {
@@ -706,15 +739,18 @@
             el.l = document.getElementById('calc-l').value; 
             let hMoy = (parseFloat(document.getElementById('calc-h').value) + parseFloat(document.getElementById('calc-H').value)) / 2;
             el.h = hMoy.toFixed(2); 
+            el.ep = ''; el.isoEp = '';
             el.doub = 'Absent'; el.iso = 'Non isolé';
             db.murs.push(el); toast("Mur Pignon ajouté. Modifiez-le ✏️");
         } else if(type === 'ramp') {
             el.type = 'Combles aménagés sous rampants'; el.donne = 'Extérieur'; 
             el.s = lastCalc.sRamp;
+            el.iso = 'Non isolé'; el.isoEp = '';
             db.plfs.push(el); toast("Plafond rampant ajouté. Modifiez-le ✏️");
         } else if(type === 'plat') {
             el.type = 'Inconnu'; el.donne = 'Combles perdus'; 
             el.s = lastCalc.sPlat;
+            el.iso = 'Non isolé'; el.isoEp = '';
             db.plfs.push(el); toast("Plafond plat ajouté. Modifiez-le ✏️");
         }
         sauvegarderLocal();
@@ -866,6 +902,19 @@
         drawCroquis();
         toast('Mur de fermeture (' + l + 'm) généré.');
     };
+    
+    // Traducteur pour affichage court sur le croquis
+    function getShortMat(mat) {
+        if(!mat) return "";
+        if(mat.includes("Pierre")) return "Pierre";
+        if(mat.includes("Béton banché")) return "Béton";
+        if(mat.includes("Blocs de béton")) return "Parpaing";
+        if(mat.includes("Briques pleines")) return "Brique pl.";
+        if(mat.includes("Briques creuses") || mat.includes("alvéolaire")) return "Brique cr.";
+        if(mat.includes("Pisé")) return "Pisé";
+        if(mat.includes("bois")) return "Bois";
+        return "Inc.";
+    }
 
     function drawCroquis() {
         const canvas = document.getElementById('croquis-canvas');
@@ -937,7 +986,10 @@
             let nx = -dy / len; let ny = dx / len;
             let textPx = px + nx * 14; let textPy = py + ny * 14;
 
-            let text = mursApt[i].l + "m";
+            let shortMat = getShortMat(mursApt[i].mat);
+            let epText = mursApt[i].ep ? ` (${mursApt[i].ep}cm)` : '';
+            let text = mursApt[i].l + "m " + shortMat + epText;
+            
             let tw = ctx.measureText(text).width;
             
             ctx.fillStyle = "rgba(255, 255, 255, 0.85)";
@@ -1341,6 +1393,7 @@
             btn.textContent = "Ajouter Chauffage"; btn.removeAttribute('data-edit-id');
         } else { db.chaufs.push(obj); }
         
+        // Reset local form inputs
         document.getElementById('ifc-energie-'+aptId).value = ''; document.getElementById('ifc-gen-'+aptId).value = '';
         document.getElementById('ifc-emetteur-'+aptId).value = ''; document.getElementById('ifc-annee-'+aptId).value = '';
         document.getElementById('ifc-puissance-'+aptId).value = '';
@@ -1556,8 +1609,10 @@
             el.mat = document.getElementById('m-mat').value; 
             el.l = document.getElementById('m-l').value; 
             el.h = document.getElementById('m-h').value; 
+            el.ep = document.getElementById('m-ep').value; 
             el.doub = document.getElementById('m-doub').value;
             el.iso = document.getElementById('m-iso').value; 
+            el.isoEp = document.getElementById('m-iso-ep').value; 
             
             if (el.vectX !== undefined && oldOri !== el.ori) {
                 delete el.vectX;
@@ -1590,8 +1645,8 @@
             el.l = document.getElementById('po-l').value; 
             el.h = document.getElementById('po-h').value; 
         }
-        else if (type === 'plfs') { el.type = document.getElementById('p-type').value; el.donne = document.getElementById('p-donne').value; el.l = document.getElementById('p-l').value; el.larg = document.getElementById('p-larg').value; el.s = document.getElementById('p-s').value;}
-        else if (type === 'plas') { el.type = document.getElementById('s-type').value; el.donne = document.getElementById('s-donne').value; el.l = document.getElementById('s-l').value; el.larg = document.getElementById('s-larg').value; el.s = document.getElementById('s-s').value;}
+        else if (type === 'plfs') { el.type = document.getElementById('p-type').value; el.donne = document.getElementById('p-donne').value; el.l = document.getElementById('p-l').value; el.larg = document.getElementById('p-larg').value; el.s = document.getElementById('p-s').value; el.iso = document.getElementById('p-iso').value; el.isoEp = document.getElementById('p-iso-ep').value;}
+        else if (type === 'plas') { el.type = document.getElementById('s-type').value; el.donne = document.getElementById('s-donne').value; el.l = document.getElementById('s-l').value; el.larg = document.getElementById('s-larg').value; el.s = document.getElementById('s-s').value; el.iso = document.getElementById('s-iso').value; el.isoEp = document.getElementById('s-iso-ep').value;}
         
         if(!editParoiId) db[type].push(el);
         
@@ -1601,9 +1656,11 @@
         sauvegarderLocal();
         renderElementsList(type);
         
-        if(type === 'murs') { document.getElementById('m-l').value = ''; document.getElementById('m-doub').value = 'Absent'; drawCroquis(); } 
+        if(type === 'murs') { document.getElementById('m-l').value = ''; document.getElementById('m-ep').value = ''; document.getElementById('m-iso-ep').value = ''; document.getElementById('m-doub').value = 'Absent'; drawCroquis(); } 
         else if (type === 'fens') { document.getElementById('f-bibli').value = ''; document.getElementById('f-l').value = ''; document.getElementById('f-h').value = ''; document.getElementById('f-ep').value = ''; document.getElementById('f-nb').value = '1'; document.getElementById('f-motifs').value = '1'; }
-        else { document.querySelectorAll(`#vw-${type} input[type="number"]`).forEach(i => i.value = ''); }
+        else { 
+            document.querySelectorAll(`#vw-${type} input[type="number"]`).forEach(i => i.value = ''); 
+        }
         toast("Élément enregistré ✓");
     }
 
@@ -1617,14 +1674,16 @@
             document.getElementById('m-mat').value = p.mat; 
             document.getElementById('m-l').value = p.l; 
             document.getElementById('m-h').value = p.h; 
+            document.getElementById('m-ep').value = p.ep || ''; 
             document.getElementById('m-doub').value = p.doub || 'Absent';
-            document.getElementById('m-iso').value = p.iso; 
+            document.getElementById('m-iso').value = p.iso || 'Non isolé'; 
+            document.getElementById('m-iso-ep').value = p.isoEp || ''; 
             document.getElementById('btn-save-murs').textContent = "Modifier ce mur"; 
         }
         else if (type === 'fens') { document.getElementById('f-bibli').value = ''; document.getElementById('f-ori').value = p.ori || 'Nord'; document.getElementById('f-type').value = p.type; document.getElementById('f-mat').value = p.mat; document.getElementById('f-vit').value = p.vit; document.getElementById('f-ep').value = p.ep || ''; document.getElementById('f-fer').value = p.fer; document.getElementById('f-l').value = p.l; document.getElementById('f-h').value = p.h; document.getElementById('f-nb').value = p.nb || '1'; document.getElementById('f-motifs').value = p.motifs || '1'; document.getElementById('btn-save-fens').textContent = "Modifier cette fenêtre"; }
         else if (type === 'portes') { document.getElementById('po-type').value = p.type || 'Porte opaque pleine'; document.getElementById('po-mat').value = p.mat || 'Bois'; document.getElementById('po-donne').value = p.donne || 'Extérieur'; document.getElementById('po-iso').value = p.iso || 'Non isolée / Inconnue'; document.getElementById('po-sas').value = p.sas || 'Non'; document.getElementById('po-l').value = p.l || ''; document.getElementById('po-h').value = p.h || ''; document.getElementById('btn-save-portes').textContent = "Modifier cette porte"; }
-        else if (type === 'plfs') { document.getElementById('p-type').value = p.type; document.getElementById('p-donne').value = p.donne; document.getElementById('p-l').value = p.l || ''; document.getElementById('p-larg').value = p.larg || ''; document.getElementById('p-s').value = p.s || ''; document.getElementById('btn-save-plfs').textContent = "Modifier ce plafond"; }
-        else if (type === 'plas') { document.getElementById('s-type').value = p.type; document.getElementById('s-donne').value = p.donne; document.getElementById('s-l').value = p.l || ''; document.getElementById('s-larg').value = p.larg || ''; document.getElementById('s-s').value = p.s || ''; document.getElementById('btn-save-plas').textContent = "Modifier ce plancher"; }
+        else if (type === 'plfs') { document.getElementById('p-type').value = p.type; document.getElementById('p-donne').value = p.donne; document.getElementById('p-l').value = p.l || ''; document.getElementById('p-larg').value = p.larg || ''; document.getElementById('p-s').value = p.s || ''; document.getElementById('p-iso').value = p.iso || 'Non isolé'; document.getElementById('p-iso-ep').value = p.isoEp || ''; document.getElementById('btn-save-plfs').textContent = "Modifier ce plafond"; }
+        else if (type === 'plas') { document.getElementById('s-type').value = p.type; document.getElementById('s-donne').value = p.donne; document.getElementById('s-l').value = p.l || ''; document.getElementById('s-larg').value = p.larg || ''; document.getElementById('s-s').value = p.s || ''; document.getElementById('s-iso').value = p.iso || 'Non isolé'; document.getElementById('s-iso-ep').value = p.isoEp || ''; document.getElementById('btn-save-plas').textContent = "Modifier ce plancher"; }
         
         window.scrollTo(0,0);
     }
@@ -1667,8 +1726,12 @@
                 titleText = `${x.nom ? x.nom + ' - ' : ''}${x.mat}`;
             } else if (type === 'plfs' || type === 'plas') {
                 if (x.s) dimText = `Surf: ${x.s}m²`; else dimText = `Dim: ${x.l||'?'} x ${x.larg||'?'}m`;
+                if(x.iso && x.iso !== 'Non isolé') dimText += ` | Iso: ${x.isoEp ? x.isoEp + 'cm' : 'Oui'}`;
             } else if (type === 'murs') {
-                dimText = `Dim: ${x.l||'?'} x ${x.h||'?'}m | Doub: ${x.doub||'Absent'} | Iso: ${x.iso||'Non isolé'}`;
+                dimText = `Dim: ${x.l||'?'} x ${x.h||'?'}m`;
+                if(x.ep) dimText += ` | Ep: ${x.ep}cm`;
+                if(x.iso && x.iso !== 'Non isolé') dimText += ` | Iso: ${x.isoEp ? x.isoEp + 'cm' : 'Oui'}`;
+                
                 if (x.vectX !== undefined) titleText = "Mur (Fermeture auto)";
             } else if (type === 'portes') {
                 dimText = `Dim: ${x.l||'?'} x ${x.h||'?'}m | Iso: ${x.iso||'Non'} | Sas: ${x.sas||'Non'}`;
@@ -1706,7 +1769,7 @@
     window.onload = async () => {
         peuplerSelects();
         try {
-            const savedData = await localforage.getItem('mydiag_v6_7');
+            const savedData = await localforage.getItem('mydiag_v7_0');
             if (savedData) { 
                 db = savedData; 
                 if(!db.docs) db.docs = []; 
