@@ -88,7 +88,7 @@
 <input type="file" id="global-uploader" style="display:none;" accept="image/*,application/pdf" capture="environment">
 
 <div class="hd">
-    <div class="hd-title">MyDiag <span style="font-size:10px; color:#94A3B8; font-weight:normal;">v4.8 Murs / Doublage</span></div>
+    <div class="hd-title">MyDiag <span style="font-size:10px; color:#94A3B8; font-weight:normal;">v4.10 Doublage</span></div>
     <button class="btn-save" onclick="sauvegarderLocal()">💾 Sauvegarder</button>
 </div>
 
@@ -220,16 +220,15 @@
         <div class="fr"><span class="fl">Donne sur</span><select id="m-donne"></select></div>
         <div class="fr"><span class="fl">Matériau (ADN)</span><select id="m-mat"></select></div>
         <div class="fr"><span class="fl">L x H (m)</span><input type="number" inputmode="decimal" step="any" id="m-l" placeholder="Long." style="margin-right:5px;"><input type="number" inputmode="decimal" step="any" id="m-h" placeholder="Haut."></div>
-        
         <div class="fr"><span class="fl">Doublage</span>
             <select id="m-doub">
-                <option value="Pas de doublage">Pas de doublage</option>
+                <option value="Absent">Absent</option>
                 <option value="Inconnu">Inconnu</option>
-                <option value="Lame d'air (> 15 mm)">Lame d'air (> 15 mm)</option>
-                <option value="Présence isolant inconnu">Présence isolant inconnu</option>
+                <option value="Connu : Plâtre, bois, brique...">Connu : Plâtre, bois, brique...</option>
+                <option value="Connu avec lame d'air de moins de 15 mm">Connu avec lame d'air de moins de 15 mm</option>
+                <option value="Connu avec lame d'air de 15 mm ou plus">Connu avec lame d'air de 15 mm ou plus</option>
             </select>
         </div>
-        
         <div class="fr"><span class="fl">Isolant</span><select id="m-iso"><option>Non isolé</option><option>Isolation Intérieure (ITI)</option><option>Isolation Extérieure (ITE)</option></select></div>
     </div>
     <button class="btn btn-p" id="btn-save-murs" onclick="sauverParoi('murs')">Enregistrer ce mur</button>
@@ -356,7 +355,7 @@
     let currentUploadTarget = null;
 
     async function sauvegarderLocal() { 
-        try { await localforage.setItem('mydiag_v4_8', db); } 
+        try { await localforage.setItem('mydiag_v4_10', db); } 
         catch (err) { console.error("Erreur de sauvegarde", err); }
     }
 
@@ -441,10 +440,11 @@
         let curX = 0, curY = 0;
         mursApt.forEach(m => {
             let l = parseFloat(m.l) || 0;
-            if (m.ori === 'Nord') curY -= l;
-            else if (m.ori === 'Est') curX += l;
-            else if (m.ori === 'Sud') curY += l;
-            else if (m.ori === 'Ouest') curX -= l;
+            // Horaire : N(+X), E(+Y), S(-X), O(-Y)
+            if (m.ori === 'Nord') curX += l;
+            else if (m.ori === 'Est') curY += l;
+            else if (m.ori === 'Sud') curX -= l;
+            else if (m.ori === 'Ouest') curY -= l;
         });
         
         let err = Math.sqrt(curX*curX + curY*curY);
@@ -475,6 +475,7 @@
 
         mursApt.forEach(m => {
             let l = parseFloat(m.l) || 0;
+            // Repère Cartographique avec dessin horaire
             if (m.ori === 'Nord') curY -= l;
             else if (m.ori === 'Est') curX += l;
             else if (m.ori === 'Sud') curY += l;
@@ -965,7 +966,7 @@
         sauvegarderLocal();
         renderElementsList(type);
         
-        if(type === 'murs') { document.getElementById('m-l').value = ''; document.getElementById('m-doub').value = 'Pas de doublage'; drawCroquis(); } 
+        if(type === 'murs') { document.getElementById('m-l').value = ''; document.getElementById('m-doub').value = 'Absent'; drawCroquis(); } 
         else if (type === 'fens') { document.getElementById('f-bibli').value = ''; document.getElementById('f-l').value = ''; document.getElementById('f-h').value = ''; document.getElementById('f-ep').value = ''; document.getElementById('f-nb').value = '1'; document.getElementById('f-motifs').value = '1'; }
         else { document.querySelectorAll(`#vw-${type} input[type="number"]`).forEach(i => i.value = ''); }
     }
@@ -980,7 +981,7 @@
             document.getElementById('m-mat').value = p.mat; 
             document.getElementById('m-l').value = p.l; 
             document.getElementById('m-h').value = p.h; 
-            document.getElementById('m-doub').value = p.doub || 'Pas de doublage';
+            document.getElementById('m-doub').value = p.doub || 'Absent';
             document.getElementById('m-iso').value = p.iso; 
             document.getElementById('btn-save-murs').textContent = "Modifier ce mur"; 
         }
@@ -1012,7 +1013,7 @@
             } else if (type === 'plfs' || type === 'plas') {
                 if (x.s) dimText = `Surf: ${x.s}m²`; else dimText = `Dim: ${x.l||'?'} x ${x.larg||'?'}m`;
             } else if (type === 'murs') {
-                dimText = `Dim: ${x.l||'?'} x ${x.h||'?'}m | Doub: ${x.doub||'Non'} | Iso: ${x.iso||'Non'}`;
+                dimText = `Dim: ${x.l||'?'} x ${x.h||'?'}m | Doub: ${x.doub||'Absent'} | Iso: ${x.iso||'Non isolé'}`;
             } else { dimText = `Dim: ${x.l||'?'} x ${x.h||'?'}m`; }
             const badgeText = type === 'fens' ? (x.ori || 'N/A') : (type === 'portes' ? 'Porte' : (x.ori || 'Surf.'));
 
@@ -1042,7 +1043,7 @@
     window.onload = async () => {
         peuplerSelects();
         try {
-            const savedData = await localforage.getItem('mydiag_v4_8');
+            const savedData = await localforage.getItem('mydiag_v4_10');
             if (savedData) { 
                 db = savedData; 
                 if(!db.docs) db.docs = []; 
