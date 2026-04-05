@@ -74,7 +74,7 @@
         .doc-item { display:flex; justify-content:space-between; align-items:center; background:#F8FAFC; border:1px solid #E2E8F0; padding:10px; border-radius:8px; margin-bottom:8px; }
 
         /* BADGES TDB APPARTEMENT */
-        .badge-elem { background: #E2E8F0; color: #334155; padding: 3px 6px; border-radius: 6px; font-size: 11px; font-weight: 800; display: inline-block; }
+        .badge-elem { background: #E2E8F0; color: #334155; padding: 3px 6px; border-radius: 6px; font-size: 11px; font-weight: 800; display: inline-block; margin-top: 4px;}
         .badge-ok { background: var(--ok-l); color: var(--ok); border: 1px solid #BFE4C9;}
         .badge-warn { background: var(--warn-l); color: var(--warn); border: 1px solid #F9DCA7;}
     </style>
@@ -88,7 +88,7 @@
 <input type="file" id="global-uploader" style="display:none;" accept="image/*,application/pdf" capture="environment">
 
 <div class="hd">
-    <div class="hd-title">MyDiag <span style="font-size:10px; color:#94A3B8; font-weight:normal;">v4.4 Mini TdB</span></div>
+    <div class="hd-title">MyDiag <span style="font-size:10px; color:#94A3B8; font-weight:normal;">v4.5 Validation Plan</span></div>
     <button class="btn-save" onclick="sauvegarderLocal()">💾 Sauvegarder</button>
 </div>
 
@@ -182,7 +182,7 @@
     <div id="new-apt-form" style="display: none; margin-bottom: 20px;">
         <div class="sl">Créer un appartement</div>
         <div class="card">
-            <div class="fr"><span class="fl">N° échantillon</span><input type="text" id="apt-num" placeholder="ex: E01" style="color:var(--acc); font-weight:700;"></div>
+            <div class="fr"><span class="fl">N° échantillon</span><select id="apt-num" style="color:var(--acc); font-weight:700;"></select></div>
             <div class="fr"><span class="fl">Bâtiment n°</span><select id="apt-bat"><option value="">—</option><option>1</option><option>2</option><option>3</option></select></div>
             <div class="fr"><span class="fl">Étage</span><select id="apt-etage" onchange="autoSetNiveau(this.value, 'apt-niveau')"></select></div>
             <div class="fr"><span class="fl">Niveau ADN</span><select id="apt-niveau"><option value="">—</option><option value="RDC">RDC</option><option value="Intermédiaire">Intermédiaire</option><option value="Dernier étage">Dernier étage</option></select></div>
@@ -336,7 +336,7 @@
     let currentUploadTarget = null;
 
     async function sauvegarderLocal() { 
-        try { await localforage.setItem('mydiag_v4_4', db); } 
+        try { await localforage.setItem('mydiag_v4_5', db); } 
         catch (err) { console.error("Erreur de sauvegarde", err); }
     }
 
@@ -413,7 +413,24 @@
         if(db.ecsCol.photo) { ecsImg.src = db.ecsCol.photo; ecsImg.style.display = 'block'; } else { ecsImg.style.display = 'none'; }
     }
 
-    // --- 4. MOTEUR DE DESSIN 2D (BIM) ---
+    // --- 4. MOTEUR DE DESSIN 2D & LOGIQUE DE FERMETURE ---
+    function isSchemaClosed(aptId) {
+        const mursApt = db.murs.filter(m => m.aid === aptId);
+        if (mursApt.length < 3) return false;
+        
+        let curX = 0, curY = 0;
+        mursApt.forEach(m => {
+            let l = parseFloat(m.l) || 0;
+            if (m.ori === 'Nord') curY -= l;
+            else if (m.ori === 'Est') curX += l;
+            else if (m.ori === 'Sud') curY += l;
+            else if (m.ori === 'Ouest') curX -= l;
+        });
+        
+        let err = Math.sqrt(curX*curX + curY*curY);
+        return err <= 0.15; // Tolérance de fermeture de 15cm
+    }
+
     function drawCroquis() {
         const canvas = document.getElementById('croquis-canvas');
         if (!canvas) return;
@@ -499,7 +516,7 @@
         ctx.beginPath(); ctx.arc(startPx, startPy, 6, 0, 2 * Math.PI); ctx.fillStyle = '#16A34A'; ctx.fill(); ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.stroke();
         ctx.beginPath(); ctx.arc(endPx, endPy, 6, 0, 2 * Math.PI); ctx.fillStyle = '#DC2626'; ctx.fill(); ctx.stroke();
 
-        let err = Math.sqrt(Math.pow(endP.x - startP.x, 2) + Math.pow(endP.y - startP.y, 2));
+        let err = Math.sqrt(Math.pow(curX, 2) + Math.pow(curY, 2));
         let txt = '';
         if (mursApt.length < 3) {
             txt = '<span style="color:#94A3B8;">Tracez au moins 3 murs pour fermer le polygone...</span>';
@@ -542,6 +559,15 @@
         else if (etage === 'Combles' || etage === `R+${n-1}`) niveauSelect.value = 'Dernier étage';
         else if (etage.startsWith('R+')) niveauSelect.value = 'Intermédiaire';
         else if (etage === 'Sous-sol') niveauSelect.value = 'Intermédiaire';
+    }
+
+    function getAptNumOptionsHtml(selected = "") {
+        let html = '<option value="">— Sélectionner —</option>';
+        for(let i=1; i<=50; i++) {
+            let val = 'E' + String(i).padStart(2, '0');
+            html += `<option value="${val}" ${selected===val?'selected':''}>${val}</option>`;
+        }
+        return html;
     }
 
     // --- 6. NAVIGATION ---
@@ -615,6 +641,7 @@
 
     // --- 8. APPARTEMENTS ---
     function showNouvelAppt() { 
+        document.getElementById('apt-num').innerHTML = getAptNumOptionsHtml();
         updateEtageOptions('apt-etage');
         document.getElementById('new-apt-form').style.display = 'block'; 
     }
@@ -737,6 +764,9 @@
             const p = db.plfs.filter(x=>x.aid===a.id).length; const s = db.plas.filter(x=>x.aid===a.id).length;
             const po = db.portes.filter(x=>x.aid===a.id).length;
             
+            const schemaOk = isSchemaClosed(a.id);
+            const badgeSchema = schemaOk ? '<span class="badge-elem badge-ok">📐 Plan Fermé</span>' : '<span class="badge-elem badge-warn">📐 Plan Ouvert</span>';
+
             let body = '';
             if(isExp) {
                 const cList = myC.map(c => `
@@ -767,7 +797,7 @@
                 
                 body = `<div class="appt-body open">
                     <div class="card" style="margin-bottom:10px; border-color:#CBD5E1;">
-                        <div class="fr"><span class="fl">Identifiant</span><input type="text" value="${a.num}" onchange="updateApptField('${a.id}', 'num', this.value)"></div>
+                        <div class="fr"><span class="fl">Identifiant</span><select onchange="updateApptField('${a.id}', 'num', this.value)">${getAptNumOptionsHtml(a.num)}</select></div>
                         <div class="fr"><span class="fl">Surface (m²)</span><input type="number" value="${a.surf||''}" onchange="updateApptField('${a.id}', 'surf', this.value)"></div>
                         <div class="fr"><span class="fl">HSP (m)</span><input type="number" value="${a.hsp||''}" onchange="updateApptField('${a.id}', 'hsp', this.value)"></div>
                         <div class="fr"><span class="fl">Étage</span>
@@ -823,6 +853,7 @@
                             <span class="badge-elem">🔽 ${s}</span>
                             <span class="badge-elem ${myC.length?'badge-ok':'badge-warn'}">🔥 ${myC.length}</span>
                             <span class="badge-elem ${myE.length?'badge-ok':'badge-warn'}">🚿 ${myE.length}</span>
+                            ${badgeSchema}
                         </div>
                     </div>
                     <span style="color:var(--tx2); font-size:14px; padding-left:10px;">${isExp ? '▼' : '▶'}</span>
@@ -937,11 +968,11 @@
     window.onload = async () => {
         peuplerSelects();
         try {
-            const savedData = await localforage.getItem('mydiag_v4_4');
+            const savedData = await localforage.getItem('mydiag_v4_5');
             if (savedData) { 
                 db = savedData; 
                 if(!db.docs) db.docs = []; 
-                if(!db.portes) db.portes = []; // Migration sécurité
+                if(!db.portes) db.portes = []; 
             }
             
             ['copro-ref','copro-nom','copro-adresse','copro-annee','copro-batiments','copro-etages'].forEach(id => { const k = id.replace('copro-',''); if(db.copro[k]) document.getElementById(id).value = db.copro[k]; });
