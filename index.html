@@ -100,7 +100,7 @@
 <input type="file" id="global-uploader" style="display:none;" accept="image/*,application/pdf" capture="environment">
 
 <div class="hd">
-    <div class="hd-title">MyDiag - DPE <span style="font-size:10px; color:#94A3B8; font-weight:normal;">v6.2 Auto-Surface</span></div>
+    <div class="hd-title">MyDiag - DPE <span style="font-size:10px; color:#94A3B8; font-weight:normal;">v6.3 Fermeture Parfaite</span></div>
     <button class="btn-save" onclick="sauvegarderLocal()">💾 Sauvegarder</button>
 </div>
 
@@ -425,7 +425,7 @@
     let lastCalc = {};
 
     async function sauvegarderLocal() { 
-        try { await localforage.setItem('mydiag_v6_2', db); } 
+        try { await localforage.setItem('mydiag_v6_3', db); } 
         catch (err) { console.error("Erreur de sauvegarde", err); }
     }
 
@@ -573,22 +573,31 @@
         let curX = 0, curY = 0;
         mursApt.forEach(m => {
             let l = parseFloat(m.l) || 0;
-            // Horaire : N(+X), E(+Y), S(-X), O(-Y)
-            if (m.ori === 'Nord') curX += l;
-            else if (m.ori === 'Est') curY += l;
-            else if (m.ori === 'Sud') curX -= l;
-            else if (m.ori === 'Ouest') curY -= l;
+            // Gestion d'un éventuel vecteur libre (fermeture auto modifiée)
+            if (m.vectX !== undefined && m.vectY !== undefined) {
+                let origL = Math.sqrt(m.vectX*m.vectX + m.vectY*m.vectY);
+                if (origL > 0) { curX += m.vectX * (l / origL); curY += m.vectY * (l / origL); }
+                else { curX += m.vectX; curY += m.vectY; }
+            } else {
+                if (m.ori === 'Nord') curX += l;
+                else if (m.ori === 'Est') curY += l;
+                else if (m.ori === 'Sud') curX -= l;
+                else if (m.ori === 'Ouest') curY -= l;
+            }
         });
         
         let err = Math.sqrt(curX*curX + curY*curY);
         return err <= 0.15;
     }
 
-    // --- FONCTION FERMETURE AUTOMATIQUE ---
+    // --- FONCTION FERMETURE AUTOMATIQUE (VECTEUR) ---
     window.fermerPolygone = function(aptId, cX, cY) {
+        // Le vecteur pour revenir à 0,0 depuis cX,cY
         let dx = -cX;
         let dy = -cY;
         let l = Math.sqrt(dx*dx + dy*dy).toFixed(2);
+        
+        // Détermination de l'orientation majoritaire pour l'export DPE
         let ori = '';
         if (Math.abs(dx) >= Math.abs(dy)) {
             ori = dx >= 0 ? 'Nord' : 'Sud';
@@ -605,7 +614,9 @@
             l: String(l),
             h: '',
             doub: 'Absent',
-            iso: 'Non isolé'
+            iso: 'Non isolé',
+            vectX: dx, // On stocke la projection X exacte pour le tracé de la diagonale
+            vectY: dy  // Idem Y
         };
         db.murs.push(m);
         sauvegarderLocal();
@@ -638,11 +649,22 @@
 
         mursApt.forEach(m => {
             let l = parseFloat(m.l) || 0;
-            // Repère Cartographique avec dessin horaire
-            if (m.ori === 'Nord') curX += l;
-            else if (m.ori === 'Est') curY += l;
-            else if (m.ori === 'Sud') curX -= l;
-            else if (m.ori === 'Ouest') curY -= l;
+            
+            // On vérifie si c'est un mur "diagonale" auto-généré (ou dont on a modifié uniquement la longueur)
+            if (m.vectX !== undefined && m.vectY !== undefined) {
+                let origL = Math.sqrt(m.vectX*m.vectX + m.vectY*m.vectY);
+                if (origL > 0) {
+                    curX += m.vectX * (l / origL);
+                    curY += m.vectY * (l / origL);
+                } else {
+                    curX += m.vectX; curY += m.vectY;
+                }
+            } else {
+                if (m.ori === 'Nord') curX += l;
+                else if (m.ori === 'Est') curY += l;
+                else if (m.ori === 'Sud') curX -= l;
+                else if (m.ori === 'Ouest') curY -= l;
+            }
             points.push({ x: curX, y: curY });
         });
 
@@ -687,7 +709,6 @@
             ctx.fillStyle = "#0F172A"; ctx.fillText(text, textPx, textPy);
         }
 
-        // Boussole corrigée
         let compX = 25; let compY = 30;
         ctx.beginPath(); ctx.moveTo(compX, compY - 10); ctx.lineTo(compX, compY + 10); ctx.moveTo(compX - 10, compY); ctx.lineTo(compX + 10, compY);
         ctx.strokeStyle = "#CBD5E1"; ctx.lineWidth = 2; ctx.stroke();
@@ -712,12 +733,12 @@
             txt = `<span style="color:#16A34A;">✅ Périmètre fermé</span><br>Surface géométrique : <b>${area.toFixed(1)} m²</b>`;
             ctx.beginPath(); ctx.moveTo(endPx, endPy); ctx.lineTo(startPx, startPy); ctx.strokeStyle = '#16A34A'; ctx.lineWidth = 2; ctx.stroke();
             
-            // --- NOUVEAUTÉ : REPORT AUTO DE LA SURFACE ---
+            // REPORT AUTO DE LA SURFACE
             let curAptObj = db.appts.find(a => a.id === curAppt);
             if (curAptObj && (!curAptObj.surf || curAptObj.surf === "")) {
                 curAptObj.surf = area.toFixed(1);
                 sauvegarderLocal();
-                renderApptsList(); // Met à jour l'onglet Appartement discrètement
+                renderApptsList(); // Met à jour l'onglet Appartement
                 toast("Surface calculée (" + area.toFixed(1) + " m²) reportée !");
             }
         }
@@ -1175,6 +1196,7 @@
         let el = editParoiId ? db[type].find(x => x.id === editParoiId) : { id: Date.now(), aid: curAppt };
         
         if(type === 'murs') { 
+            let oldOri = el.ori;
             el.ori = document.getElementById('m-ori').value; 
             el.donne = document.getElementById('m-donne').value; 
             el.mat = document.getElementById('m-mat').value; 
@@ -1182,6 +1204,13 @@
             el.h = document.getElementById('m-h').value; 
             el.doub = document.getElementById('m-doub').value;
             el.iso = document.getElementById('m-iso').value; 
+            
+            // Si on a explicitement changé l'orientation d'un mur généré automatiquement, 
+            // on supprime sa propriété "diagonale" (vectX/Y) pour qu'il redevienne droit.
+            if (el.vectX !== undefined && oldOri !== el.ori) {
+                delete el.vectX;
+                delete el.vectY;
+            }
         }
         else if (type === 'fens') { 
             let ftype = document.getElementById('f-type').value; let fmat = document.getElementById('f-mat').value; let fvit = document.getElementById('f-vit').value; let fep = document.getElementById('f-ep').value; let ffer = document.getElementById('f-fer').value; let fl = document.getElementById('f-l').value; let fh = document.getElementById('f-h').value;
@@ -1261,6 +1290,7 @@
                 if (x.s) dimText = `Surf: ${x.s}m²`; else dimText = `Dim: ${x.l||'?'} x ${x.larg||'?'}m`;
             } else if (type === 'murs') {
                 dimText = `Dim: ${x.l||'?'} x ${x.h||'?'}m | Doub: ${x.doub||'Absent'} | Iso: ${x.iso||'Non isolé'}`;
+                if (x.vectX !== undefined) titleText = "Mur (Fermeture auto)";
             } else { dimText = `Dim: ${x.l||'?'} x ${x.h||'?'}m`; }
             const badgeText = type === 'fens' ? (x.ori || 'N/A') : (type === 'portes' ? 'Porte' : (x.ori || 'Surf.'));
 
@@ -1294,7 +1324,7 @@
     window.onload = async () => {
         peuplerSelects();
         try {
-            const savedData = await localforage.getItem('mydiag_v6_2');
+            const savedData = await localforage.getItem('mydiag_v6_3');
             if (savedData) { 
                 db = savedData; 
                 if(!db.docs) db.docs = []; 
