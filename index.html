@@ -98,6 +98,24 @@
         .niv-btn { flex:1; padding:10px; border:none; border-radius:8px; font-weight:bold; font-size:13px; transition:0.2s;}
         .niv-on { background:var(--acc); color:#fff; }
         .niv-off { background:#E2E8F0; color:#334155; border:1px solid var(--bor);}
+
+        /* Style 3D TETRIS BIM */
+        .tetris-block {
+            background: #3B82F6;
+            border-bottom: 5px solid #1E3A8A; /* 3D effect bottom */
+            border-right: 4px solid #2563EB; /* 3D effect right */
+            border-radius: 4px;
+            color: #FFF;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 800;
+            text-shadow: 1px 1px 0 rgba(0,0,0,0.3);
+            height: 45px;
+            transition: 0.3s;
+        }
     </style>
 </head>
 <body>
@@ -109,12 +127,13 @@
 <input type="file" id="global-uploader" style="display:none;" accept="image/*,application/pdf" capture="environment">
 
 <div class="hd">
-    <div class="hd-title">MyDiag - DPE <span style="font-size:10px; color:#94A3B8; font-weight:normal;">v6.8 Duplex</span></div>
+    <div class="hd-title">MyDiag - DPE <span style="font-size:10px; color:#94A3B8; font-weight:normal;">v6.9 BIM & Expts</span></div>
     <button class="btn-save" onclick="sauvegarderLocal()">💾 Sauvegarder</button>
 </div>
 
 <div class="tabs" id="tab-bar">
     <div class="tab on" onclick="goTab('accueil')">🏠 Accueil</div>
+    <div class="tab" onclick="goTab('bim')">🏗️ Synthèse BIM</div>
     <div class="tab" onclick="goTab('copro')">🏢 Copro</div>
     <div class="tab" onclick="goTab('appts')">🚪 Appts</div>
     <div class="tab" onclick="goTab('murs')">🧱 Murs</div>
@@ -149,7 +168,15 @@
             </div>
         </div>
     </div>
-    <button class="btn btn-p" onclick="goTab('copro')">🏢 Renseigner la Copropriété</button>
+    <button class="btn btn-p" onclick="goTab('bim')">🏗️ Voir la modélisation 3D</button>
+</div>
+
+<div id="vw-bim" class="vw">
+    <div class="card" style="padding:20px; background:#0F172A; color:white; text-align:center;">
+        <div style="font-size:20px; font-weight:800; margin-bottom:10px;">🏗️ Modélisation & Extrapolation</div>
+        <div style="font-size:13px; color:#cbd5e1;">Aperçu de l'empilement des échantillons (Tetris) et extrapolation à l'échelle du bâtiment.</div>
+    </div>
+    <div id="bim-container"></div>
 </div>
 
 <div id="vw-copro" class="vw">
@@ -202,7 +229,7 @@
     <div class="coll-acc-body" id="ecs-acc">
         <div class="card">
             <div class="fr"><span class="fl">Énergie</span><select id="col-ecs-energie" onchange="updateEcsGen('col-ecs-energie', 'col-ecs-type'); saveCoproData()"><option value="">—</option><option>Electrique</option><option>Gaz naturel</option><option>GPL</option><option>Fioul</option><option>Bois</option><option>Charbon</option><option>Réseau de chaleur</option></select></div>
-            <div class="fr"><span class="fl">Générateur</span><select id="col-ecs-type" onchange="saveCoproData()"><option value="">—</option></select></div>
+            <div class="fr"><span class="fl">Type/Générateur</span><select id="col-ecs-type" onchange="saveCoproData()"><option value="">—</option></select></div>
             <div class="fr"><span class="fl">Année</span><input type="number" inputmode="numeric" pattern="[0-9]*" id="col-ecs-annee" placeholder="ex: 2012" oninput="saveCoproData()"></div>
             <div class="fr"><span class="fl">Volume (L)</span><input type="number" inputmode="numeric" pattern="[0-9]*" id="col-ecs-vol" placeholder="ex: 1000" oninput="saveCoproData()"></div>
             <div class="fr" style="justify-content:space-between;">
@@ -224,7 +251,7 @@
         <div class="card">
             <div class="fr"><span class="fl">N° échantillon</span><select id="apt-num" style="color:var(--acc); font-weight:700;"></select></div>
             <div class="fr"><span class="fl">Type de lot</span><select id="apt-type"><option value="1">Plain-pied</option><option value="2">Duplex</option><option value="3">Triplex</option></select></div>
-            <div class="fr"><span class="fl">Bâtiment n°</span><select id="apt-bat"><option value="">—</option></select></div>
+            <div class="fr"><span class="fl">Bâtiment n°</span><select id="apt-bat"><option value="">—</option><option>1</option><option>2</option><option>3</option></select></div>
             <div class="fr"><span class="fl">Étage princ.</span><select id="apt-etage" onchange="autoSetNiveau(this.value, 'apt-niveau')"></select></div>
             <div class="fr"><span class="fl">Niveau ADN</span><select id="apt-niveau"><option value="">—</option><option value="RDC">RDC</option><option value="Intermédiaire">Intermédiaire</option><option value="Dernier étage">Dernier étage</option></select></div>
             <div class="fr"><span class="fl">Surface hab. (m²)</span><input type="number" inputmode="decimal" step="any" id="apt-surf"></div>
@@ -251,7 +278,10 @@
     <div class="canvas-container" id="croquis-container" style="display:none;">
         <div class="croquis-header">
             <span class="croquis-title">📐 Topographie du niveau</span>
-            <span class="croquis-badge">Saisie Horaire ↻</span>
+            <div>
+                <button class="btn-xs" style="background:#0F172A; color:#FFF; margin-right:5px;" onclick="exporterCroquis()">💾 Exporter PNG</button>
+                <span class="croquis-badge">Saisie Horaire ↻</span>
+            </div>
         </div>
         <canvas id="croquis-canvas" width="400" height="260"></canvas>
         <div id="croquis-msg" style="text-align:center; font-size:13px; font-weight:500; margin-top:12px; line-height:1.4;"></div>
@@ -537,13 +567,13 @@
     let db = {copro:{}, docs:[], vmc:{}, chaufCol:{}, ecsCol:{}, appts:[], chaufs:[], ecss:[], murs:[], fens:[], modelesFens:[], portes:[], plfs:[], plas:[]};
     let expAppts = {};
     let curAppt = null;
-    let curNivInt = 0; // Niveau interne actif (0=Bas, 1=Haut, 2=Très Haut)
+    let curNivInt = 0; 
     let editParoiId = null;
     let currentUploadTarget = null;
     let lastCalc = {};
 
     async function sauvegarderLocal() { 
-        try { await localforage.setItem('mydiag_v6_8', db); } 
+        try { await localforage.setItem('mydiag_v6_9', db); } 
         catch (err) { console.error("Erreur de sauvegarde", err); }
     }
 
@@ -563,6 +593,77 @@
         
         let totalSys = db.chaufs.length + db.ecss.length + (db.chaufCol && db.chaufCol.gen ? 1 : 0) + (db.ecsCol && db.ecsCol.type ? 1 : 0);
         document.getElementById('tdb-sys').textContent = totalSys;
+    }
+
+    // --- MOTEUR BIM TETRIS 3D ---
+    function renderBIM() {
+        const cont = document.getElementById('bim-container');
+        if(db.appts.length === 0) {
+            cont.innerHTML = '<div style="text-align:center; padding:20px; color:var(--tx2);">Ajoutez des échantillons pour voir la modélisation.</div>';
+            return;
+        }
+
+        let html = '';
+        const bats = [...new Set(db.appts.map(a => a.bat || '1'))].sort();
+
+        bats.forEach(b => {
+            let apptsBat = db.appts.filter(a => (a.bat || '1') === b);
+            
+            const floorOrder = {"Sous-sol": -1, "RDC": 0, "Combles": 999};
+            const getFloorVal = (f) => {
+                if (floorOrder[f] !== undefined) return floorOrder[f];
+                if (f && f.startsWith('R+')) return parseInt(f.replace('R+', ''));
+                return 0; 
+            };
+
+            let floors = {};
+            apptsBat.forEach(a => {
+                let f = a.etage || 'RDC';
+                if(!floors[f]) floors[f] = [];
+                floors[f].push(a);
+            });
+
+            let sortedFloors = Object.keys(floors).sort((x, y) => getFloorVal(y) - getFloorVal(x)); 
+
+            html += `<div class="card" style="padding:15px; margin-top:15px;">`;
+            html += `<h3 style="color:var(--acc); margin-bottom:15px; text-align:center;">🏢 Bâtiment ${b}</h3>`;
+            html += `<div style="display:flex; flex-direction:column; gap:5px; align-items:center;">`;
+            
+            let totSurf = 0;
+
+            sortedFloors.forEach(f => {
+                html += `<div style="display:flex; gap:5px; width:100%; justify-content:center;">`;
+                html += `<div style="width:60px; font-weight:bold; font-size:12px; color:var(--tx2); display:flex; align-items:center; justify-content:flex-end; padding-right:10px;">${f}</div>`;
+                
+                html += `<div style="display:flex; gap:5px; flex:1; flex-wrap:wrap;">`;
+                floors[f].forEach(a => {
+                    totSurf += parseFloat(a.surf || 0);
+                    let w = Math.max(50, Math.min((parseFloat(a.surf || 40) * 1.5), 150)); 
+                    html += `<div class="tetris-block" style="width:${w}px;">
+                        <div>${a.num}</div>
+                        <div style="font-size:9px;">${a.surf ? a.surf + 'm²' : ''}</div>
+                    </div>`;
+                });
+                html += `</div></div>`;
+            });
+
+            html += `</div>`;
+            
+            html += `<div style="margin-top:20px; padding-top:15px; border-top:1px dashed var(--bor); text-align:center;">`;
+            html += `<div style="font-size:12px; color:var(--tx2);">Surface Échantillonnée</div>`;
+            html += `<div style="font-size:18px; font-weight:900; color:var(--ok);">${totSurf.toFixed(1)} m²</div>`;
+            
+            let nbEtagesDeclares = parseInt(db.copro.etages) || sortedFloors.length;
+            let surfMoyEtage = totSurf / sortedFloors.length;
+            let surfEstimee = surfMoyEtage * nbEtagesDeclares;
+            
+            html += `<div style="font-size:12px; color:var(--tx2); margin-top:10px;">Extrapolation estimée Bâtiment (Basée sur ${nbEtagesDeclares} niveaux)</div>`;
+            html += `<div style="font-size:18px; font-weight:900; color:#D97706;">~ ${surfEstimee.toFixed(0)} m²</div>`;
+            
+            html += `</div></div>`;
+        });
+
+        cont.innerHTML = html;
     }
 
     // --- CALCULATEUR GEOMETRIQUE ---
@@ -700,7 +801,31 @@
         if(db.ecsCol.photo) { ecsImg.src = db.ecsCol.photo; ecsImg.style.display = 'block'; } else { ecsImg.style.display = 'none'; }
     }
 
-    // --- 4. MOTEUR DE DESSIN 2D (BIM) ---
+    // --- 4. MOTEUR DE DESSIN 2D (BIM) & EXPORT CROQUIS ---
+    window.exporterCroquis = function() {
+        const canvas = document.getElementById('croquis-canvas');
+        if(!canvas) return;
+        const dataUrl = canvas.toDataURL('image/png');
+        let aptObj = db.appts.find(a => a.id === curAppt);
+        let nom = aptObj ? aptObj.num : "inconnu";
+        
+        try {
+            const a = document.createElement('a');
+            a.href = dataUrl;
+            a.download = "Croquis_" + nom + "_N" + curNivInt + ".png";
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            toast("Croquis " + nom + " téléchargé !");
+        } catch(e) {
+            let w = window.open('about:blank');
+            let img = new Image();
+            img.src = dataUrl;
+            w.document.body.appendChild(img);
+            toast("Appui long sur l'image pour sauvegarder.");
+        }
+    };
+
     function isSchemaClosed(aptId) {
         const mursApt = db.murs.filter(m => m.aid === aptId && (m.nivInt||0) === curNivInt);
         if (mursApt.length < 3) return false;
@@ -964,6 +1089,7 @@
         event.currentTarget.classList.add('on');
         
         if(tabId === 'accueil') updateDashboard();
+        else if(tabId === 'bim') renderBIM();
         else if(tabId === 'appts') renderApptsList();
         else if (['murs', 'fen', 'portes', 'plafonds', 'planchers'].includes(tabId)) {
             editParoiId = null;
@@ -1116,7 +1242,7 @@
         if(a) { 
             a[field] = value; 
             sauvegarderLocal(); 
-            if(field === 'type') renderApptsList(); // refresh UI if type changes
+            if(field === 'type') renderApptsList(); 
         } 
     }
 
@@ -1419,8 +1545,9 @@
 
     function sauverParoi(type) {
         if(!curAppt) return alert("Sélectionnez un appartement !");
+        
         let el = editParoiId ? db[type].find(x => x.id === editParoiId) : { id: Date.now(), aid: curAppt };
-        el.nivInt = curNivInt; // On l'attache toujours au niveau actif
+        el.nivInt = curNivInt; 
         
         if(type === 'murs') { 
             let oldOri = el.ori;
@@ -1431,7 +1558,11 @@
             el.h = document.getElementById('m-h').value; 
             el.doub = document.getElementById('m-doub').value;
             el.iso = document.getElementById('m-iso').value; 
-            if (el.vectX !== undefined && oldOri !== el.ori) { delete el.vectX; delete el.vectY; }
+            
+            if (el.vectX !== undefined && oldOri !== el.ori) {
+                delete el.vectX;
+                delete el.vectY;
+            }
         }
         else if (type === 'fens') { 
             let ftype = document.getElementById('f-type').value; let fmat = document.getElementById('f-mat').value; let fvit = document.getElementById('f-vit').value; let fep = document.getElementById('f-ep').value; let ffer = document.getElementById('f-fer').value; let fl = document.getElementById('f-l').value; let fh = document.getElementById('f-h').value;
@@ -1501,7 +1632,7 @@
     function clonerParoi(type, id) {
         const src = db[type].find(x => x.id === id);
         if(!src) return;
-        const clone = {...src, id: Date.now() + Math.random(), nivInt: curNivInt}; // Reste sur le niveau actif
+        const clone = {...src, id: Date.now() + Math.random(), nivInt: curNivInt}; 
         
         if (type === 'fens') {
             let maxFen = 0;
@@ -1528,7 +1659,6 @@
         else if(tabId === 'plafonds' || tabId === 'plfs') { cont = document.getElementById('list-plfs'); data = db.plfs; type = 'plfs'; }
         else if(tabId === 'planchers' || tabId === 'plas') { cont = document.getElementById('list-plas'); data = db.plas; type = 'plas'; }
 
-        // On ne filtre QUE par l'appartement ET par le niveau interne sélectionné
         cont.innerHTML = data.filter(x => x.aid === curAppt && (x.nivInt || 0) === curNivInt).map(x => {
             let dimText = "";
             let titleText = x.mat || x.type;
@@ -1576,7 +1706,7 @@
     window.onload = async () => {
         peuplerSelects();
         try {
-            const savedData = await localforage.getItem('mydiag_v6_8');
+            const savedData = await localforage.getItem('mydiag_v6_7');
             if (savedData) { 
                 db = savedData; 
                 if(!db.docs) db.docs = []; 
