@@ -41,8 +41,16 @@
         .hd { background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%); padding: 14px 20px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 20; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
         .hd-title { font-size: 18px; font-weight: 800; color: #fff; letter-spacing: -0.5px; display: flex; align-items: center; gap: 8px;}
         .hd-title svg { width: 24px; height: 24px; border-radius: 6px;}
+        
         .btn-save { background: rgba(255,255,255,0.1); color: #fff; border: 1px solid rgba(255,255,255,0.2); border-radius: 20px; padding: 8px 16px; font-size: 13px; font-weight: 700; cursor: pointer; transition: 0.2s; backdrop-filter: blur(5px); }
         .btn-save:active { background: rgba(255,255,255,0.2); transform: scale(0.95); }
+
+        /* ANIMATION VOYANT SAUVEGARDE */
+        @keyframes blinkGreen {
+            0% { background-color: #16A34A; box-shadow: 0 0 12px #16A34A; }
+            100% { background-color: #475569; box-shadow: inset 0 2px 4px rgba(0,0,0,0.5); }
+        }
+        .saved-blink { animation: blinkGreen 1s ease-out; }
 
         /* TABS */
         .tabs { background: #0F172A; display: flex; overflow-x: auto; -webkit-overflow-scrolling: touch; position: sticky; top: 56px; z-index: 19; padding: 10px 16px; gap: 8px; border-bottom: 1px solid rgba(255,255,255,0.05); }
@@ -63,7 +71,7 @@
         /* FORM ROWS */
         .fr { display: flex; align-items: center; padding: 12px 16px; border-bottom: 1px solid var(--bor); min-height: 54px; }
         .fr:last-child { border-bottom: none; }
-        .fl { font-size: 14px; color: var(--tx); min-width: 100px; flex-shrink: 0; font-weight: 600; line-height:1.3;}
+        .fl { font-size: 14px; color: var(--tx); min-width: 90px; flex-shrink: 0; font-weight: 600; line-height:1.3;}
         
         /* INPUTS & SELECTS */
         .fr select, .fr input { flex: 1; background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 8px; padding: 10px 12px; font-size: 14px; color: var(--acc); text-align: right; outline: none; font-weight: 700; transition: 0.2s; -webkit-appearance: none; margin-left: 10px; min-width:0; }
@@ -169,9 +177,12 @@
             <path d="M256 120 L96 280 H144 V400 H256 V120 Z" fill="#38BDF8" opacity="0.8"/>
             <circle cx="256" cy="300" r="40" fill="#16A34A"/>
         </svg>
-        MyDiag - DPE <span style="font-size:11px; color:#94A3B8; font-weight:600; margin-left:4px; opacity:0.8;">v8.4</span>
+        MyDiag - DPE <span style="font-size:11px; color:#94A3B8; font-weight:600; margin-left:4px; opacity:0.8;">v8.5</span>
     </div>
-    <button class="btn-save" onclick="sauvegarderLocal()">Sauvegarder</button>
+    <div style="display:flex; align-items:center; gap:12px;">
+        <div id="voyant-save" style="width:12px; height:12px; border-radius:50%; background-color:#475569; box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);"></div>
+        <button class="btn-save" onclick="sauvegarderLocal()">Sauvegarder</button>
+    </div>
 </div>
 
 <div class="tabs" id="tab-bar">
@@ -246,35 +257,39 @@
     <div class="coll-acc-hd" onclick="toggleAcc('chauf-acc', this)"><span>🔥 Chauffage collectif</span> <span style="color:var(--acc);">▼</span></div>
     <div class="coll-acc-body" id="chauf-acc">
         <div class="card">
-            <div class="fr"><span class="fl">Énergie</span><select id="col-chauf-energie" onchange="updateChaufGen('col-chauf-energie', 'col-chauf-gen', 'col-chauf-emetteur'); saveCoproData()"><option value="">—</option><option>Electrique</option><option>Gaz naturel</option><option>GPL</option><option>Fioul</option><option>Bois</option><option>Charbon</option><option>Réseau de chaleur</option></select></div>
+            <div class="fr">
+                <span class="fl">Énergie</span>
+                <select id="col-chauf-energie" onchange="updateChaufGen('col-chauf-energie', 'col-chauf-gen', 'col-chauf-emetteur'); saveCoproData()" style="min-width:0; flex:1;">
+                    <option value="">—</option><option>Electrique</option><option>Gaz naturel</option><option>GPL</option><option>Fioul</option><option>Bois</option><option>Charbon</option><option>Réseau de chaleur</option>
+                </select>
+                <div style="display:flex; align-items:center; gap:8px; margin-left:10px;">
+                    <img id="img-chaufCol" class="thumb" style="display:none; width:34px; height:34px; margin:0;" onclick="viewImage(this.src)" />
+                    <button class="btn-xs" style="background:var(--acc-l); color:var(--acc); border:1px solid #BFDBFE; padding:8px 12px;" onclick="triggerUpload('chaufCol')">📷</button>
+                </div>
+            </div>
             <div class="fr"><span class="fl">Générateur</span><select id="col-chauf-gen" onchange="checkChaudiereECS('col'); saveCoproData()"><option value="">—</option></select></div>
             <div class="fr"><span class="fl">Émetteur</span><select id="col-chauf-emetteur" onchange="saveCoproData()"><option value="">—</option></select></div>
             <div class="fr"><span class="fl">Année</span><input type="number" inputmode="numeric" pattern="[0-9]*" id="col-chauf-annee" placeholder="ex: 2012" oninput="saveCoproData()"></div>
             <div class="fr"><span class="fl" style="color:var(--warn);">Puiss. (kW)</span><input type="number" inputmode="decimal" step="any" id="col-chauf-puissance" placeholder="ex: 180" oninput="saveCoproData()"></div>
-            <div class="fr" style="justify-content:space-between;">
-                <span class="fl">Photo Plaque</span>
-                <div style="display:flex; align-items:center; gap:10px;">
-                    <img id="img-chaufCol" class="thumb" style="display:none;" onclick="viewImage(this.src)" />
-                    <button class="btn-xs" style="background:var(--acc-l); color:var(--acc);" onclick="triggerUpload('chaufCol')">📷 Joindre</button>
-                </div>
-            </div>
         </div>
     </div>
 
     <div class="coll-acc-hd" onclick="toggleAcc('ecs-acc', this)"><span>🚿 ECS collective</span> <span style="color:var(--acc);">▼</span></div>
     <div class="coll-acc-body" id="ecs-acc">
         <div class="card">
-            <div class="fr"><span class="fl">Énergie</span><select id="col-ecs-energie" onchange="updateEcsGen('col-ecs-energie', 'col-ecs-type'); saveCoproData()"><option value="">—</option><option>Electrique</option><option>Gaz naturel</option><option>GPL</option><option>Fioul</option><option>Bois</option><option>Charbon</option><option>Réseau de chaleur</option></select></div>
+            <div class="fr">
+                <span class="fl">Énergie</span>
+                <select id="col-ecs-energie" onchange="updateEcsGen('col-ecs-energie', 'col-ecs-type'); saveCoproData()" style="min-width:0; flex:1;">
+                    <option value="">—</option><option>Electrique</option><option>Gaz naturel</option><option>GPL</option><option>Fioul</option><option>Bois</option><option>Charbon</option><option>Réseau de chaleur</option>
+                </select>
+                <div style="display:flex; align-items:center; gap:8px; margin-left:10px;">
+                    <img id="img-ecsCol" class="thumb" style="display:none; width:34px; height:34px; margin:0;" onclick="viewImage(this.src)" />
+                    <button class="btn-xs" style="background:var(--acc-l); color:var(--acc); border:1px solid #BFDBFE; padding:8px 12px;" onclick="triggerUpload('ecsCol')">📷</button>
+                </div>
+            </div>
             <div class="fr"><span class="fl">Type/Gén.</span><select id="col-ecs-type" onchange="saveCoproData()"><option value="">—</option></select></div>
             <div class="fr"><span class="fl">Année</span><input type="number" inputmode="numeric" pattern="[0-9]*" id="col-ecs-annee" placeholder="ex: 2012" oninput="saveCoproData()"></div>
             <div class="fr"><span class="fl">Volume (L)</span><input type="number" inputmode="numeric" pattern="[0-9]*" id="col-ecs-vol" placeholder="ex: 1000" oninput="saveCoproData()"></div>
-            <div class="fr" style="justify-content:space-between;">
-                <span class="fl">Photo Plaque</span>
-                <div style="display:flex; align-items:center; gap:10px;">
-                    <img id="img-ecsCol" class="thumb" style="display:none;" onclick="viewImage(this.src)" />
-                    <button class="btn-xs" style="background:var(--acc-l); color:var(--acc);" onclick="triggerUpload('ecsCol')">📷 Joindre</button>
-                </div>
-            </div>
         </div>
     </div>
 
@@ -710,8 +725,9 @@
         "Réseau de chaleur": ["Installation collective unique multi bâtiment"]
     };
 
-    // --- 2. BASE DE DONNÉES GLOBALE (MOTEUR INDEXEDDB) ---
+    // --- 2. BASE DE DONNÉES GLOBALE & VARIABLE TEMP PHOTOS ---
     let db = {copro:{}, docs:[], vmc:{}, chaufCol:{}, ecsCol:{}, appts:[], chaufs:[], ecss:[], murs:[], fens:[], modelesFens:[], portes:[], plfs:[], plas:[]};
+    let tempPhotos = { chauf: {}, ecs: {} }; // Stocke la photo avant de valider l'ajout d'un système
     let expAppts = {};
     let curAppt = null;
     let curNivInt = 0; 
@@ -722,7 +738,15 @@
     let totauxSortAsc = true;
 
     async function sauvegarderLocal() { 
-        try { await localforage.setItem('mydiag_v8_4', db); } 
+        try { 
+            await localforage.setItem('mydiag_v8_5', db); 
+            let v = document.getElementById('voyant-save');
+            if(v) {
+                v.classList.remove('saved-blink');
+                void v.offsetWidth; // Force reflow pour relancer l'animation CSS
+                v.classList.add('saved-blink');
+            }
+        } 
         catch (err) { console.error("Erreur de sauvegarde", err); }
     }
 
@@ -1005,7 +1029,7 @@
         if(type === 'mur' || type === 'pig') drawCroquis();
     }
 
-    // --- 3. MOTEUR UPLOAD & COMPRESSION PHOTOS (PNG FIX) ---
+    // --- 3. MOTEUR UPLOAD & COMPRESSION PHOTOS ---
     function triggerUpload(type, id = null) {
         currentUploadTarget = { type, id };
         document.getElementById('global-uploader').click();
@@ -1045,18 +1069,37 @@
 
     function saveFileToTarget(fileObj) {
         const t = currentUploadTarget;
-        if(t.type === 'doc') { db.docs.push({ id: Date.now(), name: fileObj.name, type: fileObj.type, data: fileObj.data }); renderDocs(); } 
-        else if (t.type === 'chaufCol') { db.chaufCol.photo = fileObj.data; renderCoproPhotos(); } 
-        else if (t.type === 'ecsCol') { db.ecsCol.photo = fileObj.data; renderCoproPhotos(); } 
+        if(t.type === 'doc') { 
+            db.docs.push({ id: Date.now(), name: fileObj.name, type: fileObj.type, data: fileObj.data }); 
+            renderDocs(); 
+        } 
+        else if (t.type === 'chaufCol') { 
+            db.chaufCol.photo = fileObj.data; 
+            renderCoproPhotos(); 
+        } 
+        else if (t.type === 'ecsCol') { 
+            db.ecsCol.photo = fileObj.data; 
+            renderCoproPhotos(); 
+        } 
         else if (t.type === 'chaufInd') { 
-            const c = db.chaufs.find(x => x.id === t.id); if(c) c.photo = fileObj.data; 
+            const c = db.chaufs.find(x => x.id === t.id); 
+            if(c) c.photo = fileObj.data; 
             document.getElementById('chauf-list-'+c.aptId).innerHTML = buildChaufListHTML(c.aptId); 
         } 
         else if (t.type === 'ecsInd') { 
-            const e = db.ecss.find(x => x.id === t.id); if(e) e.photo = fileObj.data; 
+            const e = db.ecss.find(x => x.id === t.id); 
+            if(e) e.photo = fileObj.data; 
             document.getElementById('ecs-list-'+e.aptId).innerHTML = buildEcsListHTML(e.aptId); 
         }
-        sauvegarderLocal();
+        else if (t.type === 'chaufIndTemp') {
+            tempPhotos.chauf[t.id] = fileObj.data;
+            renderApptsList();
+        }
+        else if (t.type === 'ecsIndTemp') {
+            tempPhotos.ecs[t.id] = fileObj.data;
+            renderApptsList();
+        }
+        sauvegarderLocal(); // Déclenche le voyant vert
     }
 
     function viewImage(src) {
@@ -1583,10 +1626,10 @@
                     <div style="color:var(--tx2); font-size:12px; line-height:1.4;">${c.energie} · ${c.gen}<br>${c.emetteur||''} | ${c.puissance?c.puissance+'kW':''} | ${c.annee?c.annee:''}</div>
                     <div style="margin-top:8px;">
                         ${c.photo ? `<img src="${c.photo}" class="thumb" style="margin:0;" onclick="viewImage('${c.photo}')">` : ''}
-                        <button class="btn-xs" style="background:var(--acc-l); color:var(--acc); margin-top:4px;" onclick="triggerUpload('chaufInd', '${c.id}')">📷 Photo</button>
                     </div>
                 </div>
                 <div style="display:flex; gap:6px; flex-wrap:wrap; width: 94px; justify-content:flex-start; flex-shrink:0;">
+                    <button class="btn-xs" style="color:var(--acc); background:var(--acc-l); border:1px solid #BFDBFE; width:44px; height:44px; padding:0; display:flex; align-items:center; justify-content:center; font-size:18px; border-radius:10px;" onclick="triggerUpload('chaufInd', '${c.id}')">📷</button>
                     <button class="btn-xs" style="color:var(--ok); background:var(--ok-l); border:1px solid #BBF7D0; width:44px; height:44px; padding:0; display:flex; align-items:center; justify-content:center; font-size:18px; border-radius:10px;" onclick="clonerChauf('${c.id}')">🔄</button>
                     <button class="btn-xs" style="color:var(--acc); background:var(--acc-l); border:1px solid #BFDBFE; width:44px; height:44px; padding:0; display:flex; align-items:center; justify-content:center; font-size:18px; border-radius:10px;" onclick="editerChauf('${aptId}','${c.id}')">✏️</button>
                     <button class="btn-xs" style="color:var(--dan); background:var(--dan-l); border:1px solid #FECACA; width:44px; height:44px; padding:0; display:flex; align-items:center; justify-content:center; font-size:18px; border-radius:10px;" onclick="suppChauf('${c.id}', '${aptId}')">❌</button>
@@ -1605,10 +1648,10 @@
                     <div style="color:var(--tx2); font-size:12px; line-height:1.4;">${e.energie} · ${e.type}<br>${e.vol?e.vol+'L':''} | ${e.annee?e.annee:''}</div>
                     <div style="margin-top:8px;">
                         ${e.photo ? `<img src="${e.photo}" class="thumb" style="margin:0;" onclick="viewImage('${e.photo}')">` : ''}
-                        <button class="btn-xs" style="background:var(--acc-l); color:var(--acc); margin-top:4px;" onclick="triggerUpload('ecsInd', '${e.id}')">📷 Photo</button>
                     </div>
                 </div>
                 <div style="display:flex; gap:6px; flex-wrap:wrap; width: 94px; justify-content:flex-start; flex-shrink:0;">
+                    <button class="btn-xs" style="color:var(--acc); background:var(--acc-l); border:1px solid #BFDBFE; width:44px; height:44px; padding:0; display:flex; align-items:center; justify-content:center; font-size:18px; border-radius:10px;" onclick="triggerUpload('ecsInd', '${e.id}')">📷</button>
                     <button class="btn-xs" style="color:var(--ok); background:var(--ok-l); border:1px solid #BBF7D0; width:44px; height:44px; padding:0; display:flex; align-items:center; justify-content:center; font-size:18px; border-radius:10px;" onclick="clonerEcs('${e.id}')">🔄</button>
                     <button class="btn-xs" style="color:var(--acc); background:var(--acc-l); border:1px solid #BFDBFE; width:44px; height:44px; padding:0; display:flex; align-items:center; justify-content:center; font-size:18px; border-radius:10px;" onclick="editerEcs('${aptId}','${e.id}')">✏️</button>
                     <button class="btn-xs" style="color:var(--dan); background:var(--dan-l); border:1px solid #FECACA; width:44px; height:44px; padding:0; display:flex; align-items:center; justify-content:center; font-size:18px; border-radius:10px;" onclick="suppEcs('${e.id}', '${aptId}')">❌</button>
@@ -1644,9 +1687,17 @@
             id: editId || String(Date.now()), aptId, energie: e, gen: g, 
             emetteur: document.getElementById('ifc-emetteur-'+aptId).value, annee: document.getElementById('ifc-annee-'+aptId).value, puissance: document.getElementById('ifc-puissance-'+aptId).value
         };
+        
+        // S'il y a une photo temporaire en attente, on l'attache
+        if (tempPhotos.chauf[aptId]) {
+            obj.photo = tempPhotos.chauf[aptId];
+            delete tempPhotos.chauf[aptId]; // on la vide
+        }
+
         if(editId) { 
             const old = db.chaufs.find(x => x.id === editId);
-            if(old && old.photo) obj.photo = old.photo;
+            // On garde l'ancienne photo seulement si on n'en a pas shooté une nouvelle par-dessus
+            if(old && old.photo && !obj.photo) obj.photo = old.photo;
             db.chaufs[db.chaufs.findIndex(x => x.id === editId)] = obj; 
             btn.textContent = "Ajouter Chauffage"; btn.removeAttribute('data-edit-id');
         } else { db.chaufs.push(obj); }
@@ -1658,6 +1709,7 @@
         
         sauvegarderLocal(); 
         document.getElementById('chauf-list-'+aptId).innerHTML = buildChaufListHTML(aptId);
+        renderApptsList(); // Pour effacer la miniature temp
         updateApptBadges(aptId);
         toast("Chauffage enregistré ✓");
     }
@@ -1682,7 +1734,9 @@
             const btn = document.getElementById(`btn-chauf-${aptId}`);
             btn.textContent = "Modifier ce chauffage"; btn.setAttribute('data-edit-id', chaufId);
         }, 50);
+        window.scrollTo(0, document.getElementById(`ifc-energie-${aptId}`).offsetTop - 100);
     }
+    
     function suppChauf(id, aptId) { 
         db.chaufs = db.chaufs.filter(c => c.id !== id); sauvegarderLocal(); 
         document.getElementById('chauf-list-'+aptId).innerHTML = buildChaufListHTML(aptId);
@@ -1695,9 +1749,16 @@
 
         if(!e||!t) return alert("Type et énergie requis");
         let obj = { id: editId || String(Date.now()), aptId, type: t, energie: e, annee: document.getElementById('ife-annee-'+aptId).value, vol: document.getElementById('ife-vol-'+aptId).value };
+        
+        // S'il y a une photo temporaire en attente, on l'attache
+        if (tempPhotos.ecs[aptId]) {
+            obj.photo = tempPhotos.ecs[aptId];
+            delete tempPhotos.ecs[aptId]; 
+        }
+
         if(editId) { 
             const old = db.ecss.find(x => x.id === editId);
-            if(old && old.photo) obj.photo = old.photo;
+            if(old && old.photo && !obj.photo) obj.photo = old.photo;
             db.ecss[db.ecss.findIndex(x => x.id === editId)] = obj; 
             btn.textContent = "Ajouter ECS"; btn.removeAttribute('data-edit-id');
         } else { db.ecss.push(obj); }
@@ -1707,6 +1768,7 @@
         
         sauvegarderLocal(); 
         document.getElementById('ecs-list-'+aptId).innerHTML = buildEcsListHTML(aptId);
+        renderApptsList(); // Pour effacer la miniature temp
         updateApptBadges(aptId);
         toast("ECS enregistrée ✓");
     }
@@ -1730,7 +1792,9 @@
             const btn = document.getElementById(`btn-ecs-${aptId}`);
             btn.textContent = "Modifier cette ECS"; btn.setAttribute('data-edit-id', ecsId);
         }, 50);
+        window.scrollTo(0, document.getElementById(`ife-energie-${aptId}`).offsetTop - 100);
     }
+    
     function suppEcs(id, aptId) { 
         db.ecss = db.ecss.filter(e => e.id !== id); sauvegarderLocal(); 
         document.getElementById('ecs-list-'+aptId).innerHTML = buildEcsListHTML(aptId);
@@ -1783,9 +1847,14 @@
                     <div style="background:#F8FAFC; padding:10px; border-radius:8px; border:1px solid var(--bor); margin-top:10px;">
                         <div style="font-weight:bold; font-size:12px; margin-bottom:5px;">🔥 Chauffage indiv.</div>
                         <div id="chauf-list-${a.id}">${buildChaufListHTML(a.id)}</div>
-                        <select id="ifc-energie-${a.id}" onchange="updateChaufGen('ifc-energie-${a.id}', 'ifc-gen-${a.id}', 'ifc-emetteur-${a.id}')" style="width:100%; padding:8px; margin-bottom:5px; border-radius:6px; border:1px solid var(--bor);"><option value="">Énergie</option><option>Electrique</option><option>Gaz naturel</option><option>GPL</option><option>Fioul</option><option>Bois</option><option>Charbon</option></select>
-                        <select id="ifc-gen-${a.id}" onchange="checkChaudiereECS('ind', '${a.id}')" style="width:100%; padding:8px; margin-bottom:5px; border-radius:6px; border:1px solid var(--bor);"><option value="">Générateur</option></select>
-                        <select id="ifc-emetteur-${a.id}" style="width:100%; padding:8px; margin-bottom:5px; border-radius:6px; border:1px solid var(--bor);"><option value="">Émetteur</option></select>
+                        
+                        <div style="display:flex; gap:8px; margin-bottom:5px; align-items:center;">
+                            <select id="ifc-energie-${a.id}" onchange="updateChaufGen('ifc-energie-${a.id}', 'ifc-gen-${a.id}', 'ifc-emetteur-${a.id}')" style="flex:1; padding:8px; border-radius:6px; border:1px solid var(--bor); background:#fff;"><option value="">Énergie</option><option>Electrique</option><option>Gaz naturel</option><option>GPL</option><option>Fioul</option><option>Bois</option><option>Charbon</option></select>
+                            ${tempPhotos.chauf[a.id] ? `<img src="${tempPhotos.chauf[a.id]}" class="thumb" style="width:34px;height:34px;margin:0;" onclick="viewImage(this.src)">` : ''}
+                            <button class="btn-xs" style="background:var(--acc-l); color:var(--acc); border:1px solid #BFDBFE; padding:8px 12px; font-size:16px;" onclick="triggerUpload('chaufIndTemp', '${a.id}')">📷</button>
+                        </div>
+                        <select id="ifc-gen-${a.id}" onchange="checkChaudiereECS('ind', '${a.id}')" style="width:100%; padding:8px; margin-bottom:5px; border-radius:6px; border:1px solid var(--bor); background:#fff;"><option value="">Générateur</option></select>
+                        <select id="ifc-emetteur-${a.id}" style="width:100%; padding:8px; margin-bottom:5px; border-radius:6px; border:1px solid var(--bor); background:#fff;"><option value="">Émetteur</option></select>
                         <div style="display:flex; gap:5px; margin-bottom:5px;"><input type="number" inputmode="numeric" pattern="[0-9]*" id="ifc-annee-${a.id}" placeholder="Année" style="flex:1; padding:8px; border-radius:6px; border:1px solid var(--bor);"><input type="number" inputmode="decimal" step="any" id="ifc-puissance-${a.id}" placeholder="Puiss. kW" style="flex:1; padding:8px; border-radius:6px; border:1px solid var(--bor);"></div>
                         <button id="btn-chauf-${a.id}" class="btn-s" style="padding:8px; width:100%;" onclick="ajouterChauf('${a.id}')">Ajouter Chauffage</button>
                     </div>
@@ -1793,8 +1862,13 @@
                     <div style="background:#F8FAFC; padding:10px; border-radius:8px; border:1px solid var(--bor); margin-top:10px;">
                         <div style="font-weight:bold; font-size:12px; margin-bottom:5px;">🚿 ECS indiv.</div>
                         <div id="ecs-list-${a.id}">${buildEcsListHTML(a.id)}</div>
-                        <select id="ife-energie-${a.id}" onchange="updateEcsGen('ife-energie-${a.id}', 'ife-type-${a.id}')" style="width:100%; padding:8px; margin-bottom:5px; border-radius:6px; border:1px solid var(--bor);"><option value="">Énergie</option><option>Electrique</option><option>Gaz naturel</option><option>GPL</option><option>Fioul</option><option>Bois</option><option>Charbon</option></select>
-                        <select id="ife-type-${a.id}" style="width:100%; padding:8px; margin-bottom:5px; border-radius:6px; border:1px solid var(--bor);"><option value="">Type</option></select>
+                        
+                        <div style="display:flex; gap:8px; margin-bottom:5px; align-items:center;">
+                            <select id="ife-energie-${a.id}" onchange="updateEcsGen('ife-energie-${a.id}', 'ife-type-${a.id}')" style="flex:1; padding:8px; border-radius:6px; border:1px solid var(--bor); background:#fff;"><option value="">Énergie</option><option>Electrique</option><option>Gaz naturel</option><option>GPL</option><option>Fioul</option><option>Bois</option><option>Charbon</option></select>
+                            ${tempPhotos.ecs[a.id] ? `<img src="${tempPhotos.ecs[a.id]}" class="thumb" style="width:34px;height:34px;margin:0;" onclick="viewImage(this.src)">` : ''}
+                            <button class="btn-xs" style="background:var(--acc-l); color:var(--acc); border:1px solid #BFDBFE; padding:8px 12px; font-size:16px;" onclick="triggerUpload('ecsIndTemp', '${a.id}')">📷</button>
+                        </div>
+                        <select id="ife-type-${a.id}" style="width:100%; padding:8px; margin-bottom:5px; border-radius:6px; border:1px solid var(--bor); background:#fff;"><option value="">Type</option></select>
                         <div style="display:flex; gap:5px; margin-bottom:5px;"><input type="number" inputmode="numeric" pattern="[0-9]*" id="ife-annee-${a.id}" placeholder="Année" style="flex:1; padding:8px; border-radius:6px; border:1px solid var(--bor);"><input type="number" inputmode="numeric" pattern="[0-9]*" id="ife-vol-${a.id}" placeholder="Vol (L)" style="flex:1; padding:8px; border-radius:6px; border:1px solid var(--bor);"></div>
                         <button id="btn-ecs-${a.id}" class="btn-s" style="padding:8px; width:100%;" onclick="ajouterEcs('${a.id}')">Ajouter ECS</button>
                     </div>
@@ -2222,7 +2296,7 @@
     window.onload = async () => {
         peuplerSelects();
         try {
-            const savedData = await localforage.getItem('mydiag_v8_4');
+            const savedData = await localforage.getItem('mydiag_v8_5');
             if (savedData) { 
                 db = savedData; 
                 if(!db.docs) db.docs = []; 
