@@ -127,7 +127,7 @@
 <input type="file" id="global-uploader" style="display:none;" accept="image/*,application/pdf" capture="environment">
 
 <div class="hd">
-    <div class="hd-title">MyDiag - DPE <span style="font-size:10px; color:#94A3B8; font-weight:normal;">v7.4 (Velux & Hublots)</span></div>
+    <div class="hd-title">MyDiag - DPE <span style="font-size:10px; color:#94A3B8; font-weight:normal;">v7.5</span></div>
     <button class="btn-save" onclick="sauvegarderLocal()">💾 Sauvegarder</button>
 </div>
 
@@ -323,10 +323,11 @@
 
         <div class="fr"><span class="fl">Doublage</span>
             <select id="m-doub">
-                <option value="Absent">Absent</option>
-                <option value="Inconnu">Inconnu</option>
-                <option value="Connu avec lame d'air de moins de 15 mm">Connu avec lame d'air de moins de 15 mm</option>
-                <option value="Connu avec lame d'air de 15 mm ou plus">Connu avec lame d'air de 15 mm ou plus</option>
+                <option value="ABSENT">ABSENT</option>
+                <option value="INCONNU">INCONNU</option>
+                <option value="CONNU (plâtre, bois, brique...)">CONNU (plâtre, bois, brique...)</option>
+                <option value="CONNU (avec lame d'air < 15mm)">CONNU (avec lame d'air &lt; 15mm)</option>
+                <option value="CONNU (avec lame d'air >= 15mm)">CONNU (avec lame d'air &gt;= 15mm)</option>
             </select>
         </div>
         <div class="fr">
@@ -390,7 +391,7 @@
                 </div>
                 <div>
                     <div style="font-size:11px; font-weight:700; color:var(--warn); margin-bottom:4px;">H - Haut. faîtage (m)</div>
-                    <input type="number" id="calc-H" placeholder="ex: 2.8" inputmode="decimal" oninput="runCalc()" style="width:100%; border:1px solid var(--bor); padding:10px; border-radius:8px; font-size:14px; font-weight:bold;">
+                    <input type="number" id="calc-H" placeholder="ex: 3.5" inputmode="decimal" oninput="runCalc()" style="width:100%; border:1px solid var(--bor); padding:10px; border-radius:8px; font-size:14px; font-weight:bold;">
                 </div>
             </div>
             
@@ -671,7 +672,7 @@
     let totauxSortAsc = true;
 
     async function sauvegarderLocal() { 
-        try { await localforage.setItem('mydiag_v7_4', db); } 
+        try { await localforage.setItem('mydiag_v7_5', db); } 
         catch (err) { console.error("Erreur de sauvegarde", err); }
     }
 
@@ -906,7 +907,7 @@
             el.l = document.getElementById('calc-L').value; 
             el.h = document.getElementById('calc-h').value; 
             el.ep = ''; el.isoEp = '';
-            el.doub = 'Absent'; el.iso = 'Non isolé';
+            el.doub = 'ABSENT'; el.iso = 'Non isolé';
             db.murs.push(el); toast("Mur Façade ajouté. Modifiez-le ✏️");
         } else if(type === 'pig') {
             el.mat = 'Inconnu'; el.ori = ''; el.donne = 'Extérieur'; 
@@ -915,7 +916,7 @@
             let fauxH = sPig / parseFloat(el.l);
             el.h = fauxH.toFixed(2); 
             el.ep = ''; el.isoEp = '';
-            el.doub = 'Absent'; el.iso = 'Non isolé';
+            el.doub = 'ABSENT'; el.iso = 'Non isolé';
             db.murs.push(el); toast("Mur Pignon ajouté. Modifiez-le ✏️");
         } else if(type === 'ramp') {
             el.type = 'Combles aménagés sous rampants'; el.donne = 'Extérieur'; 
@@ -1071,7 +1072,7 @@
 
         let m = {
             id: Date.now(), aid: aptId, nivInt: curNivInt, ori: ori, donne: 'Extérieur', mat: 'Inconnu',
-            l: String(l), h: '', doub: 'Absent', iso: 'Non isolé', vectX: dx, vectY: dy 
+            l: String(l), h: '', doub: 'ABSENT', iso: 'Non isolé', vectX: dx, vectY: dy 
         };
         db.murs.push(m);
         sauvegarderLocal();
@@ -1855,7 +1856,7 @@
         sauvegarderLocal();
         renderElementsList(type);
         
-        if(type === 'murs') { document.getElementById('m-l').value = ''; document.getElementById('m-ep').value = ''; document.getElementById('m-iso-ep').value = ''; document.getElementById('m-doub').value = 'Absent'; drawCroquis(); } 
+        if(type === 'murs') { document.getElementById('m-l').value = ''; document.getElementById('m-ep').value = ''; document.getElementById('m-iso-ep').value = ''; document.getElementById('m-doub').value = 'ABSENT'; drawCroquis(); } 
         else if (type === 'fens') { document.getElementById('f-bibli').value = ''; document.getElementById('f-l').value = ''; document.getElementById('f-h').value = ''; document.getElementById('f-ep').value = ''; document.getElementById('f-diam').value = ''; document.getElementById('f-nb').value = '1'; document.getElementById('f-motifs').value = '1'; }
         else { 
             document.querySelectorAll(`#vw-${type} input[type="number"]`).forEach(i => i.value = ''); 
@@ -1874,7 +1875,7 @@
             document.getElementById('m-l').value = p.l; 
             document.getElementById('m-h').value = p.h; 
             document.getElementById('m-ep').value = p.ep || ''; 
-            document.getElementById('m-doub').value = p.doub || 'Absent';
+            document.getElementById('m-doub').value = p.doub || 'ABSENT';
             document.getElementById('m-iso').value = p.iso || 'Non isolé'; 
             document.getElementById('m-iso-ep').value = p.isoEp || ''; 
             document.getElementById('btn-save-murs').textContent = "Modifier ce mur"; 
@@ -2006,7 +2007,7 @@
         let mursData = db.murs.map(m => ({
             "Lot": getAptNum(m.aid), "Niveau (Duplex)": m.nivInt || 0, "Orientation": m.ori || "Auto",
             "Donne sur": m.donne || "", "Matériau": m.mat || "", "Longueur (m)": m.l || "",
-            "Hauteur (m)": m.h || "", "Épaisseur (cm)": m.ep || "", "Doublage": m.doub || "",
+            "Hauteur (m)": m.h || "", "Épaisseur (cm)": m.ep || "", "Doublage": m.doub || "ABSENT",
             "Isolant": m.iso || "", "Ép. Isolant (cm)": m.isoEp || ""
         }));
         if(mursData.length) XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(mursData), "Murs");
@@ -2131,7 +2132,7 @@
     window.onload = async () => {
         peuplerSelects();
         try {
-            const savedData = await localforage.getItem('mydiag_v7_4');
+            const savedData = await localforage.getItem('mydiag_v7_5');
             if (savedData) { 
                 db = savedData; 
                 if(!db.docs) db.docs = []; 
@@ -2151,7 +2152,7 @@
             console.error("Erreur de chargement IndexedDB", err);
             alert("Erreur de lecture de la base de données. L'application démarre à vide.");
         }
-        toggleFenType(); // S'assurer que le bon layout est visible au démarrage
+        toggleFenType(); 
     };
 </script>
 </body>
