@@ -127,7 +127,7 @@
 <input type="file" id="global-uploader" style="display:none;" accept="image/*,application/pdf" capture="environment">
 
 <div class="hd">
-    <div class="hd-title">MyDiag - DPE <span style="font-size:10px; color:#94A3B8; font-weight:normal;">v7.3 (Schéma Rampants)</span></div>
+    <div class="hd-title">MyDiag - DPE <span style="font-size:10px; color:#94A3B8; font-weight:normal;">v7.4 (Velux & Hublots)</span></div>
     <button class="btn-save" onclick="sauvegarderLocal()">💾 Sauvegarder</button>
 </div>
 
@@ -359,16 +359,12 @@
                 </defs>
                 <polygon points="40,120 40,70 100,20 200,20 260,70 260,120" fill="#F1F5F9" stroke="#334155" stroke-width="2"/>
                 <line x1="20" y1="120" x2="280" y2="120" stroke="#0F172A" stroke-width="3"/>
-                
                 <line x1="40" y1="140" x2="260" y2="140" stroke="#2563EB" stroke-width="1.5" marker-start="url(#arrow-blue)" marker-end="url(#arrow-blue)"/>
                 <text x="150" y="155" fill="#2563EB" font-size="12" text-anchor="middle" font-weight="bold">l : Profondeur pignon</text>
-                
                 <line x1="100" y1="10" x2="200" y2="10" stroke="#16A34A" stroke-width="1.5" marker-start="url(#arrow-green)" marker-end="url(#arrow-green)"/>
                 <text x="150" y="32" fill="#16A34A" font-size="11" text-anchor="middle" font-weight="bold">l_plat</text>
-                
                 <line x1="150" y1="120" x2="150" y2="20" stroke="#D97706" stroke-width="1.5" stroke-dasharray="4" marker-end="url(#arrow-orange)"/>
                 <text x="160" y="75" fill="#D97706" font-size="12" font-weight="bold">H</text>
-                
                 <line x1="20" y1="120" x2="20" y2="70" stroke="#DC2626" stroke-width="1.5" marker-start="url(#arrow-red)" marker-end="url(#arrow-red)"/>
                 <line x1="20" y1="70" x2="40" y2="70" stroke="#DC2626" stroke-width="1" stroke-dasharray="2"/>
                 <text x="8" y="100" fill="#DC2626" font-size="12" font-weight="bold">h</text>
@@ -439,13 +435,13 @@
 
     <div class="card">
         <div class="fr"><span class="fl">Orientation</span><select id="f-ori"><option>Nord</option><option>Sud</option><option>Est</option><option>Ouest</option><option>Horizontal</option></select></div>
+        <div class="fr"><span class="fl">Type</span><select id="f-type" onchange="toggleFenType()"></select></div>
         <div class="fr"><span class="fl">Matière</span><select id="f-mat"></select></div>
-        <div class="fr"><span class="fl">Type</span><select id="f-type"></select></div>
         <div class="fr"><span class="fl">Vitrage</span><select id="f-vit"></select></div>
         <div class="fr"><span class="fl">Ép. Lame (mm)</span><input type="number" inputmode="numeric" pattern="[0-9]*" id="f-ep" placeholder="ex: 16" style="text-align:right;"></div>
         <div class="fr"><span class="fl">Fermeture</span><select id="f-fer"></select></div>
         
-        <div class="dim-block">
+        <div class="dim-block" id="f-dim-lh">
             <div class="dim-title">Dimensions L x H (cm)</div>
             <div class="dim-inputs">
                 <input type="number" inputmode="numeric" pattern="[0-9]*" id="f-l" placeholder="Largeur">
@@ -453,6 +449,15 @@
                 <input type="number" inputmode="numeric" pattern="[0-9]*" id="f-h" placeholder="Hauteur">
             </div>
         </div>
+        
+        <div class="dim-block" id="f-dim-diam" style="display:none; background:#f0f9ff;">
+            <div class="dim-title" style="color:#0369a1;">Diamètre du Hublot (cm)</div>
+            <div class="dim-inputs">
+                <input type="number" inputmode="numeric" pattern="[0-9]*" id="f-diam" placeholder="Diamètre (cm)">
+            </div>
+            <div style="font-size:11px; color:#0369a1; margin-top:5px; text-align:center;">La surface vitrée sera calculée automatiquement pour l'ADN.</div>
+        </div>
+
         <div class="dim-block">
             <div class="dim-title">Quantité et Motifs</div>
             <div class="dim-inputs">
@@ -622,7 +627,7 @@
     const ADN = {
         MURS: ["Pierre de taille moellons constitués d'un seul matériau / inconnu", "Pierre de taille moellons avec remplissage tout venant", "Pisé ou béton de terre stabilisée", "Pans de bois sans remplissage", "Briques pleines simples", "Briques creuses", "Blocs de béton pleins", "Blocs de béton creux", "Béton banché", "Brique terre cuite alvéolaire", "Ossature bois sans remplissage", "Inconnu"],
         DONNE_SUR_MURS: ["Extérieur", "Local non chauffé (autre que véranda)", "Local non chauffé et non accessible", "Circulations communes", "Local chauffé", "Bâtiment ou espace autre qu'habitation", "Comble", "Terre (paroi enterrée)", "Sous-sol non chauffé"],
-        FEN_TYPE: ["Fenêtres battantes", "Fenêtres coulissantes", "Portes-fenêtres coulissantes", "Portes-fenêtres battantes sans soubassement", "Portes-fenêtres battantes avec soubassement", "Fenêtres sans ouverture possible", "Portes-fenêtres sans ouverture possible"],
+        FEN_TYPE: ["Fenêtres battantes", "Fenêtres coulissantes", "Portes-fenêtres coulissantes", "Portes-fenêtres battantes sans soubassement", "Portes-fenêtres battantes avec soubassement", "Fenêtres sans ouverture possible", "Portes-fenêtres sans ouverture possible", "Fenêtre de toit (Velux)", "Hublot"],
         FEN_VITRAGE: ["Simple vitrage vertical", "Double vitrage vertical", "Survitrage vertical", "Triple vitrage vertical", "Brique de verre pleine", "Brique de verre creuse", "Polycarbonate"],
         FEN_MATIERE: ["Menuiserie PVC", "Menuiserie Bois", "Menuiserie métallique à rupture de pont thermique", "Menuiserie métallique sans rupture de pont thermique", "Menuiserie Bois / Métal"],
         FEN_FERMETURE: ["Jalousie accordéon", "Fermeture sans ajours, volets roulants Alu", "Volet roulant PVC ou bois (épaisseur tablier ≤ 12mm)", "Persienne coulissante", "Volet roulant PVC ou bois (épaisseur tablier > 12mm)"],
@@ -666,7 +671,7 @@
     let totauxSortAsc = true;
 
     async function sauvegarderLocal() { 
-        try { await localforage.setItem('mydiag_v7_3', db); } 
+        try { await localforage.setItem('mydiag_v7_4', db); } 
         catch (err) { console.error("Erreur de sauvegarde", err); }
     }
 
@@ -705,7 +710,12 @@
             if(cat === 'murs' || cat === 'portes') {
                 surf = (parseFloat(item.l)||0) * (parseFloat(item.h)||0);
             } else if (cat === 'fens') {
-                surf = ((parseFloat(item.l)||0)/100) * ((parseFloat(item.h)||0)/100) * (parseFloat(item.nb)||1);
+                let fSurf = parseFloat(item.surf);
+                if(isNaN(fSurf)) {
+                    if(item.type === 'Hublot') fSurf = (Math.PI * Math.pow((parseFloat(item.diam)||0)/2, 2) / 10000);
+                    else fSurf = ((parseFloat(item.l)||0) * (parseFloat(item.h)||0)) / 10000;
+                }
+                surf = fSurf * (parseFloat(item.nb)||1);
             } else if (cat === 'plfs' || cat === 'plas') {
                 if(item.s) surf = parseFloat(item.s);
                 else surf = (parseFloat(item.l)||0) * (parseFloat(item.larg)||0);
@@ -737,7 +747,7 @@
         if(cat === 'murs') {
             html += th('Ori.', 'ori') + th('Matériau', 'mat') + th('L (m)', 'l') + th('H (m)', 'h');
         } else if (cat === 'fens') {
-            html += th('Ori.', 'ori') + th('Type', 'type') + th('Matériau', 'mat') + th('L (cm)', 'l') + th('H (cm)', 'h') + th('Qté', 'nb');
+            html += th('Ori.', 'ori') + th('Type', 'type') + th('Matériau', 'mat') + th('Dim/Diam', 'l') + th('Qté', 'nb');
         } else if (cat === 'portes') {
             html += th('Type', 'type') + th('Matériau', 'mat') + th('L (m)', 'l') + th('H (m)', 'h');
         } else {
@@ -752,7 +762,10 @@
             html += '<tr>';
             html += `<td>${d.aptNum}</td>`;
             if(cat === 'murs') html += `<td>${d.ori||''}</td><td>${(d.mat||'').substring(0,15)}...</td><td>${d.l||''}</td><td>${d.h||''}</td>`;
-            else if (cat === 'fens') html += `<td>${d.ori||''}</td><td>${(d.type||'').substring(0,10)}..</td><td>${(d.mat||'').substring(0,10)}..</td><td>${d.l||''}</td><td>${d.h||''}</td><td>${d.nb||'1'}</td>`;
+            else if (cat === 'fens') {
+                let dimStr = d.type === 'Hublot' ? `Ø${d.diam}cm` : `${d.l}x${d.h}cm`;
+                html += `<td>${d.ori||''}</td><td>${(d.type||'').substring(0,10)}..</td><td>${(d.mat||'').substring(0,10)}..</td><td>${dimStr}</td><td>${d.nb||'1'}</td>`;
+            }
             else if (cat === 'portes') html += `<td>${(d.type||'').substring(0,15)}..</td><td>${d.mat||''}</td><td>${d.l||''}</td><td>${d.h||''}</td>`;
             else html += `<td>${(d.type||'').substring(0,15)}..</td><td>${(d.donne||'').substring(0,15)}..</td><td>${d.l||''}</td><td>${d.larg||''}</td>`;
             html += `<td style="font-weight:bold; color:var(--acc);">${d.surf}</td>`;
@@ -760,7 +773,7 @@
         });
 
         html += `</tbody><tfoot><tr>`;
-        let colSpan = cat==='murs' ? 5 : cat==='fens' ? 7 : cat==='portes' ? 5 : 5;
+        let colSpan = cat==='murs' ? 5 : cat==='fens' ? 6 : cat==='portes' ? 5 : 5;
         html += `<td colspan="${colSpan}" style="text-align:right;">TOTAL SURFACES :</td><td>${totalSurf.toFixed(2)} m²</td>`;
         html += `</tr></tfoot></table>`;
 
@@ -844,7 +857,19 @@
         cont.innerHTML = html;
     }
 
-    // --- CALCULATEUR GEOMETRIQUE (TRAPEZE) ---
+    // --- TOGGLE FEN TYPE (VELUX / HUBLOT) ---
+    window.toggleFenType = function() {
+        let t = document.getElementById('f-type').value;
+        if(t === 'Hublot') {
+            document.getElementById('f-dim-lh').style.display = 'none';
+            document.getElementById('f-dim-diam').style.display = 'block';
+        } else {
+            document.getElementById('f-dim-lh').style.display = 'block';
+            document.getElementById('f-dim-diam').style.display = 'none';
+        }
+    };
+
+    // --- CALCULATEUR GEOMETRIQUE ---
     function runCalc() {
         let L = parseFloat(document.getElementById('calc-L').value);
         let l = parseFloat(document.getElementById('calc-l').value);
@@ -853,18 +878,13 @@
         let H = parseFloat(document.getElementById('calc-H').value);
         let resDiv = document.getElementById('calc-res');
 
-        if(isNaN(L) || isNaN(l) || isNaN(h) || isNaN(H) || H < h || l_plat > l) { 
-            resDiv.style.display = 'none'; 
-            return; 
-        }
+        if(isNaN(L) || isNaN(l) || isNaN(h) || isNaN(H) || H < h || l_plat > l) { resDiv.style.display = 'none'; return; }
         
         let sMur = L * h;
         let sPig = (l * h) + (((l + l_plat) / 2) * (H - h));
-        
         let baseRampant = (l - l_plat) / 2;
         let hyp = Math.sqrt(Math.pow(H - h, 2) + Math.pow(baseRampant, 2));
         let sRamp = L * hyp;
-        
         let sPlat = L * l_plat;
 
         lastCalc = { sMur: sMur.toFixed(2), sPig: sPig.toFixed(2), sRamp: sRamp.toFixed(2), sPlat: sPlat.toFixed(2) };
@@ -873,9 +893,7 @@
         document.getElementById('res-pig').textContent = lastCalc.sPig + ' m²';
         document.getElementById('res-ramp').textContent = lastCalc.sRamp + ' m²';
         document.getElementById('res-plat').textContent = lastCalc.sPlat + ' m²';
-        
         document.getElementById('row-calc-plat').style.display = l_plat > 0 ? 'flex' : 'none';
-
         resDiv.style.display = 'block';
     }
 
@@ -889,7 +907,7 @@
             el.h = document.getElementById('calc-h').value; 
             el.ep = ''; el.isoEp = '';
             el.doub = 'Absent'; el.iso = 'Non isolé';
-            db.murs.push(el); toast("Façade ajoutée. N'oubliez pas l'orientation ✏️");
+            db.murs.push(el); toast("Mur Façade ajouté. Modifiez-le ✏️");
         } else if(type === 'pig') {
             el.mat = 'Inconnu'; el.ori = ''; el.donne = 'Extérieur'; 
             el.l = document.getElementById('calc-l').value; 
@@ -898,12 +916,12 @@
             el.h = fauxH.toFixed(2); 
             el.ep = ''; el.isoEp = '';
             el.doub = 'Absent'; el.iso = 'Non isolé';
-            db.murs.push(el); toast("Pignon ajouté. N'oubliez pas l'orientation ✏️");
+            db.murs.push(el); toast("Mur Pignon ajouté. Modifiez-le ✏️");
         } else if(type === 'ramp') {
             el.type = 'Combles aménagés sous rampants'; el.donne = 'Extérieur'; 
             el.s = lastCalc.sRamp;
             el.iso = 'Non isolé'; el.isoEp = '';
-            db.plfs.push(el); toast("Rampant ajouté. Modifiez-le ✏️");
+            db.plfs.push(el); toast("Plafond rampant ajouté. Modifiez-le ✏️");
         } else if(type === 'plat') {
             el.type = 'Inconnu'; el.donne = 'Combles perdus'; 
             el.s = lastCalc.sPlat;
@@ -1223,18 +1241,24 @@
 
     function chargerModeleFen(modId) {
         if(!modId) {
-            ['f-type','f-mat','f-vit','f-ep','f-fer','f-l','f-h'].forEach(id => document.getElementById(id).value = '');
+            ['f-type','f-mat','f-vit','f-ep','f-fer','f-l','f-h', 'f-diam'].forEach(id => {
+                let el = document.getElementById(id);
+                if(el) el.value = '';
+            });
+            toggleFenType();
             return;
         }
         const m = db.modelesFens.find(x => x.id === modId);
         if(m) {
             document.getElementById('f-type').value = m.type;
+            toggleFenType();
             document.getElementById('f-mat').value = m.mat;
             document.getElementById('f-vit').value = m.vit;
             document.getElementById('f-ep').value = m.ep || '';
             document.getElementById('f-fer').value = m.fer;
             document.getElementById('f-l').value = m.l;
             document.getElementById('f-h').value = m.h;
+            if(document.getElementById('f-diam')) document.getElementById('f-diam').value = m.diam || '';
         }
     }
 
@@ -1308,7 +1332,10 @@
             verifierAptActif(tabId); 
             renderElementsList(tabId);
             if(tabId === 'murs') drawCroquis();
-            if(tabId === 'fen') renderBibliFens();
+            if(tabId === 'fen') {
+                renderBibliFens();
+                toggleFenType();
+            }
         }
     }
     function toggleAcc(id, el) {
@@ -1781,9 +1808,22 @@
         else if (type === 'fens') { 
             let ftype = document.getElementById('f-type').value; let fmat = document.getElementById('f-mat').value; let fvit = document.getElementById('f-vit').value; let fep = document.getElementById('f-ep').value; let ffer = document.getElementById('f-fer').value; let fl = document.getElementById('f-l').value; let fh = document.getElementById('f-h').value;
             
-            let modName = `Modèle ${db.modelesFens.length + 1} (${fmat} ${fl}x${fh})`;
-            let existingMod = db.modelesFens.find(m => m.type === ftype && m.mat === fmat && m.vit === fvit && m.ep === fep && m.fer === ffer && m.l === fl && m.h === fh);
-            if(!existingMod) { existingMod = { id: 'mod_' + Date.now(), nom: modName, type:ftype, mat:fmat, vit:fvit, ep:fep, fer:ffer, l:fl, h:fh }; db.modelesFens.push(existingMod); renderBibliFens(); }
+            let fdiam = document.getElementById('f-diam') ? document.getElementById('f-diam').value : '';
+            let fsurf = 0;
+
+            if (ftype === 'Hublot') {
+                fl = ''; fh = '';
+                fsurf = (Math.PI * Math.pow((parseFloat(fdiam)||0)/2, 2) / 10000).toFixed(3);
+            } else {
+                fdiam = '';
+                fsurf = (((parseFloat(fl)||0) * (parseFloat(fh)||0)) / 10000).toFixed(3);
+            }
+
+            let dimStr = ftype === 'Hublot' ? `Ø${fdiam}` : `${fl}x${fh}`;
+            let modName = `Modèle ${db.modelesFens.length + 1} (${fmat} ${dimStr})`;
+            
+            let existingMod = db.modelesFens.find(m => m.type === ftype && m.mat === fmat && m.vit === fvit && m.ep === fep && m.fer === ffer && m.l === fl && m.h === fh && m.diam === fdiam);
+            if(!existingMod) { existingMod = { id: 'mod_' + Date.now(), nom: modName, type:ftype, mat:fmat, vit:fvit, ep:fep, fer:ffer, l:fl, h:fh, diam:fdiam }; db.modelesFens.push(existingMod); renderBibliFens(); }
             
             if (!editParoiId) {
                 let maxFen = 0;
@@ -1793,7 +1833,7 @@
                 el.nom = "Fenêtre " + (maxFen + 1);
             }
             
-            el.ori = document.getElementById('f-ori').value; el.type = ftype; el.mat = fmat; el.vit = fvit; el.ep = fep; el.fer = ffer; el.l = fl; el.h = fh; el.nb = document.getElementById('f-nb').value; el.motifs = document.getElementById('f-motifs').value; 
+            el.ori = document.getElementById('f-ori').value; el.type = ftype; el.mat = fmat; el.vit = fvit; el.ep = fep; el.fer = ffer; el.l = fl; el.h = fh; el.diam = fdiam; el.surf = fsurf; el.nb = document.getElementById('f-nb').value; el.motifs = document.getElementById('f-motifs').value; 
         }
         else if (type === 'portes') { 
             el.type = document.getElementById('po-type').value; 
@@ -1816,7 +1856,7 @@
         renderElementsList(type);
         
         if(type === 'murs') { document.getElementById('m-l').value = ''; document.getElementById('m-ep').value = ''; document.getElementById('m-iso-ep').value = ''; document.getElementById('m-doub').value = 'Absent'; drawCroquis(); } 
-        else if (type === 'fens') { document.getElementById('f-bibli').value = ''; document.getElementById('f-l').value = ''; document.getElementById('f-h').value = ''; document.getElementById('f-ep').value = ''; document.getElementById('f-nb').value = '1'; document.getElementById('f-motifs').value = '1'; }
+        else if (type === 'fens') { document.getElementById('f-bibli').value = ''; document.getElementById('f-l').value = ''; document.getElementById('f-h').value = ''; document.getElementById('f-ep').value = ''; document.getElementById('f-diam').value = ''; document.getElementById('f-nb').value = '1'; document.getElementById('f-motifs').value = '1'; }
         else { 
             document.querySelectorAll(`#vw-${type} input[type="number"]`).forEach(i => i.value = ''); 
         }
@@ -1839,7 +1879,22 @@
             document.getElementById('m-iso-ep').value = p.isoEp || ''; 
             document.getElementById('btn-save-murs').textContent = "Modifier ce mur"; 
         }
-        else if (type === 'fens') { document.getElementById('f-bibli').value = ''; document.getElementById('f-ori').value = p.ori || 'Nord'; document.getElementById('f-type').value = p.type; document.getElementById('f-mat').value = p.mat; document.getElementById('f-vit').value = p.vit; document.getElementById('f-ep').value = p.ep || ''; document.getElementById('f-fer').value = p.fer; document.getElementById('f-l').value = p.l; document.getElementById('f-h').value = p.h; document.getElementById('f-nb').value = p.nb || '1'; document.getElementById('f-motifs').value = p.motifs || '1'; document.getElementById('btn-save-fens').textContent = "Modifier cette fenêtre"; }
+        else if (type === 'fens') { 
+            document.getElementById('f-bibli').value = ''; 
+            document.getElementById('f-ori').value = p.ori || 'Nord'; 
+            document.getElementById('f-type').value = p.type; 
+            toggleFenType();
+            document.getElementById('f-mat').value = p.mat; 
+            document.getElementById('f-vit').value = p.vit; 
+            document.getElementById('f-ep').value = p.ep || ''; 
+            document.getElementById('f-fer').value = p.fer; 
+            document.getElementById('f-l').value = p.l || ''; 
+            document.getElementById('f-h').value = p.h || ''; 
+            if(document.getElementById('f-diam')) document.getElementById('f-diam').value = p.diam || '';
+            document.getElementById('f-nb').value = p.nb || '1'; 
+            document.getElementById('f-motifs').value = p.motifs || '1'; 
+            document.getElementById('btn-save-fens').textContent = "Modifier cette fenêtre"; 
+        }
         else if (type === 'portes') { document.getElementById('po-type').value = p.type || 'Porte opaque pleine'; document.getElementById('po-mat').value = p.mat || 'Bois'; document.getElementById('po-donne').value = p.donne || 'Extérieur'; document.getElementById('po-iso').value = p.iso || 'Non isolée / Inconnue'; document.getElementById('po-sas').value = p.sas || 'Non'; document.getElementById('po-l').value = p.l || ''; document.getElementById('po-h').value = p.h || ''; document.getElementById('btn-save-portes').textContent = "Modifier cette porte"; }
         else if (type === 'plfs') { document.getElementById('p-type').value = p.type; document.getElementById('p-donne').value = p.donne; document.getElementById('p-l').value = p.l || ''; document.getElementById('p-larg').value = p.larg || ''; document.getElementById('p-s').value = p.s || ''; document.getElementById('p-iso').value = p.iso || 'Non isolé'; document.getElementById('p-iso-ep').value = p.isoEp || ''; document.getElementById('btn-save-plfs').textContent = "Modifier ce plafond"; }
         else if (type === 'plas') { document.getElementById('s-type').value = p.type; document.getElementById('s-donne').value = p.donne; document.getElementById('s-l').value = p.l || ''; document.getElementById('s-larg').value = p.larg || ''; document.getElementById('s-s').value = p.s || ''; document.getElementById('s-iso').value = p.iso || 'Non isolé'; document.getElementById('s-iso-ep').value = p.isoEp || ''; document.getElementById('btn-save-plas').textContent = "Modifier ce plancher"; }
@@ -1881,7 +1936,11 @@
             let dimText = "";
             let titleText = x.mat || x.type;
             if (type === 'fens') {
-                dimText = `Dim: ${x.l||'?'}x${x.h||'?'}cm | Lame: ${x.ep||'?'}mm | Qté: ${x.nb||1} (Motifs: ${x.motifs||1})`;
+                if (x.type === 'Hublot') {
+                    dimText = `Ø: ${x.diam||'?'}cm (Surf: ${x.surf||'?'}m²) | Lame: ${x.ep||'?'}mm | Qté: ${x.nb||1} (Motifs: ${x.motifs||1})`;
+                } else {
+                    dimText = `Dim: ${x.l||'?'}x${x.h||'?'}cm | Lame: ${x.ep||'?'}mm | Qté: ${x.nb||1} (Motifs: ${x.motifs||1})`;
+                }
                 titleText = `${x.nom ? x.nom + ' - ' : ''}${x.mat}`;
             } else if (type === 'plfs' || type === 'plas') {
                 if (x.s) dimText = `Surf: ${x.s}m²`; else dimText = `Dim: ${x.l||'?'} x ${x.larg||'?'}m`;
@@ -1911,24 +1970,168 @@
         }).join('');
     }
 
-    // --- 10. EXPORT ET RESET ---
+    // --- 10. EXPORTS (JSON, EXCEL, ZIP) ---
     function exportData() {
         const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(db));
         const a = document.createElement('a'); a.setAttribute("href", dataStr); a.setAttribute("download", "MyDiag_Backup_" + Date.now() + ".json"); document.body.appendChild(a); a.click(); a.remove();
     }
     
-    async function resetTotal() {
-        if(confirm('Attention, cela effacera définitivement tout le projet actuel et ses photos de la mémoire du téléphone. Continuer ?')) {
-            try { await localforage.clear(); location.reload(); } 
-            catch(e) { alert("Erreur lors de la suppression."); }
+    function exportExcel() {
+        if (typeof XLSX === 'undefined') return alert("La bibliothèque XLSX n'est pas chargée.");
+        toast("Génération du fichier Excel...");
+        
+        let wb = XLSX.utils.book_new();
+        const getAptNum = (id) => { let a = db.appts.find(x=>x.id===id); return a ? a.num : "Inconnu"; };
+
+        // 1. Copro
+        let coproData = [{
+            "Référence": db.copro.ref || "", "Nom": db.copro.nom || "", "Adresse": db.copro.adresse || "",
+            "Année": db.copro.annee || "", "Bâtiments": db.copro.batiments || "", "Étages": db.copro.etages || "",
+            "VMC Type": db.vmc.type || "", "VMC Période": db.vmc.periode || "",
+            "Chauff Col. Energie": db.chaufCol.energie || "", "Chauff Col. Générateur": db.chaufCol.gen || "",
+            "Chauff Col. Emetteur": db.chaufCol.emetteur || "", "Chauff Col. Année": db.chaufCol.annee || "", "Chauff Col. Puissance": db.chaufCol.puissance || "",
+            "ECS Col. Energie": db.ecsCol.energie || "", "ECS Col. Type": db.ecsCol.type || "",
+            "ECS Col. Année": db.ecsCol.annee || "", "ECS Col. Volume": db.ecsCol.vol || ""
+        }];
+        XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(coproData), "Copropriété");
+
+        // 2. Appts
+        let apptsData = db.appts.map(a => ({
+            "Lot": a.num, "Bâtiment": a.bat || "", "Type": a.type === 2 ? "Duplex" : a.type === 3 ? "Triplex" : "Plain-pied",
+            "Étage": a.etage || "", "Niveau ADN": a.niveau || "", "Surface (m²)": a.surf || "", "HSP (m)": a.hsp || ""
+        }));
+        if(apptsData.length) XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(apptsData), "Appartements");
+
+        // 3. Murs
+        let mursData = db.murs.map(m => ({
+            "Lot": getAptNum(m.aid), "Niveau (Duplex)": m.nivInt || 0, "Orientation": m.ori || "Auto",
+            "Donne sur": m.donne || "", "Matériau": m.mat || "", "Longueur (m)": m.l || "",
+            "Hauteur (m)": m.h || "", "Épaisseur (cm)": m.ep || "", "Doublage": m.doub || "",
+            "Isolant": m.iso || "", "Ép. Isolant (cm)": m.isoEp || ""
+        }));
+        if(mursData.length) XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(mursData), "Murs");
+
+        // 4. Fens
+        let fensData = db.fens.map(f => ({
+            "Lot": getAptNum(f.aid), "Niveau": f.nivInt || 0, "Repère": f.nom || "", "Orientation": f.ori || "",
+            "Type": f.type || "", "Matériau": f.mat || "", "Vitrage": f.vit || "",
+            "Ép. Lame (mm)": f.ep || "", "Fermeture": f.fer || "", 
+            "Largeur (cm)": f.l || "", "Hauteur (cm)": f.h || "", "Diamètre (cm)": f.diam || "", 
+            "Surface Unitaire (m²)": f.surf || "",
+            "Quantité": f.nb || 1, "Motifs": f.motifs || 1
+        }));
+        if(fensData.length) XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(fensData), "Fenêtres");
+
+        // 5. Portes
+        let portesData = db.portes.map(p => ({
+            "Lot": getAptNum(p.aid), "Niveau": p.nivInt || 0, "Type": p.type || "", "Matériau": p.mat || "",
+            "Donne sur": p.donne || "", "Isolation": p.iso || "", "Sas": p.sas || "",
+            "Largeur (m)": p.l || "", "Hauteur (m)": p.h || ""
+        }));
+        if(portesData.length) XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(portesData), "Portes");
+
+        // 6. Plafonds
+        let plfsData = db.plfs.map(p => ({
+            "Lot": getAptNum(p.aid), "Niveau": p.nivInt || 0, "Type ADN": p.type || "", "Donne sur": p.donne || "",
+            "Longueur (m)": p.l || "", "Largeur (m)": p.larg || "", "Surface (m²)": p.s || "",
+            "Isolant": p.iso || "", "Ép. Isolant (cm)": p.isoEp || ""
+        }));
+        if(plfsData.length) XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(plfsData), "Plafonds");
+
+        // 7. Planchers
+        let plasData = db.plas.map(p => ({
+            "Lot": getAptNum(p.aid), "Niveau": p.nivInt || 0, "Type ADN": p.type || "", "Donne sur": p.donne || "",
+            "Longueur (m)": p.l || "", "Largeur (m)": p.larg || "", "Surface (m²)": p.s || "",
+            "Isolant": p.iso || "", "Ép. Isolant (cm)": p.isoEp || ""
+        }));
+        if(plasData.length) XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(plasData), "Planchers");
+
+        // 8. Chaufs
+        let chaufsData = db.chaufs.map(c => ({
+            "Lot": getAptNum(c.aptId), "Énergie": c.energie || "", "Générateur": c.gen || "",
+            "Émetteur": c.emetteur || "", "Année": c.annee || "", "Puissance (kW)": c.puissance || ""
+        }));
+        if(chaufsData.length) XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(chaufsData), "Chauffages");
+
+        // 9. ECS
+        let ecsData = db.ecss.map(e => ({
+            "Lot": getAptNum(e.aptId), "Énergie": e.energie || "", "Type/Générateur": e.type || "",
+            "Année": e.annee || "", "Volume (L)": e.vol || ""
+        }));
+        if(ecsData.length) XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(ecsData), "ECS");
+
+        let d = new Date();
+        let fName = `Export_MyDiag_${db.copro.ref||'Projet'}_${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}.xlsx`;
+        XLSX.writeFile(wb, fName);
+    }
+    
+    async function exportZip() {
+        if (typeof JSZip === 'undefined') return alert("La bibliothèque JSZip n'est pas chargée.");
+        toast("Préparation du ZIP en cours...");
+        let zip = new JSZip();
+        let hasPhotos = false;
+        
+        if (db.docs && db.docs.length > 0) {
+            let docFolder = zip.folder("Documents_Copro");
+            db.docs.forEach((d, i) => {
+                if (d.data && d.data.includes('base64,')) {
+                    let b64 = d.data.split(',')[1];
+                    let ext = d.type === 'img' ? '.png' : '.pdf';
+                    docFolder.file(d.name || `doc_${i}${ext}`, b64, {base64: true});
+                    hasPhotos = true;
+                }
+            });
         }
+        
+        let coproFolder = zip.folder("Systemes_Collectifs");
+        if (db.chaufCol && db.chaufCol.photo && db.chaufCol.photo.includes('base64,')) {
+            coproFolder.file("Plaque_Chauffage_Collectif.png", db.chaufCol.photo.split(',')[1], {base64: true});
+            hasPhotos = true;
+        }
+        if (db.ecsCol && db.ecsCol.photo && db.ecsCol.photo.includes('base64,')) {
+            coproFolder.file("Plaque_ECS_Collective.png", db.ecsCol.photo.split(',')[1], {base64: true});
+            hasPhotos = true;
+        }
+
+        let indFolder = zip.folder("Systemes_Individuels");
+        db.chaufs.forEach((c, i) => {
+            if (c.photo && c.photo.includes('base64,')) {
+                let apt = db.appts.find(a => a.id === c.aptId);
+                let aNum = apt ? apt.num : "Inconnu";
+                indFolder.file(`Chauffage_${aNum}_${i+1}.png`, c.photo.split(',')[1], {base64: true});
+                hasPhotos = true;
+            }
+        });
+        db.ecss.forEach((e, i) => {
+            if (e.photo && e.photo.includes('base64,')) {
+                let apt = db.appts.find(a => a.id === e.aptId);
+                let aNum = apt ? apt.num : "Inconnu";
+                indFolder.file(`ECS_${aNum}_${i+1}.png`, e.photo.split(',')[1], {base64: true});
+                hasPhotos = true;
+            }
+        });
+
+        if (!hasPhotos) {
+            toast("Aucune photo à exporter.");
+            return;
+        }
+
+        let content = await zip.generateAsync({type:"blob"});
+        let a = document.createElement("a");
+        a.href = URL.createObjectURL(content);
+        let d = new Date();
+        a.download = `Photos_MyDiag_${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}.zip`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        toast("ZIP téléchargé !");
     }
 
     // --- 11. INIT ASYNCHRONE ---
     window.onload = async () => {
         peuplerSelects();
         try {
-            const savedData = await localforage.getItem('mydiag_v7_3');
+            const savedData = await localforage.getItem('mydiag_v7_4');
             if (savedData) { 
                 db = savedData; 
                 if(!db.docs) db.docs = []; 
@@ -1948,6 +2151,7 @@
             console.error("Erreur de chargement IndexedDB", err);
             alert("Erreur de lecture de la base de données. L'application démarre à vide.");
         }
+        toggleFenType(); // S'assurer que le bon layout est visible au démarrage
     };
 </script>
 </body>
