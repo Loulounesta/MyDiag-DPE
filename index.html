@@ -11,7 +11,6 @@
             --acc: #2563EB; --acc-l: #DBEAFE;
             --ok: #16A34A; --ok-l: #DCFCE7;
             --dan: #DC2626; --dan-l: #FEE2E2;
-            --warn: #D97706; --warn-l: #FEF3C7;
             --r: 14px; --rs: 8px;
         }
         * { box-sizing: border-box; margin: 0; padding: 0; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
@@ -36,312 +35,258 @@
         
         .fr { display: flex; align-items: center; padding: 0 14px; border-bottom: 1px solid var(--bor); min-height: 50px; }
         .fr:last-child { border-bottom: none; }
-        .fl { font-size: 14px; color: var(--tx); min-width: 120px; flex-shrink: 0; font-weight: 500; }
-        .fr select, .fr input { flex: 1; border: none; background: transparent; font-size: 14px; color: var(--acc); text-align: right; outline: none; padding: 10px 0; font-weight: 600; -webkit-appearance: none;}
+        .fl { font-size: 13px; color: var(--tx); min-width: 110px; flex-shrink: 0; font-weight: 600; line-height:1.2;}
+        .fr select, .fr input { flex: 1; border: none; background: transparent; font-size: 13px; color: var(--acc); text-align: right; outline: none; padding: 10px 0; font-weight: 600; -webkit-appearance: none; direction: rtl;}
+        .fr select option { direction: ltr; }
         .fr input::placeholder { color: #94A3B8; font-weight: 400; }
 
-        .btn-row { display: flex; gap: 8px; margin-top: 8px; }
-        .btn { flex: 1; padding: 14px; border-radius: var(--r); border: none; font-size: 15px; font-weight: 700; cursor: pointer; text-align: center; }
+        .btn { padding: 14px; border-radius: var(--r); border: none; font-size: 15px; font-weight: 700; cursor: pointer; text-align: center; width: 100%; margin-top: 10px;}
         .btn-p { background: var(--acc); color: #fff; }
         .btn-s { background: #CBD5E1; color: #0F172A; }
         .btn-xs { padding: 8px; font-size: 12px; border-radius: 8px; font-weight: 600; border: none; cursor: pointer; }
         
-        /* ACCORDEONS */
-        .coll-acc-hd { display: flex; align-items: center; justify-content: space-between; padding: 14px; background: var(--sur); border-radius: var(--r); border: 1px solid var(--bor); margin-top: 10px; cursor: pointer; font-weight: 700; font-size: 14px; }
-        .coll-acc-body { display: none; margin-top: 8px; }
-        .coll-acc-body.open { display: block; }
-
-        /* APPARTEMENTS */
-        .appt-card { background: #fff; border-radius: var(--r); border: 1px solid var(--bor); overflow: hidden; margin-bottom: 10px; }
-        .appt-header { display: flex; align-items: center; padding: 14px 16px; cursor: pointer; background: #F8FAFC; border-bottom: 1px solid var(--bor); }
-        .appt-num { font-size: 16px; font-weight: 700; color: #0F172A; flex: 1; }
-        .appt-meta { font-size: 12px; color: var(--tx2); margin-top: 2px; }
-        .appt-body { display: none; padding: 12px; }
-        .appt-body.open { display: block; }
+        /* LISTES ELEMENTS SAISIS */
+        .item-row { background: var(--bg); border-radius: var(--rs); border: 1px solid var(--bor); padding: 10px; margin-bottom: 8px; font-size: 13px; display: flex; justify-content: space-between; align-items: center;}
+        .item-details { flex: 1; margin-right: 10px; }
+        .badge { background: #E2E8F0; padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: 700; margin-right: 5px;}
         
-        .quick-btns { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin: 10px 0; }
-        .qbtn { padding: 10px 4px; border-radius: var(--rs); border: 1px solid var(--bor); background: var(--bg); color: var(--acc); font-size: 12px; font-weight: 700; cursor: pointer; text-align: center; }
-        .sub-item { background: var(--bg); border-radius: var(--rs); border: 1px solid var(--bor); padding: 10px; margin-bottom: 8px; font-size: 13px;}
-        .tag { font-size: 11px; padding: 3px 8px; border-radius: 10px; background: var(--sur); color: var(--tx2); border: 1px solid var(--bor); display: inline-block; margin: 2px 2px 0 0; }
+        .active-apt-banner { background: var(--acc-l); color: var(--acc); padding: 10px; border-radius: var(--rs); font-weight: 800; text-align: center; margin-bottom: 15px; border: 1px solid #B5D4F4;}
     </style>
 </head>
 <body>
 
 <div class="hd">
-    <div class="hd-title">MyDiag <span style="font-size:10px; color:#94A3B8; font-weight:normal;">v2.1</span></div>
+    <div class="hd-title">MyDiag <span style="font-size:10px; color:#94A3B8; font-weight:normal;">v2.3 - Intégration ADN</span></div>
     <button class="btn-save" onclick="sauvegarderLocal()">💾 Sauvegarder</button>
 </div>
 
 <div class="tabs" id="tab-bar">
-    <div class="tab on" onclick="goTab('accueil')">🏠 Accueil</div>
-    <div class="tab" onclick="goTab('copro')">🏢 Copropriété</div>
-    <div class="tab" onclick="goTab('appts')">🚪 Appartements</div>
+    <div class="tab on" onclick="goTab('appts')">🚪 Appartements</div>
     <div class="tab" onclick="goTab('murs')">🧱 Murs</div>
     <div class="tab" onclick="goTab('fen')">🪟 Fenêtres</div>
     <div class="tab" onclick="goTab('plafonds')">🔝 Plafonds</div>
     <div class="tab" onclick="goTab('planchers')">🔽 Planchers</div>
-    <div class="tab" onclick="goTab('portes')">🚪 Portes</div>
     <div class="tab" onclick="goTab('export')">📤 Export</div>
 </div>
 
-<div id="vw-accueil" class="vw on">
-    <div class="card" style="background:#0F172A; color:white; padding:20px;">
-        <div style="font-size:20px; font-weight:800; margin-bottom:10px;">Tableau de bord</div>
-        <div id="acc-copro-name" style="font-size:18px; color:var(--acc-l);">Aucune copropriété saisie</div>
-    </div>
-    <button class="btn btn-p" onclick="goTab('copro')">🏢 Renseigner la Copropriété</button>
-</div>
-
-<div id="vw-copro" class="vw">
-    <div class="sl">Identification</div>
-    <div class="card">
-        <div class="fr"><span class="fl">Référence</span><input type="text" id="copro-ref" placeholder="N° dossier" oninput="saveCoproData()"></div>
-        <div class="fr"><span class="fl">Nom Copro</span><input type="text" id="copro-nom" placeholder="ex: Les Lilas" oninput="saveCoproData()"></div>
-        <div class="fr"><span class="fl">Adresse</span><input type="text" id="copro-adresse" placeholder="Adresse" oninput="saveCoproData()"></div>
-        <div class="fr"><span class="fl">Année constr.</span><input type="number" id="copro-annee" placeholder="ex: 1975" oninput="saveCoproData()"></div>
-        <div class="fr"><span class="fl">Nb bâtiments</span><input type="number" id="copro-batiments" placeholder="ex: 3" oninput="saveCoproData()"></div>
-    </div>
-
-    <div class="coll-acc-hd" onclick="toggleAcc('vmc-acc', this)"><span>🌀 Ventilation collective</span> <span>▶</span></div>
-    <div class="coll-acc-body" id="vmc-acc">
-        <div class="card">
-            <div class="fr"><span class="fl">Type</span>
-                <select id="vmc-type" onchange="saveCoproData()">
-                    <option value="">—</option>
-                    <optgroup label="VMC simple flux"><option>VMC simple flux Hygro</option><option>VMC Basse pression</option><option>VMC Auto-réglable</option></optgroup>
-                    <optgroup label="Naturelle"><option>Ventilation naturelle par conduit</option><option>Ventilation par ouverture de fenêtres</option></optgroup>
-                </select>
-            </div>
-            <div class="fr"><span class="fl">Période</span>
-                <select id="vmc-periode" onchange="saveCoproData()"><option value="">—</option><option>Avant 1982</option><option>1982 – 2000</option><option>2001 – 2012</option><option>Après 2012</option></select>
-            </div>
-        </div>
-    </div>
-
-    <div class="coll-acc-hd" onclick="toggleAcc('chauf-acc', this)"><span>🔥 Chauffage collectif</span> <span>▶</span></div>
-    <div class="coll-acc-body" id="chauf-acc">
-        <div class="card">
-            <div class="fr"><span class="fl">Énergie</span>
-                <select id="col-chauf-energie" onchange="saveCoproData()">
-                    <option value="">—</option><option>Electrique</option><option>Gaz naturel</option><option>Fioul</option><option>Réseau de chaleur</option>
-                </select>
-            </div>
-            <div class="fr"><span class="fl">Générateur</span>
-                <select id="col-chauf-gen" onchange="checkChaudiereECS()">
-                    <option value="">—</option>
-                    <option>Chaudière condensation</option><option>Chaudière standard</option><option>Chaudière basse température</option><option>PAC</option><option>Installation collective unique</option>
-                </select>
-            </div>
-            <div class="fr"><span class="fl">Émetteur</span><input type="text" id="col-chauf-emetteur" placeholder="ex: Radiateurs eau chaude" oninput="saveCoproData()"></div>
-            <div class="fr"><span class="fl">Année</span><input type="number" id="col-chauf-annee" placeholder="ex: 2012" oninput="saveCoproData()"></div>
-            <div class="fr"><span class="fl" style="color:var(--warn);">Puissance (kW)</span><input type="number" id="col-chauf-puissance" placeholder="ex: 180" inputmode="decimal" oninput="saveCoproData()"></div>
-        </div>
-    </div>
-
-    <div class="coll-acc-hd" onclick="toggleAcc('ecs-acc', this)"><span>🚿 ECS collective</span> <span>▶</span></div>
-    <div class="coll-acc-body" id="ecs-acc">
-        <div class="card">
-            <div class="fr"><span class="fl">Type</span>
-                <select id="col-ecs-type" onchange="saveCoproData()">
-                    <option value="">—</option>
-                    <option>Production par la chaudière</option><option>Ballon électrique</option><option>Chauffe-eau thermodynamique</option><option>Installation collective unique</option>
-                </select>
-            </div>
-            <div class="fr"><span class="fl">Énergie</span>
-                <select id="col-ecs-energie" onchange="saveCoproData()">
-                    <option value="">—</option><option>Electrique</option><option>Gaz naturel</option><option>Fioul</option><option>Réseau de chaleur</option>
-                </select>
-            </div>
-            <div class="fr"><span class="fl">Volume (L)</span><input type="number" id="col-ecs-vol" placeholder="ex: 1000" oninput="saveCoproData()"></div>
-        </div>
-    </div>
-
-    <div style="margin-top: 25px;">
-        <button class="btn btn-p" onclick="goTab('appts'); showNouvelAppt();">🚪 + Ajouter un appartement ➡️</button>
-    </div>
-</div>
-
-<div id="vw-appts" class="vw">
-    <div id="new-apt-form" style="display: none; margin-bottom: 20px;">
-        <div class="sl">Créer un appartement</div>
-        <div class="card">
-            <div class="fr"><span class="fl">N° échantillon</span><input type="text" id="apt-num" placeholder="ex: E01" style="color:var(--acc); font-weight:700;"></div>
-            <div class="fr"><span class="fl">Bâtiment n°</span><select id="apt-bat"><option value="">—</option><option>1</option><option>2</option><option>3</option></select></div>
-            <div class="fr"><span class="fl">Étage</span><select id="apt-etage"><option value="">—</option><option>RDC</option><option>R+1</option><option>R+2</option><option>Combles</option></select></div>
-            <div class="fr"><span class="fl">Niveau ADN</span><select id="apt-niveau"><option value="">—</option><option>RDC</option><option>Intermédiaire</option><option>Dernier étage</option></select></div>
-            <div class="fr"><span class="fl">Surface hab. (m²)</span><input type="number" id="apt-surf" inputmode="decimal"></div>
-            <div class="fr"><span class="fl">HSP (m)</span><input type="number" id="apt-hsp" placeholder="ex: 2.50" inputmode="decimal"></div>
-            <div class="fr"><span class="fl">Occupant</span><input type="text" id="apt-occupant" placeholder="Nom"></div>
-        </div>
-        <div class="btn-row">
-            <button class="btn btn-s" onclick="hideNouvelAppt()">Annuler</button>
-            <button class="btn btn-p" onclick="creerAppt()">Enregistrer</button>
-        </div>
-        <hr style="border:0; border-top:1px solid var(--bor); margin:20px 0;">
-    </div>
-
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-        <span class="sl" style="margin:0;" id="appts-count-lbl">0 appartement</span>
-        <button class="btn btn-p" style="width:auto; padding:8px 16px; font-size:13px;" onclick="showNouvelAppt()">+ Nouveau</button>
+<div id="vw-appts" class="vw on">
+    <div class="card" style="padding:20px; text-align:center;">
+        <p style="font-size:14px; color:var(--tx2); margin-bottom:15px;">Créez un appartement pour commencer le relevé des parois.</p>
+        <button class="btn btn-p" onclick="creerApptRapide()">+ Nouvel Échantillon</button>
     </div>
     <div id="appts-liste"></div>
 </div>
 
-<div id="vw-murs" class="vw"><div class="card" style="padding:30px; text-align:center;">[Étape 3] Module Murs ANNALYSIMMO</div></div>
-<div id="vw-fen" class="vw"><div class="card" style="padding:30px; text-align:center;">[Étape 3] Module Fenêtres</div></div>
-<div id="vw-plafonds" class="vw"><div class="card" style="padding:30px; text-align:center;">[Étape 3] Module Plafonds</div></div>
-<div id="vw-planchers" class="vw"><div class="card" style="padding:30px; text-align:center;">[Étape 3] Module Planchers</div></div>
-<div id="vw-portes" class="vw"><div class="card" style="padding:30px; text-align:center;">[Étape 3] Module Portes</div></div>
-<div id="vw-export" class="vw"><div class="card" style="padding:30px; text-align:center;">[Étape 4] Module Export</div></div>
+<div id="vw-murs" class="vw">
+    <div id="murs-apt-banner" class="active-apt-banner">Aucun appartement sélectionné</div>
+    <div class="card">
+        <div class="fr"><span class="fl">Orientation</span><select id="m-ori"><option value="Nord">Nord</option><option value="Sud">Sud</option><option value="Est">Est</option><option value="Ouest">Ouest</option></select></div>
+        <div class="fr"><span class="fl">Donne sur</span><select id="m-donne"></select></div>
+        <div class="fr"><span class="fl">Matériau (ADN)</span><select id="m-mat"></select></div>
+        <div class="fr"><span class="fl">Épaisseur (cm)</span><input type="number" id="m-ep" placeholder="ex: 20" inputmode="numeric"></div>
+        <div class="fr"><span class="fl">L x H (m)</span><input type="number" id="m-l" placeholder="Long." style="margin-right:5px;" inputmode="decimal"><input type="number" id="m-h" placeholder="Haut." inputmode="decimal"></div>
+        <div class="fr"><span class="fl">Isolant</span><select id="m-iso"><option>Non isolé</option><option>Isolation Intérieure (ITI)</option><option>Isolation Extérieure (ITE)</option></select></div>
+    </div>
+    <button class="btn btn-p" onclick="ajouterElement('murs')">Enregistrer ce mur</button>
+    
+    <div class="sl" style="margin-top:20px;">Murs saisis pour ce lot</div>
+    <div id="list-murs"></div>
+</div>
+
+<div id="vw-fen" class="vw">
+    <div id="fen-apt-banner" class="active-apt-banner">Aucun appartement sélectionné</div>
+    <div class="card">
+        <div class="fr"><span class="fl">Type</span><select id="f-type"></select></div>
+        <div class="fr"><span class="fl">Matière</span><select id="f-mat"></select></div>
+        <div class="fr"><span class="fl">Vitrage</span><select id="f-vit"></select></div>
+        <div class="fr"><span class="fl">Fermeture</span><select id="f-fer"></select></div>
+        <div class="fr"><span class="fl">L x H (cm)</span><input type="number" id="f-l" placeholder="Larg." style="margin-right:5px;" inputmode="numeric"><input type="number" id="f-h" placeholder="Haut." inputmode="numeric"></div>
+    </div>
+    <button class="btn btn-p" onclick="ajouterElement('fens')">Enregistrer cette fenêtre</button>
+    <div class="sl" style="margin-top:20px;">Fenêtres saisies pour ce lot</div>
+    <div id="list-fens"></div>
+</div>
+
+<div id="vw-plafonds" class="vw">
+    <div id="plf-apt-banner" class="active-apt-banner">Aucun appartement sélectionné</div>
+    <div class="card">
+        <div class="fr"><span class="fl">Type ADN</span><select id="p-type"></select></div>
+        <div class="fr"><span class="fl">Donne sur</span><select id="p-donne"></select></div>
+        <div class="fr"><span class="fl">L x l (m)</span><input type="number" id="p-l" placeholder="Long." style="margin-right:5px;" inputmode="decimal"><input type="number" id="p-larg" placeholder="Larg." inputmode="decimal"></div>
+    </div>
+    <button class="btn btn-p" onclick="ajouterElement('plfs')">Enregistrer ce plafond</button>
+    <div class="sl" style="margin-top:20px;">Plafonds saisis pour ce lot</div>
+    <div id="list-plfs"></div>
+</div>
+
+<div id="vw-planchers" class="vw">
+    <div id="pla-apt-banner" class="active-apt-banner">Aucun appartement sélectionné</div>
+    <div class="card">
+        <div class="fr"><span class="fl">Type ADN</span><select id="s-type"></select></div>
+        <div class="fr"><span class="fl">Donne sur</span><select id="s-donne"></select></div>
+        <div class="fr"><span class="fl">L x l (m)</span><input type="number" id="s-l" placeholder="Long." style="margin-right:5px;" inputmode="decimal"><input type="number" id="s-larg" placeholder="Larg." inputmode="decimal"></div>
+    </div>
+    <button class="btn btn-p" onclick="ajouterElement('plas')">Enregistrer ce plancher</button>
+    <div class="sl" style="margin-top:20px;">Planchers saisis pour ce lot</div>
+    <div id="list-plas"></div>
+</div>
+
+<div id="vw-export" class="vw">
+    <div class="card" style="padding:20px; text-align:center;">
+        <button class="btn btn-p" onclick="exportData()">📊 EXPORTER LES DONNÉES (JSON)</button>
+        <button class="btn" style="background:var(--dan); color:white; margin-top:30px;" onclick="if(confirm('Tout effacer?')) {localStorage.clear(); location.reload();}">🗑️ RESET TOTAL</button>
+    </div>
+</div>
 
 <script>
-    // 1. DATA
-    let db = JSON.parse(localStorage.getItem('mydiag_v16_data') || '{"copro":{}, "vmc":{}, "chaufCol":{}, "ecsCol":{}, "appts":[], "chaufs":[], "ecss":[]}');
-    let expAppts = {}; 
+    // --- NOMENCLATURES EXACTES ADN ANNALYSIMMO (Extraites des CSV) ---
+    const ADN = {
+        MURS: ["Pierre de taille moellons constitués d'un seul matériau / inconnu", "Pierre de taille moellons avec remplissage tout venant", "Pisé ou béton de terre stabilisée", "Pans de bois sans remplissage tout venant", "Pans de bois avec remplissage tout venant", "Rondins bois", "Briques pleines simples", "Briques pleines doubles avec lame d'air", "Briques creuses", "Blocs de béton pleins", "Blocs de béton creux", "Béton banché", "Béton de mâchefer", "Brique terre cuite alvéolaire", "Béton cellulaire construit avant 2013", "Béton cellulaire construit à partir de 2013", "Sandwich béton / isolant / béton", "Ossature bois sans remplissage", "Cloison de plâtre", "Inconnu"],
+        DONNE_SUR_MURS: ["Extérieur", "Local non chauffé (autre que véranda)", "Local non chauffé et non accessible", "Circulations communes", "Local chauffé", "Bâtiment ou espace autre qu'habitation", "Comble", "Terre (paroi enterrée)", "Véranda non chauffée, loggia fermée", "Sous-sol non chauffé"],
+        FEN_TYPE: ["Fenêtres battantes", "Fenêtres coulissantes", "Portes-fenêtres coulissantes", "Portes-fenêtres battantes sans soubassement", "Portes-fenêtres battantes avec soubassement", "Fenêtres sans ouverture possible", "Portes-fenêtres sans ouverture possible"],
+        FEN_VITRAGE: ["Simple vitrage vertical", "Simple vitrage horizontal", "Double vitrage vertical", "Double vitrage horizontal", "Survitrage vertical", "Triple vitrage vertical", "Brique de verre pleine", "Brique de verre creuse", "Polycarbonate"],
+        FEN_MATIERE: ["Menuiserie métallique à rupture de pont thermique", "Menuiserie métallique sans rupture de pont thermique", "Menuiserie PVC", "Menuiserie Bois", "Menuiserie Bois / Métal"],
+        FEN_FERMETURE: ["Fermeture sans ajours en position déployée, volets roulants Alu", "Volet roulant PVC ou bois (épaisseur tablier ≤ 12mm)", "Volet roulant PVC ou bois (épaisseur tablier > 12mm)", "Persienne coulissante et volet battant PVC ou bois", "Jalousie accordéon, fermeture à lames orientables"],
+        PLAFONDS: ["Dalle béton", "Bois sous solives bois", "Bois sur solives bois", "Bardeaux et remplissage", "Entre solives bois avec ou sans remplissage", "Bois sur solives métallique", "Bois sous solives métallique", "Entre solives métallique", "Entrevous, terre-cuite, poutrelles béton", "Combles aménagés sous rampants", "Toit de chaume", "Plaques de plâtre", "Toiture en bac acier", "Inconnu"],
+        DONNE_SUR_PLAFOND: ["Terrasse", "Combles aménagés", "Combles perdus", "Local chauffé", "Local non chauffé", "Circulations communes", "Extérieur"],
+        PLANCHERS: ["Dalle béton", "Entre solives bois avec ou sans remplissage", "Bardeaux et remplissage", "Bois sur solives bois", "Entre solives métallique", "Bois sur solives métalliques", "Voutains sur solives métallique", "Entrevous, terre-cuite, poutrelles béton", "Voutains en brique ou moellons", "Entrevous isolants", "Inconnu"],
+        DONNE_SUR_PLANCHER: ["Terre-plein", "Vide sanitaire", "Local non chauffé", "Bâtiment autre que d'habitation", "Local chauffé", "Extérieur", "Circulations communes", "Terre (paroi enterrée)", "Sous-sol non chauffé"]
+    };
 
-    function sauvegarderLocal() {
-        localStorage.setItem('mydiag_v16_data', JSON.stringify(db));
+    function peuplerSelects() {
+        const fill = (id, arr) => {
+            const el = document.getElementById(id);
+            if(el) el.innerHTML = arr.map(v => `<option value="${v}">${v}</option>`).join('');
+        };
+        fill('m-mat', ADN.MURS); fill('m-donne', ADN.DONNE_SUR_MURS);
+        fill('f-type', ADN.FEN_TYPE); fill('f-mat', ADN.FEN_MATIERE); fill('f-vit', ADN.FEN_VITRAGE); fill('f-fer', ADN.FEN_FERMETURE);
+        fill('p-type', ADN.PLAFONDS); fill('p-donne', ADN.DONNE_SUR_PLAFOND);
+        fill('s-type', ADN.PLANCHERS); fill('s-donne', ADN.DONNE_SUR_PLANCHER);
     }
 
-    // 2. NAVIGATION
+    // --- LOGIQUE DE L'APPLICATION ---
+    let db = JSON.parse(localStorage.getItem('mydiag_v17') || '{"appts":[], "murs":[], "fens":[], "plfs":[], "plas":[]}');
+    let curAppt = null;
+
+    function sauvegarderLocal() { localStorage.setItem('mydiag_v17', JSON.stringify(db)); }
+
     function goTab(tabId) {
         document.querySelectorAll('.vw').forEach(v => v.classList.remove('on'));
         document.querySelectorAll('.tab').forEach(t => t.classList.remove('on'));
         document.getElementById('vw-' + tabId).classList.add('on');
         event.currentTarget.classList.add('on');
+        
         if(tabId === 'appts') renderApptsList();
-    }
-    function toggleAcc(id, el) {
-        const body = document.getElementById(id);
-        body.classList.toggle('open');
-        el.querySelector('span:last-child').textContent = body.classList.contains('open') ? '▼' : '▶';
-    }
-
-    // 3. COPROPRIÉTÉ & LIAISON CHAUDIERE -> ECS
-    function saveCoproData() {
-        db.copro = { ref: document.getElementById('copro-ref').value, nom: document.getElementById('copro-nom').value, adresse: document.getElementById('copro-adresse').value, annee: document.getElementById('copro-annee').value, batiments: document.getElementById('copro-batiments').value };
-        db.vmc = { type: document.getElementById('vmc-type').value, periode: document.getElementById('vmc-periode').value };
-        db.chaufCol = { energie: document.getElementById('col-chauf-energie').value, gen: document.getElementById('col-chauf-gen').value, emetteur: document.getElementById('col-chauf-emetteur').value, annee: document.getElementById('col-chauf-annee').value, puissance: document.getElementById('col-chauf-puissance').value };
-        db.ecsCol = { type: document.getElementById('col-ecs-type').value, energie: document.getElementById('col-ecs-energie').value, vol: document.getElementById('col-ecs-vol').value };
-        
-        document.getElementById('acc-copro-name').textContent = db.copro.nom || "Aucune copropriété saisie";
-        sauvegarderLocal();
-    }
-
-    function checkChaudiereECS() {
-        const gen = document.getElementById('col-chauf-gen').value;
-        const energie = document.getElementById('col-chauf-energie').value;
-        
-        if (gen.includes('Chaudière')) {
-            if(confirm("Le chauffage est une Chaudière. L'utiliser également pour la production d'Eau Chaude (ECS) ?")) {
-                document.getElementById('col-ecs-type').value = "Production par la chaudière";
-                document.getElementById('col-ecs-energie').value = energie;
-                
-                // Ouvre l'accordéon ECS pour montrer à l'utilisateur que c'est rempli
-                document.getElementById('ecs-acc').classList.add('open');
-                document.getElementById('ecs-acc').previousElementSibling.querySelector('span:last-child').textContent = '▼';
-            }
-        }
-        saveCoproData();
-    }
-
-    // 4. APPARTEMENTS
-    function showNouvelAppt() { document.getElementById('new-apt-form').style.display = 'block'; }
-    function hideNouvelAppt() { document.getElementById('new-apt-form').style.display = 'none'; }
-
-    function creerAppt() {
-        const num = document.getElementById('apt-num').value.trim();
-        if(!num) { alert("Numéro requis"); return; }
-        const a = { id: String(Date.now()), num, bat: document.getElementById('apt-bat').value, etage: document.getElementById('apt-etage').value, niveau: document.getElementById('apt-niveau').value, surf: document.getElementById('apt-surf').value, hsp: document.getElementById('apt-hsp').value, occupant: document.getElementById('apt-occupant').value };
-        db.appts.push(a);
-        expAppts[a.id] = true;
-        sauvegarderLocal();
-        document.getElementById('apt-num').value = '';
-        hideNouvelAppt(); renderApptsList();
-    }
-
-    function toggleAppt(id) { expAppts[id] = !expAppts[id]; renderApptsList(); }
-    function suppAppt(id) {
-        if(confirm("Supprimer cet appartement ?")) {
-            db.appts = db.appts.filter(a => a.id !== id);
-            db.chaufs = db.chaufs.filter(c => c.aptId !== id);
-            db.ecss = db.ecss.filter(e => e.aptId !== id);
-            sauvegarderLocal(); renderApptsList();
+        else if (['murs', 'fen', 'plafonds', 'planchers'].includes(tabId)) {
+            verifierAptActif(tabId);
+            renderElementsList(tabId);
         }
     }
 
-    // 5. SOUS-FORMULAIRES INDIVIDUELS (CHAUF/ECS)
-    function ajouterChauf(aptId) {
-        const e = document.getElementById('ifc-energie-'+aptId).value;
-        const g = document.getElementById('ifc-gen-'+aptId).value;
-        if(!e && !g) return alert("Énergie ou générateur requis");
-        db.chaufs.push({ id: String(Date.now()), aptId, energie: e, gen: g });
-        sauvegarderLocal(); renderApptsList();
+    function creerApptRapide() {
+        const n = prompt("Nom de l'échantillon (ex: Bât A - RDC):");
+        if(n) {
+            const id = String(Date.now());
+            db.appts.push({id: id, nom: n});
+            curAppt = id;
+            sauvegarderLocal();
+            renderApptsList();
+        }
     }
-    function suppChauf(id) { db.chaufs = db.chaufs.filter(c => c.id !== id); sauvegarderLocal(); renderApptsList(); }
 
-    function ajouterEcs(aptId) {
-        const t = document.getElementById('ife-type-'+aptId).value;
-        const e = document.getElementById('ife-energie-'+aptId).value;
-        if(!t && !e) return alert("Type ou énergie requis");
-        db.ecss.push({ id: String(Date.now()), aptId, type: t, energie: e });
-        sauvegarderLocal(); renderApptsList();
+    function activerAppt(id) {
+        curAppt = id;
+        alert("Appartement sélectionné. Vous pouvez maintenant ajouter des parois.");
     }
-    function suppEcs(id) { db.ecss = db.ecss.filter(e => e.id !== id); sauvegarderLocal(); renderApptsList(); }
+
+    function verifierAptActif(tab) {
+        let prefix = tab === 'murs' ? 'murs' : tab === 'fen' ? 'fen' : tab === 'plafonds' ? 'plf' : 'pla';
+        let banner = document.getElementById(prefix + '-apt-banner');
+        if(!curAppt) {
+            banner.textContent = "⚠ ATTENTION : Aucun appartement sélectionné !";
+            banner.style.background = "var(--dan-l)"; banner.style.color = "var(--dan)";
+        } else {
+            let nom = db.appts.find(a => a.id === curAppt).nom;
+            banner.textContent = "Saisie en cours pour : " + nom;
+            banner.style.background = "var(--ok-l)"; banner.style.color = "var(--ok)";
+        }
+    }
 
     function renderApptsList() {
         const cont = document.getElementById('appts-liste');
-        document.getElementById('appts-count-lbl').textContent = db.appts.length + " appartement(s)";
-        if(!db.appts.length) { cont.innerHTML = '<div style="text-align:center; padding:20px; color:#64748b;">Aucun lot saisi.</div>'; return; }
-
         cont.innerHTML = db.appts.map(a => {
-            const isExp = expAppts[a.id];
-            const myC = db.chaufs.filter(c => c.aptId === a.id);
-            const myE = db.ecss.filter(e => e.aptId === a.id);
-            
-            let body = '';
-            if(isExp) {
-                const cList = myC.map(c => `<div class="sub-item">🔥 ${c.energie||'—'} · ${c.gen||'—'} <button class="btn-xs" style="float:right; color:red;" onclick="suppChauf('${c.id}')">X</button></div>`).join('');
-                const eList = myE.map(e => `<div class="sub-item">🚿 ${e.type||'—'} · ${e.energie||'—'} <button class="btn-xs" style="float:right; color:red;" onclick="suppEcs('${e.id}')">X</button></div>`).join('');
-                
-                body = `<div class="appt-body open">
-                    <div class="quick-btns">
-                        <button class="qbtn" onclick="alert('Étape 3 : Module Murs')">🧱 + Murs</button>
-                        <button class="qbtn" onclick="alert('Étape 3 : Module Fen')">🪟 + Fenêtres</button>
-                        <button class="qbtn" onclick="alert('Étape 3 : Module Plaf')">🔝 + Plafonds</button>
-                    </div>
-                    <div style="background:#F8FAFC; padding:10px; border-radius:8px; border:1px solid var(--bor); margin-top:10px;">
-                        <div style="font-weight:bold; font-size:12px; margin-bottom:5px;">🔥 Chauffage individuel</div>
-                        ${cList}
-                        <div style="display:flex; gap:5px;"><select id="ifc-energie-${a.id}" style="padding:5px; font-size:12px;"><option value="">Énergie</option><option>Gaz naturel</option><option>Electrique</option></select><select id="ifc-gen-${a.id}" style="padding:5px; font-size:12px;"><option value="">Générateur</option><option>Chaudière standard</option><option>Convecteurs</option></select><button class="btn-s" style="padding:5px;" onclick="ajouterChauf('${a.id}')">Ajouter</button></div>
-                    </div>
-                    <div style="background:#F8FAFC; padding:10px; border-radius:8px; border:1px solid var(--bor); margin-top:10px;">
-                        <div style="font-weight:bold; font-size:12px; margin-bottom:5px;">🚿 ECS individuelle</div>
-                        ${eList}
-                        <div style="display:flex; gap:5px;"><select id="ife-type-${a.id}" style="padding:5px; font-size:12px;"><option value="">Type</option><option>Ballon électrique</option><option>Chaudière</option></select><select id="ife-energie-${a.id}" style="padding:5px; font-size:12px;"><option value="">Énergie</option><option>Electrique</option><option>Gaz naturel</option></select><button class="btn-s" style="padding:5px;" onclick="ajouterEcs('${a.id}')">Ajouter</button></div>
-                    </div>
-                    <div style="margin-top:15px; text-align:right;"><button class="btn-xs" style="color:var(--dan); border:1px solid var(--dan);" onclick="suppAppt('${a.id}')">Supprimer l'appartement</button></div>
-                </div>`;
-            }
-
-            return `<div class="appt-card">
-                <div class="appt-header" onclick="toggleAppt('${a.id}')">
-                    <div class="appt-num">${a.num} <span style="font-size:12px; color:gray; font-weight:normal;">${a.surf?a.surf+'m²':''}</span></div>
-                    <div style="font-size:12px;">${myC.length?'✅ Chauf':'❌ Chauf'} | ${myE.length?'✅ ECS':'❌ ECS'}</div>
+            const m = db.murs.filter(x=>x.aid===a.id).length;
+            const f = db.fens.filter(x=>x.aid===a.id).length;
+            const isCur = curAppt === a.id ? 'border:2px solid var(--acc); background:#F8FAFC;' : '';
+            return `
+            <div class="card" style="padding:15px; ${isCur}" onclick="activerAppt('${a.id}')">
+                <div style="font-weight:800; font-size:16px;">${a.nom}</div>
+                <div style="font-size:12px; color:var(--tx2); margin-top:5px;">${m} Murs | ${f} Fenêtres</div>
+                <div style="display:flex; gap:5px; margin-top:10px;">
+                    <button class="btn-xs" style="flex:1; background:var(--acc-l); color:var(--acc);" onclick="event.stopPropagation(); curAppt='${a.id}'; goTab('murs');">+ Murs</button>
+                    <button class="btn-xs" style="flex:1; background:var(--acc-l); color:var(--acc);" onclick="event.stopPropagation(); curAppt='${a.id}'; goTab('fen');">+ Fen</button>
                 </div>
-                ${body}
             </div>`;
         }).join('');
     }
 
-    // INIT
-    window.onload = () => {
-        ['copro-ref','copro-nom','copro-adresse','copro-annee','copro-batiments'].forEach(id => { const k = id.replace('copro-',''); if(db.copro[k]) document.getElementById(id).value = db.copro[k]; });
-        if(db.vmc.type) { document.getElementById('vmc-type').value = db.vmc.type; document.getElementById('vmc-periode').value = db.vmc.periode; }
-        if(db.chaufCol.gen) { document.getElementById('col-chauf-energie').value = db.chaufCol.energie; document.getElementById('col-chauf-gen').value = db.chaufCol.gen; document.getElementById('col-chauf-puissance').value = db.chaufCol.puissance; }
-        if(db.ecsCol.type) { document.getElementById('col-ecs-type').value = db.ecsCol.type; document.getElementById('col-ecs-energie').value = db.ecsCol.energie; }
-        document.getElementById('acc-copro-name').textContent = db.copro.nom || "Aucune copropriété saisie";
-    };
+    function ajouterElement(type) {
+        if(!curAppt) return alert("Sélectionnez un appartement d'abord !");
+        
+        let el = { id: Date.now(), aid: curAppt };
+        if(type === 'murs') {
+            el.ori = document.getElementById('m-ori').value; el.mat = document.getElementById('m-mat').value;
+            el.l = document.getElementById('m-l').value; el.h = document.getElementById('m-h').value;
+        } else if (type === 'fens') {
+            el.mat = document.getElementById('f-mat').value; el.vit = document.getElementById('f-vit').value;
+        } else if (type === 'plfs') {
+            el.type = document.getElementById('p-type').value; el.l = document.getElementById('p-l').value;
+        } else if (type === 'plas') {
+            el.type = document.getElementById('s-type').value; el.l = document.getElementById('s-l').value;
+        }
+
+        db[type].push(el);
+        sauvegarderLocal();
+        renderElementsList(type === 'murs' ? 'murs' : type === 'fens' ? 'fen' : type === 'plfs' ? 'plafonds' : 'planchers');
+        
+        // Vider les champs dimensions
+        document.querySelectorAll('input[type="number"]').forEach(i => i.value = '');
+    }
+
+    function suppElement(type, id) {
+        db[type] = db[type].filter(x => x.id !== id);
+        sauvegarderLocal();
+        renderElementsList(type === 'murs' ? 'murs' : type === 'fens' ? 'fen' : type === 'plfs' ? 'plafonds' : 'planchers');
+    }
+
+    function renderElementsList(tabId) {
+        if(!curAppt) return;
+        let cont, data, type;
+        if(tabId === 'murs') { cont = document.getElementById('list-murs'); data = db.murs; type = 'murs'; }
+        if(tabId === 'fen') { cont = document.getElementById('list-fens'); data = db.fens; type = 'fens'; }
+        if(tabId === 'plafonds') { cont = document.getElementById('list-plfs'); data = db.plfs; type = 'plfs'; }
+        if(tabId === 'planchers') { cont = document.getElementById('list-plas'); data = db.plas; type = 'plas'; }
+
+        cont.innerHTML = data.filter(x => x.aid === curAppt).map(x => `
+            <div class="item-row">
+                <div class="item-details">
+                    <span class="badge">${x.ori || 'Surf.'}</span> <b>${x.mat || x.type}</b> <br>
+                    <span style="color:var(--tx2); font-size:11px;">Dim: ${x.l||'?'} x ${x.h||'?'}</span>
+                </div>
+                <button class="btn-xs" style="background:var(--dan-l); color:var(--dan);" onclick="suppElement('${type}', ${x.id})">X</button>
+            </div>
+        `).join('');
+    }
+
+    function exportData() {
+        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(db));
+        const a = document.createElement('a');
+        a.setAttribute("href", dataStr);
+        a.setAttribute("download", "MyDiag_Export_" + Date.now() + ".json");
+        document.body.appendChild(a); a.click(); a.remove();
+    }
+
+    window.onload = () => { peuplerSelects(); renderApptsList(); };
 </script>
 </body>
 </html>
