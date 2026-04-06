@@ -550,13 +550,20 @@
     function updateDashboard() {
         document.getElementById('acc-copro-name').textContent = db.copro.nom || "Aucune copropriété saisie";
         const addrEl = document.getElementById('acc-copro-addr');
-        if(db.copro.adresse) {
+        
+        // Construction de l'adresse complète pour l'affichage et Maps
+        const parts = [db.copro.adresse, db.copro.cp, db.copro.ville].filter(Boolean);
+        const fullAddr = parts.join(', ');
+        
+        if(fullAddr) {
             addrEl.style.display = 'flex';
-            addrEl.querySelector('span').textContent = db.copro.adresse;
-            addrEl.href = `http://googleusercontent.com/maps.google.com/?q=${encodeURIComponent(db.copro.adresse)}`;
+            addrEl.querySelector('span').textContent = fullAddr;
+            // Utilisation du format d'URL officiel de Google Maps (API universelle)
+            addrEl.href = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(fullAddr)}`;
         } else {
             addrEl.style.display = 'none';
         }
+        
         document.getElementById('tdb-appts').textContent = db.appts.length;
         let totalSurf = db.appts.reduce((acc, val) => acc + (parseFloat(val.surf)||0), 0);
         document.getElementById('tdb-surf').textContent = totalSurf.toFixed(1);
