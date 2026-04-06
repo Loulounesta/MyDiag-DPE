@@ -1524,6 +1524,11 @@
         window.location.href = `mailto:${adresseAdmin}?subject=${subject}&body=${body}`;
         toast("Ouverture de la messagerie...");
     };
+    window.addEventListener('beforeunload', function (e) {
+    // Annule l'événement de fermeture pour afficher l'avertissement du navigateur
+    e.preventDefault(); 
+    e.returnValue = ''; 
+});
 </script>
 
 </body>
