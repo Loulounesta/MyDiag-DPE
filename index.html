@@ -138,7 +138,7 @@
             <path d="M256 120 L96 280 H144 V400 H256 V120 Z" fill="#38BDF8" opacity="0.8"/>
             <circle cx="256" cy="300" r="40" fill="#16A34A"/>
         </svg>
-        MyDiag - DPE <span style="font-size:11px; color:#94A3B8; font-weight:600; margin-left:4px; opacity:0.8;">v8.11</span>
+        MyDiag - DPE <span style="font-size:11px; color:#94A3B8; font-weight:600; margin-left:4px; opacity:0.8;">v8.12</span>
     </div>
     <div style="display:flex; align-items:center; gap:12px;">
         <div id="voyant-save" style="width:12px; height:12px; border-radius:50%; background-color:#475569; box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);"></div>
@@ -289,29 +289,89 @@
     
     <div class="coll-acc-hd" onclick="toggleAcc('calc-geometrique', this)" style="margin-bottom:16px; margin-top:0;"><span>🧮 Outil de calcul géométrique</span> <span style="color:var(--acc);">▼</span></div>
     <div class="coll-acc-body" id="calc-geometrique">
+        
+        <div style="background:#fff; border:1px solid var(--bor); border-radius:12px; padding:16px; margin-bottom:16px; box-shadow: 0 4px 12px rgba(15,23,42,0.02);">
+            <div style="text-align:center; margin-bottom:12px; font-weight:800; color:var(--tx);">Schéma des prises de mesure</div>
+            
+            <svg viewBox="0 0 320 180" style="width:100%; max-width:320px; margin:0 auto; display:block; overflow:visible;">
+                <defs>
+                    <marker id="arrowB" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto"><path d="M0,0 L0,6 L6,3 z" fill="#3B82F6" /></marker>
+                    <marker id="arrowG" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto"><path d="M0,0 L0,6 L6,3 z" fill="#16A34A" /></marker>
+                    <marker id="arrowO" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto"><path d="M0,0 L0,6 L6,3 z" fill="#F59E0B" /></marker>
+                    <marker id="arrowP" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto"><path d="M0,0 L0,6 L6,3 z" fill="#8B5CF6" /></marker>
+                    <marker id="arrowT" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto"><path d="M0,0 L0,6 L6,3 z" fill="#0D9488" /></marker>
+                </defs>
+
+                <text x="80" y="10" font-size="12" font-weight="bold" fill="var(--tx2)" text-anchor="middle">Vue Pignon</text>
+                <path d="M 20 140 L 140 140 L 140 70 L 100 30 L 60 30 L 20 70 Z" fill="#EFF6FF" stroke="#94A3B8" stroke-width="2" stroke-linejoin="round"/>
+                <path d="M 15 75 L 60 30 L 100 30 L 145 75" fill="none" stroke="#475569" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>
+
+                <line x1="10" y1="140" x2="10" y2="70" stroke="#3B82F6" stroke-width="2" marker-start="url(#arrowB)" marker-end="url(#arrowB)"/>
+                <text x="0" y="108" font-size="13" font-weight="bold" fill="#3B82F6" text-anchor="end">h</text>
+
+                <line x1="155" y1="140" x2="155" y2="30" stroke="#16A34A" stroke-width="2" marker-start="url(#arrowG)" marker-end="url(#arrowG)"/>
+                <text x="160" y="88" font-size="13" font-weight="bold" fill="#16A34A" text-anchor="start">H</text>
+
+                <line x1="20" y1="155" x2="140" y2="155" stroke="#F59E0B" stroke-width="2" marker-start="url(#arrowO)" marker-end="url(#arrowO)"/>
+                <text x="80" y="172" font-size="13" font-weight="bold" fill="#F59E0B" text-anchor="middle">l</text>
+
+                <line x1="20" y1="60" x2="60" y2="60" stroke="#8B5CF6" stroke-width="2" marker-start="url(#arrowP)" marker-end="url(#arrowP)"/>
+                <line x1="60" y1="60" x2="60" y2="30" stroke="#8B5CF6" stroke-width="1" stroke-dasharray="2,2"/>
+                <text x="40" y="55" font-size="11" font-weight="bold" fill="#8B5CF6" text-anchor="middle">Proj.</text>
+
+                <text x="250" y="10" font-size="12" font-weight="bold" fill="var(--tx2)" text-anchor="middle">Vue Façade</text>
+                <rect x="200" y="70" width="100" height="70" fill="#F0FDF4" stroke="#94A3B8" stroke-width="2"/>
+                <rect x="195" y="30" width="110" height="40" fill="#E2E8F0" stroke="#475569" stroke-width="2"/>
+
+                <line x1="200" y1="155" x2="300" y2="155" stroke="#0D9488" stroke-width="2" marker-start="url(#arrowT)" marker-end="url(#arrowT)"/>
+                <text x="250" y="172" font-size="13" font-weight="bold" fill="#0D9488" text-anchor="middle">L</text>
+            </svg>
+
+            <div style="font-size:12px; color:var(--tx2); margin-top:16px; display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+                <div><b style="color:#0D9488;">L</b> = Longueur façade</div>
+                <div><b style="color:#F59E0B;">l</b> = Largeur totale pignon</div>
+                <div><b style="color:#3B82F6;">h</b> = Haut. sablière (mur)</div>
+                <div><b style="color:#16A34A;">H</b> = Haut. max (plafond plat)</div>
+                <div style="grid-column: span 2;"><b style="color:#8B5CF6;">Proj.</b> = Longueur horizontale sous la pente du toit (Rampant)</div>
+            </div>
+        </div>
         <div class="card" style="padding:16px;">
-            <div style="font-size:12px; color:var(--tx2); margin-bottom:12px; line-height:1.4;">
-                <b>Légende :</b><br>
-                <b>L</b> = Longueur façade<br>
-                <b>l</b> = Largeur totale du pignon<br>
-                <b>h</b> = Hauteur du mur (sablière)<br>
-                <b>H</b> = Hauteur sous faîtage<br>
-                <b>Proj.</b> = Projection horizontale du rampant au sol (facilite la mesure sous rampant)
-            </div>
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; margin-bottom:12px;">
-                <input type="number" class="calc-input" id="calc-L" placeholder="L (Façade)" oninput="runCalc()">
-                <input type="number" class="calc-input" id="calc-l" placeholder="l (Pignon)" oninput="runCalc()">
-                <input type="number" class="calc-input" id="calc-h" placeholder="h (Sablière)" oninput="runCalc()">
-                <input type="number" class="calc-input" id="calc-H" placeholder="H (Faîtage)" oninput="runCalc()">
-                <input type="number" class="calc-input" id="calc-proj" placeholder="Proj. Rampant" oninput="runCalc()" style="grid-column: span 2;">
+                <input type="number" class="calc-input" id="calc-L" placeholder="L (Façade)" style="border-left:4px solid #0D9488;" oninput="runCalc()">
+                <input type="number" class="calc-input" id="calc-l" placeholder="l (Pignon)" style="border-left:4px solid #F59E0B;" oninput="runCalc()">
+                <input type="number" class="calc-input" id="calc-h" placeholder="h (Sablière)" style="border-left:4px solid #3B82F6;" oninput="runCalc()">
+                <input type="number" class="calc-input" id="calc-H" placeholder="H (Faîtage)" style="border-left:4px solid #16A34A;" oninput="runCalc()">
+                <input type="number" class="calc-input" id="calc-proj" placeholder="Proj. Rampant" style="border-left:4px solid #8B5CF6; grid-column: span 2;" oninput="runCalc()">
             </div>
+            
             <div id="calc-res" style="display:none; background:#F8FAFC; padding:12px; border-radius:8px; border:1px solid var(--bor); font-size:13px;">
-                <div style="display:flex; justify-content:space-between; margin-bottom:6px; align-items:center;"><span>Façade rect.:</span> <b id="res-mur"></b> <button class="btn-xs" onclick="addCalc('mur')">➕ Mur</button></div>
-                <div style="display:flex; justify-content:space-between; margin-bottom:6px; align-items:center;"><span>Pignon:</span> <b id="res-pig"></b> <button class="btn-xs" onclick="addCalc('pig')">➕ Mur</button></div>
-                <div style="display:flex; justify-content:space-between; margin-bottom:6px; align-items:center;"><span>Rampant (x1):</span> <b id="res-ramp"></b> <button class="btn-xs" onclick="addCalc('ramp')">➕ Plafond</button></div>
-                <div id="row-calc-plat" style="display:flex; justify-content:space-between; margin-bottom:6px; align-items:center;"><span>Plafond plat:</span> <b id="res-plat"></b> <button class="btn-xs" onclick="addCalc('plat')">➕ Plafond</button></div>
-                <hr style="border:0; border-top:1px solid var(--bor); margin:8px 0;">
-                <div style="display:flex; justify-content:space-between; color:var(--ok); align-items:center;"><span>Surf. Habitable:</span> <b id="res-shab"></b> <button class="btn-xs" style="background:var(--ok-l); color:var(--ok); border:1px solid #BBF7D0;" onclick="applyHabSurface()">✔️ Appliquer</button></div>
+                <div style="font-size:11px; color:#64748b; margin-bottom:10px; text-transform:uppercase; font-weight:800; letter-spacing:0.5px;">Résultats des surfaces :</div>
+                
+                <div style="display:flex; justify-content:space-between; margin-bottom:8px; align-items:center;">
+                    <span>Façade <span style="font-size:10px;color:var(--tx2); font-weight:bold;">(L × h)</span>:</span> 
+                    <div style="display:flex; align-items:center;"><b id="res-mur" style="margin-right:10px; font-size:14px;"></b> <button class="btn-xs" style="background:#E0E7FF; color:#4338CA; padding:6px 10px;" onclick="addCalc('mur')">➕ Mur</button></div>
+                </div>
+                
+                <div style="display:flex; justify-content:space-between; margin-bottom:8px; align-items:center;">
+                    <span>Pignon <span style="font-size:10px;color:var(--tx2); font-weight:bold;">(Face complète)</span>:</span> 
+                    <div style="display:flex; align-items:center;"><b id="res-pig" style="margin-right:10px; font-size:14px;"></b> <button class="btn-xs" style="background:#E0E7FF; color:#4338CA; padding:6px 10px;" onclick="addCalc('pig')">➕ Mur</button></div>
+                </div>
+                
+                <div style="display:flex; justify-content:space-between; margin-bottom:8px; align-items:center;">
+                    <span>Rampant <span style="font-size:10px;color:var(--tx2); font-weight:bold;">(Toit incliné x1)</span>:</span> 
+                    <div style="display:flex; align-items:center;"><b id="res-ramp" style="margin-right:10px; font-size:14px;"></b> <button class="btn-xs" style="background:#E0E7FF; color:#4338CA; padding:6px 10px;" onclick="addCalc('ramp')">➕ Plafond</button></div>
+                </div>
+                
+                <div id="row-calc-plat" style="display:flex; justify-content:space-between; margin-bottom:8px; align-items:center;">
+                    <span>Plafond plat <span style="font-size:10px;color:var(--tx2); font-weight:bold;">(Haut)</span>:</span> 
+                    <div style="display:flex; align-items:center;"><b id="res-plat" style="margin-right:10px; font-size:14px;"></b> <button class="btn-xs" style="background:#E0E7FF; color:#4338CA; padding:6px 10px;" onclick="addCalc('plat')">➕ Plafond</button></div>
+                </div>
+                
+                <hr style="border:0; border-top:1px solid var(--bor); margin:12px 0 10px;">
+                <div style="display:flex; justify-content:space-between; color:var(--ok); align-items:center;">
+                    <span style="font-weight:bold;">Surf. Habitable (≥1.80m):</span> 
+                    <div style="display:flex; align-items:center;"><b id="res-shab" style="margin-right:10px; font-size:15px;"></b> <button class="btn-xs" style="background:var(--ok-l); color:var(--ok); border:1px solid #BBF7D0; padding:6px 10px;" onclick="applyHabSurface()">✔️ Appliquer</button></div>
+                </div>
             </div>
         </div>
     </div>
@@ -338,7 +398,16 @@
             <div class="dim-inputs"><input type="number" id="m-l" placeholder="L"> <span>X</span> <input type="number" id="m-h" placeholder="H"></div>
         </div>
         <div class="fr"><span class="fl">Isolant</span><select id="m-iso" style="flex:1;"><option>Non</option><option>ITI</option><option>ITE</option></select><input type="number" id="m-iso-ep" placeholder="cm" style="flex:0 0 70px;"></div>
-        <div class="fr" style="display:none;"><span class="fl">Doublage</span><select id="m-doub"><option>ABSENT</option></select></div>
+        
+        <div class="fr"><span class="fl">Doublage</span>
+            <select id="m-doub">
+                <option value="ABSENT">Absent</option>
+                <option value="Inconnu">Inconnu</option>
+                <option value="Plâtre + Isolant (ITI)">Isolant + Plaque de plâtre</option>
+                <option value="Contre-cloison maçonnée">Contre-cloison maçonnée</option>
+                <option value="Lame d'air">Lame d'air seule</option>
+            </select>
+        </div>
     </div>
     <button class="btn-p" id="btn-save-murs" onclick="sauverParoi('murs')">Enregistrer ce mur</button>
     <div id="list-murs" style="margin-top:20px;"></div>
