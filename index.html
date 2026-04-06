@@ -1520,7 +1520,7 @@
         const body = encodeURIComponent(`Bonjour,\n\nLors de ma visite sur le dossier "${nom}" (Réf: ${ref}), je n'ai pas pu accéder à tous les échantillons nécessaires pour la représentativité du DPE.\n\nPourriez-vous s'il vous plaît planifier des rendez-vous supplémentaires avec les occupants manquants ?\n\nMerci d'avance pour votre retour.\n\nCordialement.`);
         
         // Remplace "admin@tonentreprise.fr" par la vraie adresse si tu veux que ce soit pré-rempli
-        const adresseAdmin = ""; 
+        const adresseAdmin = "c.louis@eti360.fr"; 
         
         window.location.href = `mailto:${adresseAdmin}?subject=${subject}&body=${body}`;
         toast("Ouverture de la messagerie...");
