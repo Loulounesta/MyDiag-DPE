@@ -138,7 +138,7 @@
             <path d="M256 120 L96 280 H144 V400 H256 V120 Z" fill="#38BDF8" opacity="0.8"/>
             <circle cx="256" cy="300" r="40" fill="#16A34A"/>
         </svg>
-        MyDiag - DPE <span style="font-size:11px; color:#94A3B8; font-weight:600; margin-left:4px; opacity:0.8;">v8.12</span>
+        MyDiag - DPE <span style="font-size:11px; color:#94A3B8; font-weight:600; margin-left:4px; opacity:0.8;">v8.13</span>
     </div>
     <div style="display:flex; align-items:center; gap:12px;">
         <div id="voyant-save" style="width:12px; height:12px; border-radius:50%; background-color:#475569; box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);"></div>
@@ -399,15 +399,7 @@
         </div>
         <div class="fr"><span class="fl">Isolant</span><select id="m-iso" style="flex:1;"><option>Non</option><option>ITI</option><option>ITE</option></select><input type="number" id="m-iso-ep" placeholder="cm" style="flex:0 0 70px;"></div>
         
-        <div class="fr"><span class="fl">Doublage</span>
-            <select id="m-doub">
-                <option value="ABSENT">Absent</option>
-                <option value="Inconnu">Inconnu</option>
-                <option value="Plâtre + Isolant (ITI)">Isolant + Plaque de plâtre</option>
-                <option value="Contre-cloison maçonnée">Contre-cloison maçonnée</option>
-                <option value="Lame d'air">Lame d'air seule</option>
-            </select>
-        </div>
+        <div class="fr"><span class="fl">Doublage</span><select id="m-doub"><option>ABSENT</option></select></div>
     </div>
     <button class="btn-p" id="btn-save-murs" onclick="sauverParoi('murs')">Enregistrer ce mur</button>
     <div id="list-murs" style="margin-top:20px;"></div>
@@ -932,9 +924,11 @@
     window.applyHabSurface = function() {
         if(!curAppt || curAppt === 'copro') return alert("Sélectionnez un appartement !");
         if(!lastCalc.sHab) return;
+        
         updateApptField(curAppt, 'surf', lastCalc.sHab);
-        let surfInput = document.querySelector(`#vw-appts input[value="${lastCalc.sHab}"]`);
-        if(surfInput) surfInput.value = lastCalc.sHab;
+        renderApptsList();
+        updateDashboard();
+        
         toast("Surface habitable (" + lastCalc.sHab + " m²) appliquée au lot !");
     };
 
@@ -1071,9 +1065,10 @@
                     curAptObj.surfs[curNivInt] = parseFloat(area.toFixed(1));
                     let tot = 0; for(let k in curAptObj.surfs) tot += curAptObj.surfs[k];
                     if (curAptObj.surf !== tot.toFixed(1)) {
-                        curAptObj.surf = tot.toFixed(1); sauvegarderLocal();
-                        let surfInput = document.querySelector(`#vw-appts input[value="${curAptObj.surf}"]`);
-                        if(surfInput) surfInput.value = curAptObj.surf;
+                        curAptObj.surf = tot.toFixed(1); 
+                        sauvegarderLocal();
+                        renderApptsList();
+                        updateDashboard();
                         toast(`Surface N${curNivInt} reportée. Total : ${curAptObj.surf} m²`);
                     }
                 }
