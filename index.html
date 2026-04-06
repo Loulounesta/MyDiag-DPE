@@ -507,6 +507,9 @@
         <div style="font-size:14px; color:var(--tx2); margin-bottom:24px; line-height:1.6;">
             Exportez vos relevés au format adapté pour préparer le transfert vers votre logiciel de certification.
         </div>
+        
+        <button class="btn-p" onclick="exportExcel()" style="background:var(--ok);">📊 EXPORTER EXCEL</button>
+        <button class="btn-p" onclick="exportZip()" style="background:var(--warn); margin-top:12px;">📸 EXPORTER PHOTOS (ZIP)</button>
         <button class="btn-p" onclick="exportData()" style="background:#475569; margin-top:24px;">📥 BACKUP JSON</button>
         
         <hr style="border:0; border-top:1px solid var(--bor); margin:32px 0 24px;">
@@ -514,10 +517,6 @@
         
         <button class="btn-p" onclick="envoyerMailExport()" style="background:#0284C7;">📧 PRÉPARER L'E-MAIL D'EXPORT</button>
         <button class="btn-p" onclick="envoyerMailRDV()" style="background:#8B5CF6; margin-top:12px;">📅 DEMANDE DE RDV (ÉCHANTILLONS)</button>
-        <button class="btn" style="background:var(--dan-l); color:var(--dan); margin-top:40px; border:1px solid #FECACA; width:100%; padding:14px; font-weight:bold; border-radius:10px;" onclick="resetProjet()">🗑️ RESET TOTAL DU PROJET</button>
-        <button class="btn-p" onclick="exportExcel()" style="background:var(--ok);">📊 EXPORTER EXCEL</button>
-        <button class="btn-p" onclick="exportZip()" style="background:var(--warn); margin-top:12px;">📸 EXPORTER PHOTOS (ZIP)</button>
-        <button class="btn-p" onclick="exportData()" style="background:#475569; margin-top:24px;">📥 BACKUP JSON</button>
         
         <button class="btn" style="background:var(--dan-l); color:var(--dan); margin-top:40px; border:1px solid #FECACA; width:100%; padding:14px; font-weight:bold; border-radius:10px;" onclick="resetProjet()">🗑️ RESET TOTAL DU PROJET</button>
     </div>
