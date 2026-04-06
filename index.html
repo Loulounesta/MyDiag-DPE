@@ -138,7 +138,7 @@
             <path d="M256 120 L96 280 H144 V400 H256 V120 Z" fill="#38BDF8" opacity="0.8"/>
             <circle cx="256" cy="300" r="40" fill="#16A34A"/>
         </svg>
-        MyDiag - DPE <span style="font-size:11px; color:#94A3B8; font-weight:600; margin-left:4px; opacity:0.8;">v8.13</span>
+        MyDiag - DPE <span style="font-size:11px; color:#94A3B8; font-weight:600; margin-left:4px; opacity:0.8;">v8.12</span>
     </div>
     <div style="display:flex; align-items:center; gap:12px;">
         <div id="voyant-save" style="width:12px; height:12px; border-radius:50%; background-color:#475569; box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);"></div>
@@ -399,7 +399,15 @@
         </div>
         <div class="fr"><span class="fl">Isolant</span><select id="m-iso" style="flex:1;"><option>Non</option><option>ITI</option><option>ITE</option></select><input type="number" id="m-iso-ep" placeholder="cm" style="flex:0 0 70px;"></div>
         
-        <div class="fr"><span class="fl">Doublage</span><select id="m-doub"><option>ABSENT</option></select></div>
+        <div class="fr"><span class="fl">Doublage</span>
+            <select id="m-doub">
+                <option value="ABSENT">Absent</option>
+                <option value="Inconnu">Inconnu</option>
+                <option value="Plâtre + Isolant (ITI)">Isolant + Plaque de plâtre</option>
+                <option value="Contre-cloison maçonnée">Contre-cloison maçonnée</option>
+                <option value="Lame d'air">Lame d'air seule</option>
+            </select>
+        </div>
     </div>
     <button class="btn-p" id="btn-save-murs" onclick="sauverParoi('murs')">Enregistrer ce mur</button>
     <div id="list-murs" style="margin-top:20px;"></div>
@@ -924,11 +932,9 @@
     window.applyHabSurface = function() {
         if(!curAppt || curAppt === 'copro') return alert("Sélectionnez un appartement !");
         if(!lastCalc.sHab) return;
-        
         updateApptField(curAppt, 'surf', lastCalc.sHab);
-        renderApptsList();
-        updateDashboard();
-        
+        let surfInput = document.querySelector(`#vw-appts input[value="${lastCalc.sHab}"]`);
+        if(surfInput) surfInput.value = lastCalc.sHab;
         toast("Surface habitable (" + lastCalc.sHab + " m²) appliquée au lot !");
     };
 
@@ -1065,10 +1071,9 @@
                     curAptObj.surfs[curNivInt] = parseFloat(area.toFixed(1));
                     let tot = 0; for(let k in curAptObj.surfs) tot += curAptObj.surfs[k];
                     if (curAptObj.surf !== tot.toFixed(1)) {
-                        curAptObj.surf = tot.toFixed(1); 
-                        sauvegarderLocal();
-                        renderApptsList();
-                        updateDashboard();
+                        curAptObj.surf = tot.toFixed(1); sauvegarderLocal();
+                        let surfInput = document.querySelector(`#vw-appts input[value="${curAptObj.surf}"]`);
+                        if(surfInput) surfInput.value = curAptObj.surf;
                         toast(`Surface N${curNivInt} reportée. Total : ${curAptObj.surf} m²`);
                     }
                 }
@@ -1164,8 +1169,28 @@
     
     function suppAppt(id) { 
         if(confirm("Supprimer définitivement l'appartement et toutes ses parois/systèmes ?")) { 
-            db.appts = db.appts.filter(a=>a.id!==id); db.murs = db.murs.filter(m=>m.aid!==id); db.fens = db.fens.filter(f=>f.aid!==id); db.portes = db.portes.filter(p=>p.aid!==id); db.plfs = db.plfs.filter(p=>p.aid!==id); db.plas = db.plas.filter(p=>p.aid!==id); db.chaufs = db.chaufs.filter(c=>c.aptId!==id); db.ecss = db.ecss.filter(e=>e.aptId!==id); 
-            if(curAppt === id) curAppt = null; sauvegarderLocal(); renderApptsList(); 
+            const targetId = String(id);
+            const aptToDelete = db.appts.find(a => String(a.id) === targetId);
+            if (aptToDelete) {
+                db.docs = db.docs.filter(d => !d.name.startsWith(`Croquis_${aptToDelete.num}_`));
+            }
+            db.appts = db.appts.filter(a => String(a.id) !== targetId); 
+            db.murs = db.murs.filter(m => String(m.aid) !== targetId); 
+            db.fens = db.fens.filter(f => String(f.aid) !== targetId); 
+            db.portes = db.portes.filter(p => String(p.aid) !== targetId); 
+            db.plfs = db.plfs.filter(p => String(p.aid) !== targetId); 
+            db.plas = db.plas.filter(p => String(p.aid) !== targetId); 
+            db.chaufs = db.chaufs.filter(c => String(c.aptId) !== targetId); 
+            db.ecss = db.ecss.filter(e => String(e.aptId) !== targetId); 
+            
+            if (tempPhotos.chauf[targetId]) delete tempPhotos.chauf[targetId];
+            if (tempPhotos.ecs[targetId]) delete tempPhotos.ecs[targetId];
+            if (expAppts[targetId]) delete expAppts[targetId];
+
+            if(curAppt === id) curAppt = null; 
+            
+            sauvegarderLocal(); 
+            renderApptsList(); 
         } 
     }
     
