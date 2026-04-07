@@ -521,33 +521,7 @@
 </div>
 
 <div id="sys-toast" class="toast">Action effectuée ✓</div>
-function calculerRampant() {
-    // Récupération des saisies
-    const L = parseFloat(document.getElementById('calc-L').value) || 0; // Longueur du mur
-    const D = parseFloat(document.getElementById('calc-D').value) || 0; // Projection horizontale
-    const H = parseFloat(document.getElementById('calc-H').value) || 0; // Hauteur de chute (HSP faîtage - HSP bas)
 
-    if (L > 0 && D > 0 && H > 0) {
-        // 1. Calcul de la surface développée du rampant (pour la paroi de l'onglet Plafond)
-        const longueurPente = Math.sqrt(Math.pow(D, 2) + Math.pow(H, 2));
-        const surfaceRampant = L * longueurPente;
-
-        // 2. Calcul de la surface habitable au sol (pour la surface de l'appartement)
-        // On cherche la distance D_hab où la hauteur est >= 1.80m
-        // Note : Cela suppose que le bas du rampant est à 0m. 
-        // Si le bas est à une hauteur 'h_mini', il faut adapter H.
-        let dHabitable = D * ((H - 1.80) / H);
-        if (dHabitable < 0) dHabitable = 0; 
-        const surfaceHab = L * dHabitable;
-
-        // Mise à jour des champs d'affichage
-        document.getElementById('res-surf-paroi').textContent = surfaceRampant.toFixed(2) + " m²";
-        document.getElementById('res-surf-hab').textContent = surfaceHab.toFixed(2) + " m²";
-        
-        // Suggestion : stocker ces valeurs pour les injecter d'un clic
-        window.lastCalcRampant = { paroi: surfaceRampant.toFixed(2), hab: surfaceHab.toFixed(2) };
-    }
-}
 <script>
     // --- VARIABLES ET BASE ---
     let db = {copro:{}, docs:[], vmc:{}, chaufCol:{}, ecsCol:{}, appts:[], chaufs:[], ecss:[], murs:[], fens:[], modelesFens:[], portes:[], plfs:[], plas:[]};
