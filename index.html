@@ -1515,13 +1515,43 @@
             let oldOri = el.ori; el.ori = document.getElementById('m-ori').value; el.donne = document.getElementById('m-donne').value; el.mat = document.getElementById('m-mat').value; el.l = document.getElementById('m-l').value; el.h = document.getElementById('m-h').value; el.ep = document.getElementById('m-ep').value; el.doub = document.getElementById('m-doub').value; el.iso = document.getElementById('m-iso').value; el.isoEp = document.getElementById('m-iso-ep').value; 
             if (el.vectX !== undefined && oldOri !== el.ori) { delete el.vectX; delete el.vectY; }
         } else if (type === 'fens') { 
-            let ftype = document.getElementById('f-type').value; let fmat = document.getElementById('f-mat').value; let fvit = document.getElementById('f-vit').value; let fep = document.getElementById('f-ep').value; let ffer = document.getElementById('f-fer').value; let fl = document.getElementById('f-l').value; let fh = document.getElementById('f-h').value; let fdiam = document.getElementById('f-diam') ? document.getElementById('f-diam').value : ''; let fsurf = 0;
-            if (ftype === 'Hublot') { fl = ''; fh = ''; fsurf = (Math.PI * Math.pow((parseFloat(fdiam)||0)/2, 2) / 10000).toFixed(3); } else { fdiam = ''; fsurf = (((parseFloat(fl)||0) * (parseFloat(fh)||0)) / 10000).toFixed(3); }
-            let dimStr = ftype === 'Hublot' ? `Ø${fdiam}` : `${fl}x${fh}`; let modName = `Modèle ${db.modelesFens.length + 1} (${fmat} ${dimStr})`;
-            let existingMod = db.modelesFens.find(m => m.type === ftype && m.mat === fmat && m.vit === fvit && m.ep === fep && m.fer === ffer && m.l === fl && m.h === fh && m.diam === fdiam); if(!existingMod) { existingMod = { id: 'mod_' + Date.now(), nom: modName, type:ftype, mat:fmat, vit:fvit, ep:fep, fer:ffer, l:fl, h:fh, diam:fdiam }; db.modelesFens.push(existingMod); renderBibliFens(); }
-            if (!editParoiId) { let maxFen = 0; db.fens.forEach(f => { if(f.nom) { let m = f.nom.match(/Fenêtre (\d+)/); if(m && parseInt(m[1]) > maxFen) maxFen = parseInt(m[1]); } }); el.nom = "Fenêtre " + (maxFen + 1); }
-            el.ori = document.getElementById('f-ori').value; el.type = ftype; el.mat = fmat; el.vit = fvit; el.ep = fep; el.fer = ffer; el.l = fl; el.h = fh; el.diam = fdiam; el.surf = fsurf; el.nb = document.getElementById('f-nb').value; el.motifs = document.getElementById('f-motifs').value; 
-        } else if (type === 'portes') { el.type = document.getElementById('po-type').value; el.mat = document.getElementById('po-mat').value; el.donne = document.getElementById('po-donne').value; el.iso = document.getElementById('po-iso').value; el.sas = document.getElementById('po-sas').value; el.l = document.getElementById('po-l').value; el.h = document.getElementById('po-h').value; } else if (type === 'plfs') { el.type = document.getElementById('p-type').value; el.donne = document.getElementById('p-donne').value; el.l = document.getElementById('p-l').value; el.larg = document.getElementById('p-larg').value; el.s = document.getElementById('p-s').value; el.iso = document.getElementById('p-iso').value; el.isoEp = document.getElementById('p-iso-ep').value;} else if (type === 'plas') { el.type = document.getElementById('s-type').value; el.donne = document.getElementById('s-donne').value; el.l = document.getElementById('s-l').value; el.larg = document.getElementById('s-larg').value; el.s = document.getElementById('s-s').value; el.iso = document.getElementById('s-iso').value; el.isoEp = document.getElementById('s-iso-ep').value;}
+            let fori = document.getElementById('f-ori').value;
+            let ftype = document.getElementById('f-type').value; 
+            let fmat = document.getElementById('f-mat').value; 
+            let fvit = document.getElementById('f-vit').value; 
+            let fep = document.getElementById('f-ep').value; 
+            let ffer = document.getElementById('f-fer').value; 
+            let fl = document.getElementById('f-l').value; 
+            let fh = document.getElementById('f-h').value; 
+            let fdiam = document.getElementById('f-diam') ? document.getElementById('f-diam').value : ''; 
+            let fmotifs = document.getElementById('f-motifs').value;
+            let fsurf = 0;
+            
+            if (ftype === 'Hublot') { 
+                fl = ''; fh = ''; fsurf = (Math.PI * Math.pow((parseFloat(fdiam)||0)/2, 2) / 10000).toFixed(3); 
+            } else { 
+                fdiam = ''; fsurf = (((parseFloat(fl)||0) * (parseFloat(fh)||0)) / 10000).toFixed(3); 
+            }
+            
+            // Format clair pour la bibliothèque : [Sud] 120x130 | Volet roulant... (2 motif(s))
+            let dimStr = ftype === 'Hublot' ? `Ø${fdiam}` : `${fl}x${fh}`; 
+            let shortFer = ffer.length > 15 ? ffer.substring(0, 15) + '...' : (ffer || 'Sans fermeture');
+            let modName = `[${fori}] ${dimStr} | ${shortFer} (${fmotifs} motif(s))`;
+            
+            // Vérification si ce modèle exact existe déjà (incluant orientation et motifs)
+            let existingMod = db.modelesFens.find(m => m.type === ftype && m.mat === fmat && m.vit === fvit && m.ep === fep && m.fer === ffer && m.l === fl && m.h === fh && m.diam === fdiam && m.ori === fori && m.motifs === fmotifs); 
+            
+            if(!existingMod) { 
+                existingMod = { id: 'mod_' + Date.now(), nom: modName, type:ftype, mat:fmat, vit:fvit, ep:fep, fer:ffer, l:fl, h:fh, diam:fdiam, ori:fori, motifs:fmotifs }; 
+                db.modelesFens.push(existingMod); 
+                renderBibliFens(); 
+            }
+            
+            if (!editParoiId) { 
+                let maxFen = 0; db.fens.forEach(f => { if(f.nom) { let m = f.nom.match(/Fenêtre (\d+)/); if(m && parseInt(m[1]) > maxFen) maxFen = parseInt(m[1]); } }); 
+                el.nom = "Fenêtre " + (maxFen + 1); 
+            }
+            el.ori = fori; el.type = ftype; el.mat = fmat; el.vit = fvit; el.ep = fep; el.fer = ffer; el.l = fl; el.h = fh; el.diam = fdiam; el.surf = fsurf; el.nb = document.getElementById('f-nb').value; el.motifs = fmotifs;        } else if (type === 'portes') { el.type = document.getElementById('po-type').value; el.mat = document.getElementById('po-mat').value; el.donne = document.getElementById('po-donne').value; el.iso = document.getElementById('po-iso').value; el.sas = document.getElementById('po-sas').value; el.l = document.getElementById('po-l').value; el.h = document.getElementById('po-h').value; } else if (type === 'plfs') { el.type = document.getElementById('p-type').value; el.donne = document.getElementById('p-donne').value; el.l = document.getElementById('p-l').value; el.larg = document.getElementById('p-larg').value; el.s = document.getElementById('p-s').value; el.iso = document.getElementById('p-iso').value; el.isoEp = document.getElementById('p-iso-ep').value;} else if (type === 'plas') { el.type = document.getElementById('s-type').value; el.donne = document.getElementById('s-donne').value; el.l = document.getElementById('s-l').value; el.larg = document.getElementById('s-larg').value; el.s = document.getElementById('s-s').value; el.iso = document.getElementById('s-iso').value; el.isoEp = document.getElementById('s-iso-ep').value;}
         if(!editParoiId) db[type].push(el); editParoiId = null; document.getElementById('btn-save-' + type).textContent = "Enregistrer"; sauvegarderLocal(); renderElementsList(type);
         
         // --- LOGIQUE DE MÉMOIRE : On ne vide que les dimensions pour l'élément suivant ---
