@@ -631,7 +631,7 @@
        if(fullAddr) {
             addrEl.style.display = 'flex';
             addrEl.querySelector('span').textContent = fullAddr;
-            addrEl.href = `https://maps.google.com/?q=${encodeURIComponent(fullAddr)}`;
+            addrEl.href = "https://maps.google.com/?q=" + encodeURIComponent(fullAddr);
         } else {
             addrEl.style.display = 'none';
         }
