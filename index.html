@@ -632,8 +632,7 @@
             addrEl.style.display = 'flex';
             addrEl.querySelector('span').textContent = fullAddr;
             // Véritable lien Google Maps universel sécurisé (https)
-            addrEl.href = `https://maps.google.com/?q=${encodeURIComponent(fullAddr)}`;
-        } else {  
+            addrEl.href = `https://www.google.com/maps?q=${encodeURIComponent(fullAddr)}`;  
             addrEl.style.display = 'none';
         }
         
