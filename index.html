@@ -130,11 +130,12 @@
 </div>
 
 <input type="file" id="global-uploader" style="display:none;" accept="image/*,application/pdf" capture="environment">
+<input type="file" id="json-uploader" style="display:none;" accept="application/json,.json">
 
 <div class="hd">
     <div class="hd-title">
         <img src="apple-touch-icon.png" alt="Logo" style="width:28px; height:28px; border-radius:6px; object-fit:cover; border:1px solid rgba(255,255,255,0.2);">
-        MyDiag - DPE <span style="font-size:11px; color:#94A3B8; font-weight:600; margin-left:4px; opacity:0.8;">v8.13</span>
+        MyDiag - DPE <span style="font-size:11px; color:#94A3B8; font-weight:600; margin-left:4px; opacity:0.8;">v8.14</span>
     </div>
     <div style="display:flex; align-items:center; gap:12px;">
         <div id="voyant-save" style="width:12px; height:12px; border-radius:50%; background-color:#475569; box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);"></div>
@@ -539,7 +540,9 @@
         
         <button class="btn-p" onclick="exportExcel()" style="background:var(--ok);">📊 EXPORTER EXCEL</button>
         <button class="btn-p" onclick="exportZip()" style="background:var(--warn); margin-top:12px;">📸 EXPORTER PHOTOS (ZIP)</button>
-        <button class="btn-p" onclick="exportData()" style="background:#475569; margin-top:24px;">📥 BACKUP JSON</button>
+        <button class="btn-p" onclick="exportData()" style="background:#475569; margin-top:24px;">📥 BACKUP JSON (sauvegarde complète)</button>
+        <button class="btn-p" onclick="importData()" style="background:#64748B; margin-top:12px;">📤 RESTAURER UN BACKUP JSON</button>
+        <div style="font-size:12px; color:var(--tx2); margin-top:10px; line-height:1.5;">Le backup JSON contient tout le projet (photos et plans inclus). Utilisez-le pour transférer un dossier vers un autre appareil ou le récupérer après un reset.</div>
         
         <hr style="border:0; border-top:1px solid var(--bor); margin:32px 0 24px;">
         <div style="font-size:14px; color:var(--tx2); margin-bottom:16px; font-weight:800; text-transform:uppercase;">✉️ Communications</div>
@@ -620,7 +623,7 @@
 
         <div style="margin-top:40px; padding:20px; background:var(--tx); border-radius:16px; text-align:center;">
             <div style="color:white; font-weight:700; font-size:15px;">Prêt à révolutionner vos diagnostics ?</div>
-            <div style="color:#94A3B8; font-size:12px; margin-top:5px;">Version 8.13 • L'outil pensé pour le terrain.</div>
+            <div style="color:#94A3B8; font-size:12px; margin-top:5px;">Version 8.14 • L'outil pensé pour le terrain.</div>
         </div>
     </div>
 </div>
@@ -1842,7 +1845,26 @@ function getShortMat(mat) {
         if(type && lh && diam) { if(type.value === 'Hublot') { lh.style.display = 'none'; diam.style.display = 'block'; } else { lh.style.display = 'block'; diam.style.display = 'none'; } }
     }
 
-    function exportData() { const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(db)); const a = document.createElement('a'); a.setAttribute("href", dataStr); a.setAttribute("download", "MyDiag_Backup_" + Date.now() + ".json"); document.body.appendChild(a); a.click(); a.remove(); }
+    function exportData() { const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(db)); const a = document.createElement('a'); a.setAttribute("href", dataStr); const d = new Date(); a.setAttribute("download", `MyDiag_Backup_${db.copro.ref||'Projet'}_${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}.json`); document.body.appendChild(a); a.click(); a.remove(); }
+
+    window.importData = function() { document.getElementById('json-uploader').click(); };
+    document.getElementById('json-uploader').onchange = function(e) {
+        const file = e.target.files[0]; if(!file) return;
+        const reader = new FileReader();
+        reader.onload = async function(ev) {
+            try {
+                const data = JSON.parse(ev.target.result);
+                if (!data || typeof data !== 'object' || !Array.isArray(data.appts) || !Array.isArray(data.murs)) { alert("Fichier invalide : ce n'est pas un backup MyDiag."); return; }
+                const nomProjet = (data.copro && data.copro.nom) || (data.copro && data.copro.ref) || "Projet sans nom";
+                if (!confirm(`Restaurer ce backup ?\n\n📁 ${nomProjet} — ${data.appts.length} lot(s), ${data.murs.length} mur(s)\n\n⚠️ Les données actuellement sur cet appareil seront remplacées.`)) return;
+                db = data;
+                await localforage.setItem('mydiag_v8_10', db);
+                location.reload();
+            } catch(err) { alert("Impossible de lire ce fichier : JSON illisible ou corrompu."); }
+        };
+        reader.readAsText(file);
+        e.target.value = '';
+    };
 
     // Traducteur pour générer le code simplifié Annalyssimmo
     function genererCodeFen(f) {
