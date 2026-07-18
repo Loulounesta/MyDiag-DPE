@@ -134,7 +134,7 @@
 <div class="hd">
     <div class="hd-title">
         <img src="apple-touch-icon.png" alt="Logo" style="width:28px; height:28px; border-radius:6px; object-fit:cover; border:1px solid rgba(255,255,255,0.2);">
-        MyDiag - DPE <span style="font-size:11px; color:#94A3B8; font-weight:600; margin-left:4px; opacity:0.8;">v8.12</span>
+        MyDiag - DPE <span style="font-size:11px; color:#94A3B8; font-weight:600; margin-left:4px; opacity:0.8;">v8.13</span>
     </div>
     <div style="display:flex; align-items:center; gap:12px;">
         <div id="voyant-save" style="width:12px; height:12px; border-radius:50%; background-color:#475569; box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);"></div>
@@ -196,6 +196,7 @@
         <div class="fr"><span class="fl">Ville</span><input type="text" id="copro-ville" placeholder="Ville" oninput="saveCoproData()"></div>        <div class="fr"><span class="fl">Année constr.</span><input type="number" inputmode="numeric" pattern="[0-9]*" id="copro-annee" placeholder="ex: 1975" oninput="saveCoproData()"></div>
         <div class="fr"><span class="fl">Nb bâtiments</span><input type="number" inputmode="numeric" pattern="[0-9]*" id="copro-batiments" placeholder="ex: 3" oninput="saveCoproData(); updateBatimentOptions('apt-bat');"></div>
         <div class="fr"><span class="fl">Nb d'étages</span><input type="number" inputmode="numeric" pattern="[0-9]*" id="copro-etages" placeholder="ex: 4" oninput="saveCoproData(); updateEtageOptions('apt-etage');"></div>
+        <div class="fr"><span class="fl">Surf. communs (m²)</span><input type="number" inputmode="decimal" step="any" id="copro-surfcommuns" placeholder="via plan ou saisie" oninput="saveCoproData()"></div>
     </div>
 
     <div class="coll-acc-hd" onclick="toggleAcc('docs-acc', this)"><span>📂 Documents & Justificatifs</span> <span style="color:var(--acc);">▼</span></div>
@@ -619,7 +620,7 @@
 
         <div style="margin-top:40px; padding:20px; background:var(--tx); border-radius:16px; text-align:center;">
             <div style="color:white; font-weight:700; font-size:15px;">Prêt à révolutionner vos diagnostics ?</div>
-            <div style="color:#94A3B8; font-size:12px; margin-top:5px;">Version 8.12 • L'outil pensé pour le terrain.</div>
+            <div style="color:#94A3B8; font-size:12px; margin-top:5px;">Version 8.13 • L'outil pensé pour le terrain.</div>
         </div>
     </div>
 </div>
@@ -768,7 +769,8 @@ function renderBureauList() {
             ville: document.getElementById('copro-ville').value,
             annee: document.getElementById('copro-annee').value, 
             batiments: document.getElementById('copro-batiments').value, 
-            etages: document.getElementById('copro-etages').value
+            etages: document.getElementById('copro-etages').value,
+            surfcommuns: document.getElementById('copro-surfcommuns').value
         };
         db.vmc.type = document.getElementById('vmc-type').value;
         db.vmc.periode = document.getElementById('vmc-periode').value;
@@ -867,19 +869,51 @@ function renderBureauList() {
         sauvegarderLocal();
     }
 
+    function upsertDoc(filename, b64) {
+        let existingIndex = db.docs.findIndex(d => d.name === filename);
+        if (existingIndex >= 0) db.docs[existingIndex].data = b64;
+        else db.docs.push({ id: Date.now(), name: filename, type: 'img', data: b64 });
+    }
+
     window.exporterCroquis = function() {
         const canvas = document.getElementById('croquis-canvas'); if(!canvas) return;
         const b64 = canvas.toDataURL('image/png');
         let filename = "";
         if (curAppt === 'copro') { filename = `Croquis_Copro_PartiesCommunes.png`; }
         else { let aptObj = db.appts.find(a => a.id === curAppt); filename = `Croquis_${aptObj ? aptObj.num : 'Lot'}_N${curNivInt}.png`; }
-        
-        let existingIndex = db.docs.findIndex(d => d.name === filename);
-        if (existingIndex >= 0) db.docs[existingIndex].data = b64;
-        else db.docs.push({ id: Date.now(), name: filename, type: 'img', data: b64 });
-        
+        upsertDoc(filename, b64);
         sauvegarderLocal(); renderDocs();
         toast("Plan ajouté au dossier Copro 📁");
+    };
+
+    window.appliquerCroquis = function(area) {
+        const target = document.getElementById('croquis-apply-target').value;
+        const canvas = document.getElementById('croquis-canvas'); if(!canvas) return;
+        const b64 = canvas.toDataURL('image/png');
+        if (target === 'copro') {
+            db.copro.surfcommuns = area;
+            const input = document.getElementById('copro-surfcommuns'); if(input) input.value = area;
+            upsertDoc('Croquis_Copro_PartiesCommunes.png', b64);
+            toast(`Surface (${area} m²) + plan affectés aux parties communes ✓`);
+        } else {
+            const apt = db.appts.find(a => a.id === target); if(!apt) return;
+            if (!apt.surfs) apt.surfs = {};
+            apt.surfs[curNivInt] = parseFloat(area);
+            let tot = 0; for (let k in apt.surfs) tot += apt.surfs[k];
+            apt.surf = tot.toFixed(1);
+            if (!apt.plans) apt.plans = {};
+            apt.plans[curNivInt] = b64;
+            upsertDoc(`Croquis_${apt.num}_N${curNivInt}.png`, b64);
+            toast(`Surface N${curNivInt} (${area} m²) + plan affectés au lot ${apt.num} ✓`);
+        }
+        sauvegarderLocal(); renderDocs(); renderApptsList(); updateDashboard();
+    };
+
+    window.suppPlanAppt = function(aptId, niv) {
+        const apt = db.appts.find(a => a.id === aptId); if(!apt || !apt.plans) return;
+        delete apt.plans[niv];
+        db.docs = db.docs.filter(d => d.name !== `Croquis_${apt.num}_N${niv}.png`);
+        sauvegarderLocal(); renderDocs(); renderApptsList();
     };
 
     function renderDocs() {
@@ -900,7 +934,7 @@ function renderBureauList() {
         renderDocs();
         updateDashboard();
         // Ajout de copro-cp et copro-ville dans la boucle de chargement
-        ['copro-ref','copro-nom','copro-adresse','copro-cp','copro-ville','copro-annee','copro-batiments','copro-etages'].forEach(id => {
+        ['copro-ref','copro-nom','copro-adresse','copro-cp','copro-ville','copro-annee','copro-batiments','copro-etages','copro-surfcommuns'].forEach(id => {
             let k = id.replace('copro-',''); if(db.copro[k]) document.getElementById(id).value = db.copro[k];
         });
         peuplerSelects();
@@ -1308,22 +1342,14 @@ function getShortMat(mat) {
             txt = `<span style="color:var(--dan); font-weight:800;">⚠️ Écart fermeture : ${err.toFixed(2)} m</span><br><span style="color:var(--ok); font-weight:800;">Surface estimée : ${area.toFixed(1)} m²</span><br><button class="btn-xs" style="margin-top:12px; padding:10px 16px; background:var(--warn-l); color:var(--warn); border:1px solid #FDE68A; cursor:pointer;" onclick="fermerPolygone('${curAppt}', ${curX}, ${curY})">🔗 Fermer automatiquement</button>`;
             ctx.beginPath(); ctx.setLineDash([5, 5]); ctx.moveTo(endPx, endPy); ctx.lineTo(startPx, startPy); ctx.strokeStyle = '#EF4444'; ctx.lineWidth = 2; ctx.stroke(); ctx.setLineDash([]);
         } else {
-            txt = `<span style="color:var(--ok); font-size:14px; font-weight:800;">✅ Périmètre fermé</span><br><span style="font-size:15px; color:var(--tx);">Surface (Niveau ${curNivInt}) : <b>${area.toFixed(1)} m²</b></span>`;
+            let opts = `<option value="copro" ${curAppt === 'copro' ? 'selected' : ''}>🏢 Parties communes</option>`;
+            db.appts.forEach(a => { opts += `<option value="${a.id}" ${curAppt === a.id ? 'selected' : ''}>Lot ${a.num}</option>`; });
+            txt = `<span style="color:var(--ok); font-size:14px; font-weight:800;">✅ Périmètre fermé</span><br><span style="font-size:15px; color:var(--tx);">Surface (Niveau ${curNivInt}) : <b>${area.toFixed(1)} m²</b></span>
+                <div style="display:flex; gap:8px; margin-top:12px; align-items:center; justify-content:center; flex-wrap:wrap;">
+                    <select id="croquis-apply-target" style="padding:10px; border-radius:8px; border:1px solid var(--bor); font-weight:700; color:var(--tx); background:#fff; max-width:100%;">${opts}</select>
+                    <button class="btn-xs" style="background:var(--ok); color:#fff; padding:10px 14px;" onclick="appliquerCroquis(${area.toFixed(1)})">✔️ Appliquer surface + plan</button>
+                </div>`;
             ctx.beginPath(); ctx.moveTo(endPx, endPy); ctx.lineTo(startPx, startPy); ctx.strokeStyle = '#16A34A'; ctx.lineWidth = 2; ctx.stroke();
-            if (curAppt !== 'copro') {
-                let curAptObj = db.appts.find(a => a.id === curAppt);
-                if (curAptObj) {
-                    if (!curAptObj.surfs) curAptObj.surfs = {};
-                    curAptObj.surfs[curNivInt] = parseFloat(area.toFixed(1));
-                    let tot = 0; for(let k in curAptObj.surfs) tot += curAptObj.surfs[k];
-                    if (curAptObj.surf !== tot.toFixed(1)) {
-                        curAptObj.surf = tot.toFixed(1); sauvegarderLocal();
-                        let surfInput = document.querySelector(`#vw-appts input[value="${curAptObj.surf}"]`);
-                        if(surfInput) surfInput.value = curAptObj.surf;
-                        toast(`Surface N${curNivInt} reportée. Total : ${curAptObj.surf} m²`);
-                    }
-                }
-            }
         }
         msg.innerHTML = txt; if (curAppt !== 'copro') updateApptBadges(curAppt);
     }
@@ -1447,7 +1473,7 @@ function getShortMat(mat) {
         const src = db.appts.find(a => a.id === id); if(!src) return;
         let maxNum = 0; db.appts.forEach(apt => { let digits = apt.num.match(/\d+/); if(digits) { let n = parseInt(digits[0]); if(n > maxNum) maxNum = n; } });
         let newNumStr = "E" + String(maxNum + 1).padStart(2, '0');
-        const newId = String(Date.now()); const newApt = {...src, id: newId, num: newNumStr}; if (src.surfs) newApt.surfs = JSON.parse(JSON.stringify(src.surfs)); db.appts.push(newApt);
+        const newId = String(Date.now()); const newApt = {...src, id: newId, num: newNumStr}; if (src.surfs) newApt.surfs = JSON.parse(JSON.stringify(src.surfs)); if (src.plans) newApt.plans = {...src.plans}; db.appts.push(newApt);
         const cloneItems = (arrName, fk) => { const items = db[arrName].filter(x => x[fk] === id); items.forEach(item => { let clone = {...item, id: Date.now() + Math.random(), [fk]: newId}; db[arrName].push(clone); }); };
         cloneItems('murs', 'aid'); cloneItems('fens', 'aid'); cloneItems('portes', 'aid'); cloneItems('plfs', 'aid'); cloneItems('plas', 'aid'); cloneItems('chaufs', 'aptId'); cloneItems('ecss', 'aptId');
         curAppt = newId; curNivInt = 0; expAppts[newId] = true; sauvegarderLocal(); renderApptsList(); toast("Appartement dupliqué sous " + newNumStr + " ✓");
@@ -1572,7 +1598,17 @@ function getShortMat(mat) {
             if(isExp) {
                 const myC = db.chaufs.filter(c => c.aptId === a.id);
                 const myE = db.ecss.filter(e => e.aptId === a.id);
-                
+
+                let plansHtml = '';
+                if (a.plans && Object.keys(a.plans).length) {
+                    plansHtml = `<div style="display:flex; gap:10px; margin-bottom:12px; align-items:center; flex-wrap:wrap;"><span style="font-size:12px; font-weight:800; color:var(--tx2);">📐 Plans :</span>` +
+                        Object.keys(a.plans).map(n => `<div style="position:relative; display:inline-block;">
+                            <img src="${a.plans[n]}" class="thumb" style="width:64px; height:44px; margin:0;" onclick="viewImage(this.src)">
+                            <span style="position:absolute; bottom:-4px; left:-4px; background:var(--acc); color:#fff; font-size:9px; font-weight:800; padding:1px 5px; border-radius:6px;">N${n}</span>
+                            <span style="position:absolute; top:-6px; right:-6px; background:var(--dan); color:#fff; font-size:11px; font-weight:800; width:17px; height:17px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer;" onclick="suppPlanAppt('${a.id}', '${n}')">×</span>
+                        </div>`).join('') + `</div>`;
+                }
+
                 body = `<div class="appt-body open">
                     <div class="card" style="margin-bottom:10px; border-color:#CBD5E1;">
                         <div class="fr"><span class="fl">Identifiant</span><select onchange="updateApptField('${a.id}', 'num', this.value)">${getAptNumOptionsHtml(a.num)}</select></div>
@@ -1583,7 +1619,7 @@ function getShortMat(mat) {
                         <div class="fr"><span class="fl">Étage princ.</span><select onchange="updateApptEtageLive('${a.id}', this.value)">${getEtageOptionsHtml(a.etage)}</select></div>
                         <div class="fr"><span class="fl">Niveau ADN</span><select id="edit-niveau-${a.id}" onchange="updateApptField('${a.id}', 'niveau', this.value)"><option value="">—</option><option value="RDC" ${a.niveau==='RDC'?'selected':''}>RDC</option><option value="Intermédiaire" ${a.niveau==='Intermédiaire'?'selected':''}>Intermédiaire</option><option value="Dernier étage" ${a.niveau==='Dernier étage'?'selected':''}>Dernier étage</option></select></div>
                     </div>
-                    
+                    ${plansHtml}
                     <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:6px; margin-bottom:12px;">
                         <button class="qbtn" onclick="curAppt='${a.id}'; curNivInt=0; goTab('murs')">🧱 Murs</button>
                         <button class="qbtn" onclick="curAppt='${a.id}'; curNivInt=0; goTab('fen')">🪟 Fenêtres</button>
@@ -1865,7 +1901,7 @@ function getShortMat(mat) {
     function exportExcel() {
         if (typeof XLSX === 'undefined') return alert("La bibliothèque XLSX n'est pas chargée."); toast("Génération du fichier Excel..."); let wb = XLSX.utils.book_new(); 
         const getAptNum = (id) => { if(id === 'copro') return 'Communs'; let a = db.appts.find(x=>x.id===id); return a ? a.num : "Inconnu"; };
-        let coproData = [{ "Référence": db.copro.ref || "", "Nom": db.copro.nom || "", "Adresse": db.copro.adresse || "", "Code Postal": db.copro.cp || "", "Ville": db.copro.ville || "", "Année constr.": db.copro.annee || "", "Bâtiments": db.copro.batiments || "", "Étages": db.copro.etages || "", "VMC Type": db.vmc.type || "", "VMC Période": db.vmc.periode || "", "Chauff Col. Energie": db.chaufCol.energie || "", "Chauff Col. Générateur": db.chaufCol.gen || "", "Chauff Col. Emetteur": db.chaufCol.emetteur || "", "Chauff Col. Année": db.chaufCol.annee || "", "Chauff Col. Puissance": db.chaufCol.puissance || "", "ECS Col. Energie": db.ecsCol.energie || "", "ECS Col. Type": db.ecsCol.type || "", "ECS Col. Année": db.ecsCol.annee || "", "ECS Col. Volume": db.ecsCol.vol || "" }]; XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(coproData), "Copro");        let apptsData = db.appts.map(a => ({ "Lot": a.num, "Bâtiment": a.bat || "", "Type": a.type === 2 ? "Duplex" : a.type === 3 ? "Triplex" : "Plain-pied", "Étage": a.etage || "", "Niveau ADN": a.niveau || "", "Surface (m²)": a.surf || "", "HSP (m)": a.hsp || "" })); if(apptsData.length) XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(apptsData), "Appartements");
+        let coproData = [{ "Référence": db.copro.ref || "", "Nom": db.copro.nom || "", "Adresse": db.copro.adresse || "", "Code Postal": db.copro.cp || "", "Ville": db.copro.ville || "", "Année constr.": db.copro.annee || "", "Bâtiments": db.copro.batiments || "", "Étages": db.copro.etages || "", "Surface Communs (m²)": db.copro.surfcommuns || "", "VMC Type": db.vmc.type || "", "VMC Période": db.vmc.periode || "", "Chauff Col. Energie": db.chaufCol.energie || "", "Chauff Col. Générateur": db.chaufCol.gen || "", "Chauff Col. Emetteur": db.chaufCol.emetteur || "", "Chauff Col. Année": db.chaufCol.annee || "", "Chauff Col. Puissance": db.chaufCol.puissance || "", "ECS Col. Energie": db.ecsCol.energie || "", "ECS Col. Type": db.ecsCol.type || "", "ECS Col. Année": db.ecsCol.annee || "", "ECS Col. Volume": db.ecsCol.vol || "" }]; XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(coproData), "Copro");        let apptsData = db.appts.map(a => ({ "Lot": a.num, "Bâtiment": a.bat || "", "Type": a.type === 2 ? "Duplex" : a.type === 3 ? "Triplex" : "Plain-pied", "Étage": a.etage || "", "Niveau ADN": a.niveau || "", "Surface (m²)": a.surf || "", "HSP (m)": a.hsp || "" })); if(apptsData.length) XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(apptsData), "Appartements");
         let mursData = db.murs.map(m => ({ "Lot": getAptNum(m.aid), "Niveau (Duplex)": m.nivInt || 0, "Orientation": m.ori || "Auto", "Donne sur": m.donne || "", "Matériau": m.mat || "", "Longueur (m)": m.l || "", "Hauteur (m)": m.h || "", "Épaisseur (cm)": m.ep || "", "Doublage": m.doub || "ABSENT", "Isolant": m.iso || "", "Ép. Isolant (cm)": m.isoEp || "" })); if(mursData.length) XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(mursData), "Murs");
 let fensData = db.fens.map(f => ({ 
     "Lot": getAptNum(f.aid), 
