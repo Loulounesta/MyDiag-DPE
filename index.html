@@ -770,7 +770,18 @@ function renderBureauList() {
             batiments: document.getElementById('copro-batiments').value, 
             etages: document.getElementById('copro-etages').value
         };
-        updateDashboard(); 
+        db.vmc.type = document.getElementById('vmc-type').value;
+        db.vmc.periode = document.getElementById('vmc-periode').value;
+        db.chaufCol.energie = document.getElementById('col-chauf-energie').value;
+        db.chaufCol.gen = document.getElementById('col-chauf-gen').value;
+        db.chaufCol.emetteur = document.getElementById('col-chauf-emetteur').value;
+        db.chaufCol.annee = document.getElementById('col-chauf-annee').value;
+        db.chaufCol.puissance = document.getElementById('col-chauf-puissance').value;
+        db.ecsCol.energie = document.getElementById('col-ecs-energie').value;
+        db.ecsCol.type = document.getElementById('col-ecs-type').value;
+        db.ecsCol.annee = document.getElementById('col-ecs-annee').value;
+        db.ecsCol.vol = document.getElementById('col-ecs-vol').value;
+        updateDashboard();
         sauvegarderLocal();
     }
 
@@ -785,7 +796,7 @@ function renderBureauList() {
         if(tabId === 'accueil') updateDashboard();
         if(tabId === 'bim') renderBIM();
         if(tabId === 'totaux') renderTotauxTable();
-        if(tabId === 'bureau') renderBureauTarget(); renderBureauList();
+        if(tabId === 'bureau') { renderBureauTarget(); renderBureauList(); }
         if(['murs','fen','portes','plafonds','planchers'].includes(tabId)) {
             verifierAptActif(tabId);
             renderElementsList(tabId);
@@ -885,6 +896,7 @@ function renderBureauList() {
     window.onload = async () => {
         const data = await localforage.getItem('mydiag_v8_10');
         if(data) db = data;
+        db.vmc = db.vmc || {}; db.chaufCol = db.chaufCol || {}; db.ecsCol = db.ecsCol || {};
         renderDocs();
         updateDashboard();
         // Ajout de copro-cp et copro-ville dans la boucle de chargement
@@ -892,6 +904,25 @@ function renderBureauList() {
             let k = id.replace('copro-',''); if(db.copro[k]) document.getElementById(id).value = db.copro[k];
         });
         peuplerSelects();
+        if(db.vmc.type) document.getElementById('vmc-type').value = db.vmc.type;
+        if(db.vmc.periode) document.getElementById('vmc-periode').value = db.vmc.periode;
+        if(db.chaufCol.energie) {
+            document.getElementById('col-chauf-energie').value = db.chaufCol.energie;
+            updateChaufGen('col-chauf-energie', 'col-chauf-gen', 'col-chauf-emetteur');
+            document.getElementById('col-chauf-gen').value = db.chaufCol.gen || '';
+            document.getElementById('col-chauf-emetteur').value = db.chaufCol.emetteur || '';
+        }
+        document.getElementById('col-chauf-annee').value = db.chaufCol.annee || '';
+        document.getElementById('col-chauf-puissance').value = db.chaufCol.puissance || '';
+        if(db.ecsCol.energie) {
+            document.getElementById('col-ecs-energie').value = db.ecsCol.energie;
+            updateEcsGen('col-ecs-energie', 'col-ecs-type');
+            document.getElementById('col-ecs-type').value = db.ecsCol.type || '';
+        }
+        document.getElementById('col-ecs-annee').value = db.ecsCol.annee || '';
+        document.getElementById('col-ecs-vol').value = db.ecsCol.vol || '';
+        renderCoproPhotos();
+        renderApptsList();
         renderBibliFens();
     };
 
@@ -1302,12 +1333,28 @@ function getShortMat(mat) {
         fill('m-mat', ADN.MURS); fill('m-donne', ADN.DONNE_SUR_MURS); fill('f-type', ADN.FEN_TYPE); fill('f-mat', ADN.FEN_MATIERE); fill('f-vit', ADN.FEN_VITRAGE); fill('f-fer', ADN.FEN_FERMETURE); fill('p-type', ADN.PLAFONDS); fill('p-donne', ADN.DONNE_SUR_PLAFOND); fill('s-type', ADN.PLANCHERS); fill('s-donne', ADN.DONNE_SUR_PLANCHER); fill('bur-mat', ADN.MURS); fill('bur-donne', ADN.DONNE_SUR_MURS);
     }
 
-    function renderBibliFens() {
-        const sel = document.getElementById('f-bibli'); if(!sel) return;
-        let html = '<option value="">-- Modèles sauvegardés --</option>';
-        if(db.modelesFens) { db.modelesFens.forEach(m => { html += `<option value="${m.id}">${m.nom}</option>`; }); }
-        sel.innerHTML = html;
-    }
+    window.chargerModeleFen = function(id) {
+        if(!id) {
+            editParoiId = null;
+            document.getElementById('f-l').value = '';
+            document.getElementById('f-h').value = '';
+            document.getElementById('f-diam').value = '';
+            document.getElementById('btn-save-fens').textContent = "Enregistrer";
+            return;
+        }
+        const m = db.modelesFens.find(x => x.id === id); if(!m) return;
+        document.getElementById('f-ori').value = m.ori || 'Nord';
+        document.getElementById('f-type').value = m.type; toggleFenType();
+        document.getElementById('f-mat').value = m.mat;
+        document.getElementById('f-vit').value = m.vit;
+        document.getElementById('f-ep').value = m.ep || '';
+        document.getElementById('f-fer').value = m.fer;
+        document.getElementById('f-l').value = m.l || '';
+        document.getElementById('f-h').value = m.h || '';
+        document.getElementById('f-diam').value = m.diam || '';
+        document.getElementById('f-motifs').value = m.motifs || '1';
+        toast("Modèle chargé ✓");
+    };
 
     function renderBibliFens() {
         const cont = document.getElementById('f-bibli-container'); 
@@ -1401,7 +1448,7 @@ function getShortMat(mat) {
         let maxNum = 0; db.appts.forEach(apt => { let digits = apt.num.match(/\d+/); if(digits) { let n = parseInt(digits[0]); if(n > maxNum) maxNum = n; } });
         let newNumStr = "E" + String(maxNum + 1).padStart(2, '0');
         const newId = String(Date.now()); const newApt = {...src, id: newId, num: newNumStr}; if (src.surfs) newApt.surfs = JSON.parse(JSON.stringify(src.surfs)); db.appts.push(newApt);
-        const cloneItems = (arrName, fk) => { const items = db[arrName].filter(x => x[fk] === id); items.forEach(item => { let clone = {...item, id: Date.now() + Math.random(), [fk]: newId}; if(arrName === 'fens') { let maxFen = 0; db.fens.forEach(f => { if(f.nom) { let m = f.nom.match(/Fenêtre (\d+)/); if(m && parseInt(m[1]) > maxFen) maxFen = parseInt(m[1]); } }); clone.nom = "Fenêtre " + (maxFen + 1); db.fens.push(clone); } else { db[arrName].push(clone); } }); };
+        const cloneItems = (arrName, fk) => { const items = db[arrName].filter(x => x[fk] === id); items.forEach(item => { let clone = {...item, id: Date.now() + Math.random(), [fk]: newId}; db[arrName].push(clone); }); };
         cloneItems('murs', 'aid'); cloneItems('fens', 'aid'); cloneItems('portes', 'aid'); cloneItems('plfs', 'aid'); cloneItems('plas', 'aid'); cloneItems('chaufs', 'aptId'); cloneItems('ecss', 'aptId');
         curAppt = newId; curNivInt = 0; expAppts[newId] = true; sauvegarderLocal(); renderApptsList(); toast("Appartement dupliqué sous " + newNumStr + " ✓");
     }
@@ -1685,16 +1732,18 @@ function getShortMat(mat) {
                 renderBibliFens(); 
             }
             
-            if (!editParoiId) { 
-                let maxFen = 0; db.fens.forEach(f => { if(f.nom) { let m = f.nom.match(/Fenêtre (\d+)/); if(m && parseInt(m[1]) > maxFen) maxFen = parseInt(m[1]); } }); 
-                el.nom = "Fenêtre " + (maxFen + 1); 
+            if (!editParoiId) {
+                el.nom = "F" + (db.modelesFens.indexOf(existingMod) + 1);
             }
             el.ori = fori; el.type = ftype; el.mat = fmat; el.vit = fvit; el.ep = fep; el.fer = ffer; el.l = fl; el.h = fh; el.diam = fdiam; el.surf = fsurf; el.nb = document.getElementById('f-nb').value; el.motifs = fmotifs;        } else if (type === 'portes') { el.type = document.getElementById('po-type').value; el.mat = document.getElementById('po-mat').value; el.donne = document.getElementById('po-donne').value; el.iso = document.getElementById('po-iso').value; el.sas = document.getElementById('po-sas').value; el.l = document.getElementById('po-l').value; el.h = document.getElementById('po-h').value; } else if (type === 'plfs') { el.type = document.getElementById('p-type').value; el.donne = document.getElementById('p-donne').value; el.l = document.getElementById('p-l').value; el.larg = document.getElementById('p-larg').value; el.s = document.getElementById('p-s').value; el.iso = document.getElementById('p-iso').value; el.isoEp = document.getElementById('p-iso-ep').value;} else if (type === 'plas') { el.type = document.getElementById('s-type').value; el.donne = document.getElementById('s-donne').value; el.l = document.getElementById('s-l').value; el.larg = document.getElementById('s-larg').value; el.s = document.getElementById('s-s').value; el.iso = document.getElementById('s-iso').value; el.isoEp = document.getElementById('s-iso-ep').value;}
-            // On retrouve l'index du modèle pour le nommer F1, F2...
-            let modIndex = db.modelesFens.findIndex(m => m.type === ftype && m.mat === fmat && m.vit === fvit && m.ep === fep && m.fer === ffer && m.l === fl && m.h === fh && m.diam === fdiam && m.ori === fori && m.motifs === fmotifs);
-            if (!editParoiId) { 
-                el.nom = "F" + (modIndex + 1); 
-            }        
+        if(!editParoiId) db[type].push(el);
+        editParoiId = null;
+        const btnLabels = { murs: ['btn-save-murs', 'Enregistrer ce mur'], fens: ['btn-save-fens', 'Enregistrer'], portes: ['btn-save-portes', 'Enregistrer'], plfs: ['btn-save-plfs', 'Enregistrer'], plas: ['btn-save-plas', 'Enregistrer'] };
+        document.getElementById(btnLabels[type][0]).textContent = btnLabels[type][1];
+        sauvegarderLocal();
+        renderElementsList(type);
+        if(curAppt !== 'copro') updateApptBadges(curAppt);
+
         // --- LOGIQUE DE MÉMOIRE : On ne vide que les dimensions pour l'élément suivant ---
         if(type === 'murs') { 
             document.getElementById('m-l').value = ''; // On garde HSP, Matière, Epaisseur, etc.
@@ -1716,10 +1765,10 @@ function getShortMat(mat) {
 
     function editerParoi(type, id) {
         editParoiId = id; const p = db[type].find(x => x.id === id);
-        if(type === 'murs') { document.getElementById('m-ori').value = p.ori; document.getElementById('m-donne').value = p.donne; document.getElementById('m-mat').value = p.mat; document.getElementById('m-l').value = p.l; document.getElementById('m-h').value = p.h; document.getElementById('m-ep').value = p.ep || ''; document.getElementById('m-doub').value = p.doub || 'ABSENT'; document.getElementById('m-iso').value = p.iso || 'Non'; document.getElementById('m-iso-ep').value = p.isoEp || ''; document.getElementById('btn-save-murs').textContent = "Modifier ce mur"; } else if (type === 'fens') { document.getElementById('f-bibli').value = ''; document.getElementById('f-ori').value = p.ori || 'Nord'; document.getElementById('f-type').value = p.type; toggleFenType(); document.getElementById('f-mat').value = p.mat; document.getElementById('f-vit').value = p.vit; document.getElementById('f-ep').value = p.ep || ''; document.getElementById('f-fer').value = p.fer; document.getElementById('f-l').value = p.l || ''; document.getElementById('f-h').value = p.h || ''; if(document.getElementById('f-diam')) document.getElementById('f-diam').value = p.diam || ''; document.getElementById('f-nb').value = p.nb || '1'; document.getElementById('f-motifs').value = p.motifs || '1'; document.getElementById('btn-save-fens').textContent = "Modifier cette fenêtre"; } else if (type === 'portes') { document.getElementById('po-type').value = p.type || 'Porte opaque pleine'; document.getElementById('po-mat').value = p.mat || 'Bois'; document.getElementById('po-donne').value = p.donne || 'Extérieur'; document.getElementById('po-iso').value = p.iso || 'Non isolée / Inconnue'; document.getElementById('po-sas').value = p.sas || 'Non'; document.getElementById('po-l').value = p.l || ''; document.getElementById('po-h').value = p.h || ''; document.getElementById('btn-save-portes').textContent = "Modifier cette porte"; } else if (type === 'plfs') { document.getElementById('p-type').value = p.type; document.getElementById('p-donne').value = p.donne; document.getElementById('p-l').value = p.l || ''; document.getElementById('p-larg').value = p.larg || ''; document.getElementById('p-s').value = p.s || ''; document.getElementById('p-iso').value = p.iso || 'Non'; document.getElementById('p-iso-ep').value = p.isoEp || ''; document.getElementById('btn-save-plfs').textContent = "Modifier ce plafond"; } else if (type === 'plas') { document.getElementById('s-type').value = p.type; document.getElementById('s-donne').value = p.donne; document.getElementById('s-l').value = p.l || ''; document.getElementById('s-larg').value = p.larg || ''; document.getElementById('s-s').value = p.s || ''; document.getElementById('s-iso').value = p.iso || 'Non'; document.getElementById('s-iso-ep').value = p.isoEp || ''; document.getElementById('btn-save-plas').textContent = "Modifier ce plancher"; } window.scrollTo(0,0);
+        if(type === 'murs') { document.getElementById('m-ori').value = p.ori; document.getElementById('m-donne').value = p.donne; document.getElementById('m-mat').value = p.mat; document.getElementById('m-l').value = p.l; document.getElementById('m-h').value = p.h; document.getElementById('m-ep').value = p.ep || ''; document.getElementById('m-doub').value = p.doub || 'ABSENT'; document.getElementById('m-iso').value = p.iso || 'Non'; document.getElementById('m-iso-ep').value = p.isoEp || ''; document.getElementById('btn-save-murs').textContent = "Modifier ce mur"; } else if (type === 'fens') { document.getElementById('f-ori').value = p.ori || 'Nord'; document.getElementById('f-type').value = p.type; toggleFenType(); document.getElementById('f-mat').value = p.mat; document.getElementById('f-vit').value = p.vit; document.getElementById('f-ep').value = p.ep || ''; document.getElementById('f-fer').value = p.fer; document.getElementById('f-l').value = p.l || ''; document.getElementById('f-h').value = p.h || ''; if(document.getElementById('f-diam')) document.getElementById('f-diam').value = p.diam || ''; document.getElementById('f-nb').value = p.nb || '1'; document.getElementById('f-motifs').value = p.motifs || '1'; document.getElementById('btn-save-fens').textContent = "Modifier cette fenêtre"; } else if (type === 'portes') { document.getElementById('po-type').value = p.type || 'Porte opaque pleine'; document.getElementById('po-mat').value = p.mat || 'Bois'; document.getElementById('po-donne').value = p.donne || 'Extérieur'; document.getElementById('po-iso').value = p.iso || 'Non isolée / Inconnue'; document.getElementById('po-sas').value = p.sas || 'Non'; document.getElementById('po-l').value = p.l || ''; document.getElementById('po-h').value = p.h || ''; document.getElementById('btn-save-portes').textContent = "Modifier cette porte"; } else if (type === 'plfs') { document.getElementById('p-type').value = p.type; document.getElementById('p-donne').value = p.donne; document.getElementById('p-l').value = p.l || ''; document.getElementById('p-larg').value = p.larg || ''; document.getElementById('p-s').value = p.s || ''; document.getElementById('p-iso').value = p.iso || 'Non'; document.getElementById('p-iso-ep').value = p.isoEp || ''; document.getElementById('btn-save-plfs').textContent = "Modifier ce plafond"; } else if (type === 'plas') { document.getElementById('s-type').value = p.type; document.getElementById('s-donne').value = p.donne; document.getElementById('s-l').value = p.l || ''; document.getElementById('s-larg').value = p.larg || ''; document.getElementById('s-s').value = p.s || ''; document.getElementById('s-iso').value = p.iso || 'Non'; document.getElementById('s-iso-ep').value = p.isoEp || ''; document.getElementById('btn-save-plas').textContent = "Modifier ce plancher"; } window.scrollTo(0,0);
     }
 
-    function clonerParoi(type, id) { const src = db[type].find(x => x.id === id); if(!src) return; const clone = {...src, id: Date.now() + Math.random(), nivInt: curNivInt}; if (type === 'fens') { let maxFen = 0; db.fens.forEach(f => { if(f.nom) { let m = f.nom.match(/Fenêtre (\d+)/); if(m && parseInt(m[1]) > maxFen) maxFen = parseInt(m[1]); } }); clone.nom = "Fenêtre " + (maxFen + 1); } db[type].push(clone); sauvegarderLocal(); renderElementsList(type); if(type === 'murs') drawCroquis(); toast("Élément cloné ✓"); }
+    function clonerParoi(type, id) { const src = db[type].find(x => x.id === id); if(!src) return; const clone = {...src, id: Date.now() + Math.random(), nivInt: curNivInt}; db[type].push(clone); sauvegarderLocal(); renderElementsList(type); if(type === 'murs') drawCroquis(); toast("Élément cloné ✓"); }
     function suppElement(type, id) { db[type] = db[type].filter(x => x.id !== id); sauvegarderLocal(); renderElementsList(type); if(type === 'murs') drawCroquis(); }
     
     function renderElementsList(tabId) {
@@ -1816,7 +1865,7 @@ function getShortMat(mat) {
     function exportExcel() {
         if (typeof XLSX === 'undefined') return alert("La bibliothèque XLSX n'est pas chargée."); toast("Génération du fichier Excel..."); let wb = XLSX.utils.book_new(); 
         const getAptNum = (id) => { if(id === 'copro') return 'Communs'; let a = db.appts.find(x=>x.id===id); return a ? a.num : "Inconnu"; };
-        let coproData = [{ "Référence": db.copro.ref || "", "Nom": db.copro.nom || "", "Adresse": db.copro.adresse || "", "Code Postal": db.copro.cp || "", "Ville": db.copro.ville || "", "Année constr.": db.copro.annee || "", "Bâtiments": db.copro.batiments || "", "Étages": db.copro.etages || "", "VMC Type": db.vmc.type || "", "VMC Période": db.vmc.periode || "", "Chauff Col. Energie": db.chaufCol.energie || "", "Chauff Col. Générateur": db.chaufCol.gen || "", "Chauff Col. Emetteur": db.chaufCol.emetteur || "", "Chauff Col. Année": db.chaufCol.annee || "", "Chauff Col. Puissance": db.chaufCol.puissance || "", "ECS Col. Energie": db.ecsCol.energie || "", "ECS Col. Type": db.ecsCol.type || "", "ECS Col. Année": db.ecsCol.annee || "", "ECS Col. Volume": db.ecsCol.vol || "" }];        let apptsData = db.appts.map(a => ({ "Lot": a.num, "Bâtiment": a.bat || "", "Type": a.type === 2 ? "Duplex" : a.type === 3 ? "Triplex" : "Plain-pied", "Étage": a.etage || "", "Niveau ADN": a.niveau || "", "Surface (m²)": a.surf || "", "HSP (m)": a.hsp || "" })); if(apptsData.length) XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(apptsData), "Appartements");
+        let coproData = [{ "Référence": db.copro.ref || "", "Nom": db.copro.nom || "", "Adresse": db.copro.adresse || "", "Code Postal": db.copro.cp || "", "Ville": db.copro.ville || "", "Année constr.": db.copro.annee || "", "Bâtiments": db.copro.batiments || "", "Étages": db.copro.etages || "", "VMC Type": db.vmc.type || "", "VMC Période": db.vmc.periode || "", "Chauff Col. Energie": db.chaufCol.energie || "", "Chauff Col. Générateur": db.chaufCol.gen || "", "Chauff Col. Emetteur": db.chaufCol.emetteur || "", "Chauff Col. Année": db.chaufCol.annee || "", "Chauff Col. Puissance": db.chaufCol.puissance || "", "ECS Col. Energie": db.ecsCol.energie || "", "ECS Col. Type": db.ecsCol.type || "", "ECS Col. Année": db.ecsCol.annee || "", "ECS Col. Volume": db.ecsCol.vol || "" }]; XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(coproData), "Copro");        let apptsData = db.appts.map(a => ({ "Lot": a.num, "Bâtiment": a.bat || "", "Type": a.type === 2 ? "Duplex" : a.type === 3 ? "Triplex" : "Plain-pied", "Étage": a.etage || "", "Niveau ADN": a.niveau || "", "Surface (m²)": a.surf || "", "HSP (m)": a.hsp || "" })); if(apptsData.length) XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(apptsData), "Appartements");
         let mursData = db.murs.map(m => ({ "Lot": getAptNum(m.aid), "Niveau (Duplex)": m.nivInt || 0, "Orientation": m.ori || "Auto", "Donne sur": m.donne || "", "Matériau": m.mat || "", "Longueur (m)": m.l || "", "Hauteur (m)": m.h || "", "Épaisseur (cm)": m.ep || "", "Doublage": m.doub || "ABSENT", "Isolant": m.iso || "", "Ép. Isolant (cm)": m.isoEp || "" })); if(mursData.length) XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(mursData), "Murs");
 let fensData = db.fens.map(f => ({ 
     "Lot": getAptNum(f.aid), 
