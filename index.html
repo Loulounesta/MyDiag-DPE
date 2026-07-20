@@ -709,7 +709,7 @@
 <div class="hd">
     <div class="hd-title">
         <img src="apple-touch-icon.png" alt="Logo" style="width:28px; height:28px; border-radius:6px; object-fit:cover; border:1px solid rgba(255,255,255,0.2);">
-        MyDiag - DPE <span style="font-size:11px; color:#94A3B8; font-weight:600; margin-left:4px; opacity:0.8;">v8.18</span>
+        MyDiag - DPE <span style="font-size:11px; color:#94A3B8; font-weight:600; margin-left:4px; opacity:0.8;">v8.18.1</span>
     </div>
     <div style="display:flex; align-items:center; gap:12px;">
         <div id="voyant-save" style="width:12px; height:12px; border-radius:50%; background-color:#475569; box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);"></div>
@@ -1400,9 +1400,14 @@
             Générez instantanément votre fichier <b>Excel structuré</b>, votre <b>ZIP de photos classées</b> et votre <b>Sauvegarde JSON</b>. Votre dossier est prêt pour la certification avant même d'avoir quitté le terrain.
         </p>
 
-        <div style="margin-top:40px; padding:20px; background:var(--tx); border-radius:16px; text-align:center;">
+        <div style="margin-top:30px; padding:16px; background:#F8FAFC; border:1px solid var(--bor); border-radius:12px;">
+            <div style="font-size:12px; font-weight:900; color:var(--tx2); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:10px;">📶 État de l'application</div>
+            <div id="statut-horsligne" style="font-size:13px; color:var(--tx); line-height:1.9;">Chargement…</div>
+        </div>
+
+        <div style="margin-top:24px; padding:20px; background:var(--tx); border-radius:16px; text-align:center;">
             <div style="color:white; font-weight:700; font-size:15px;">Prêt à révolutionner vos diagnostics ?</div>
-            <div style="color:#94A3B8; font-size:12px; margin-top:5px;">Version 8.18 • L'outil pensé pour le terrain.</div>
+            <div style="color:#94A3B8; font-size:12px; margin-top:5px;">Version 8.18.1 • L'outil pensé pour le terrain.</div>
         </div>
     </div>
 </div>
@@ -1477,8 +1482,7 @@ function renderBureauList() {
     cont.innerHTML = sortedMurs.map(x => {
         let aptObj = db.appts.find(a => a.id === x.aid);
         let lotName = x.aid === 'copro' ? '🏢 Communs' : `🚪 Lot ${aptObj ? aptObj.num : '?'}`;
-        let shortMat = getShortMat(x.mat);
-        
+
         return `
         <div class="item-row" style="padding:10px; align-items:center;">
             <div style="width:90px; flex-shrink:0;">
@@ -1493,8 +1497,35 @@ function renderBureauList() {
     }).join('');
 }
     // --- VARIABLES ET BASE ---
-    const APP_VERSION = '8.18';
-    if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js').catch(() => {}); }
+    const APP_VERSION = '8.18.1';
+    const CACHE_VERSION = 'mydiag-v8-18-1';
+    let swReady = false;
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('sw.js')
+            .then(() => { console.log('Service worker actif'); swReady = true; majStatutHorsLigne(); })
+            .catch(err => { console.error('Service worker indisponible', err); majStatutHorsLigne(); });
+    }
+    window.addEventListener('online', majStatutHorsLigne);
+    window.addEventListener('offline', majStatutHorsLigne);
+
+    async function majStatutHorsLigne() {
+        const el = document.getElementById('statut-horsligne'); if(!el) return;
+        const enLigne = navigator.onLine;
+        let stockage = '';
+        try {
+            if (navigator.storage && navigator.storage.estimate) {
+                const est = await navigator.storage.estimate();
+                const usedMo = (est.usage/1048576).toFixed(0);
+                const quotaMo = (est.quota/1048576).toFixed(0);
+                stockage = `<div>💾 Stockage utilisé : <b>${usedMo} Mo</b> / ~${quotaMo} Mo</div>`;
+            }
+        } catch(e) {}
+        el.innerHTML = `
+            <div>${enLigne ? '🟢 En ligne' : '✈️ Hors ligne'}</div>
+            <div>${swReady ? '✅ Mode hors ligne prêt' : '⏳ Cache en préparation (ouvrez l\'app une fois avec Internet)'}</div>
+            <div>📦 Version cache : <b>${CACHE_VERSION}</b> · App v${APP_VERSION}</div>
+            ${stockage}`;
+    }
     let db = {copro:{}, docs:[], vmc:{}, chaufCol:{}, ecsCol:{}, appts:[], chaufs:[], ecss:[], murs:[], fens:[], modelesFens:[], portes:[], plfs:[], plas:[]};
     let tempPhotos = { chauf: {}, ecs: {} }; 
     let expAppts = {};
@@ -1609,6 +1640,7 @@ function renderBureauList() {
         if (tabEl) tabEl.classList.add('on');
         
         if(tabId === 'accueil') updateDashboard();
+        if(tabId === 'aide') majStatutHorsLigne();
         if(tabId === 'bim') renderBIM();
         if(tabId === 'totaux') renderTotauxTable();
         if(tabId === 'bureau') { renderBureauTarget(); renderBureauList(); }
@@ -1645,8 +1677,10 @@ function renderBureauList() {
 
     document.getElementById('global-uploader').onchange = function(e) {
         const file = e.target.files[0]; if(!file) return;
+        const MAX_PDF_SIZE = 15 * 1024 * 1024;
         const reader = new FileReader();
         if (file.type === 'application/pdf') {
+            if (file.size > MAX_PDF_SIZE) { toast("PDF trop volumineux — maximum 15 Mo"); e.target.value = ''; return; }
             reader.onload = function(ev) { saveFileToTarget({ name: file.name, data: ev.target.result, isPdf: true }); };
             reader.readAsDataURL(file);
             e.target.value = '';
@@ -1755,8 +1789,23 @@ function renderBureauList() {
         setTimeout(() => URL.revokeObjectURL(url), 60000);
     };
 
+    function estimerPoidsMedias() {
+        let octets = 0;
+        const add = s => { if (s && typeof s === 'string') octets += s.length * 0.75; };
+        db.docs.forEach(d => add(d.data));
+        add(db.chaufCol && db.chaufCol.photo); add(db.ecsCol && db.ecsCol.photo);
+        db.chaufs.forEach(c => add(c.photo)); db.ecss.forEach(e => add(e.photo));
+        db.appts.forEach(a => { if (a.plans) Object.values(a.plans).forEach(add); });
+        return octets;
+    }
+
     function renderDocs() {
-        document.getElementById('list-docs').innerHTML = db.docs.map(d => `
+        const cont = document.getElementById('list-docs');
+        const poidsMo = estimerPoidsMedias() / 1048576;
+        let entete = `<div style="font-size:12px; font-weight:700; color:var(--tx2); margin-bottom:10px;">📎 ${db.docs.length} document(s) · ~${poidsMo.toFixed(1)} Mo de médias au total`;
+        if (poidsMo > 150) entete += `<div style="color:var(--dan); font-weight:800; margin-top:4px;">⚠️ Volume élevé — exportez un backup et videz les documents inutiles.</div>`;
+        entete += `</div>`;
+        cont.innerHTML = entete + db.docs.map(d => `
             <div class="item-row" style="align-items:center;">
                 ${d.type === 'pdf'
                     ? `<div class="thumb" style="display:flex; align-items:center; justify-content:center; font-size:20px; background:#FEF2F2; border-color:#FECACA; cursor:pointer;" onclick="ouvrirDoc(${d.id})">📄</div>`

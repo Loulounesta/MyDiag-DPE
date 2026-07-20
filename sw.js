@@ -1,6 +1,6 @@
 // Service worker MyDiag-DPE — stratégie "réseau d'abord, cache en secours"
 // pour rester à jour en ligne tout en fonctionnant hors connexion sur chantier.
-const CACHE = 'mydiag-v1';
+const CACHE = 'mydiag-v8-18-1';
 const ASSETS = [
   './',
   './index.html',
