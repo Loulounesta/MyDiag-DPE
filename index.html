@@ -109,7 +109,7 @@
         .tbl-container { overflow-x: auto; background: var(--sur); border-radius: var(--r); border: 1px solid var(--bor); box-shadow: 0 8px 24px rgba(15,23,42,0.04);}
         .tbl { width: 100%; border-collapse: collapse; font-size: 14px; }
         .tbl th { background: #F8FAFC; padding: 16px; text-align: left; border-bottom: 2px solid var(--bor); color: var(--tx2); font-weight: 800;}
-        .tbl td { padding: 16px; border-bottom: 1px solid var(--bor); white-space: nowrap; font-weight: 500;}
+        .tbl td { padding: 16px; border-bottom: 1px solid var(--bor); white-space: normal; min-width: 80px; font-weight: 500; vertical-align: top;}
 
         /* TIROIRS ACCORDEONS */
         .coll-acc-hd { display: flex; align-items: center; justify-content: space-between; padding: 16px; background: var(--sur); border-radius: var(--r); border: 1px solid var(--bor); margin-top: 12px; cursor: pointer; font-weight: 800; font-size: 14px; box-shadow: 0 4px 12px rgba(15,23,42,0.02); transition:0.2s;}
@@ -709,7 +709,7 @@
 <div class="hd">
     <div class="hd-title">
         <img src="apple-touch-icon.png" alt="Logo" style="width:28px; height:28px; border-radius:6px; object-fit:cover; border:1px solid rgba(255,255,255,0.2);">
-        MyDiag - DPE <span style="font-size:11px; color:#94A3B8; font-weight:600; margin-left:4px; opacity:0.8;">v8.17</span>
+        MyDiag - DPE <span style="font-size:11px; color:#94A3B8; font-weight:600; margin-left:4px; opacity:0.8;">v8.18</span>
     </div>
     <div style="display:flex; align-items:center; gap:12px;">
         <div id="voyant-save" style="width:12px; height:12px; border-radius:50%; background-color:#475569; box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);"></div>
@@ -1402,7 +1402,7 @@
 
         <div style="margin-top:40px; padding:20px; background:var(--tx); border-radius:16px; text-align:center;">
             <div style="color:white; font-weight:700; font-size:15px;">Prêt à révolutionner vos diagnostics ?</div>
-            <div style="color:#94A3B8; font-size:12px; margin-top:5px;">Version 8.17 • L'outil pensé pour le terrain.</div>
+            <div style="color:#94A3B8; font-size:12px; margin-top:5px;">Version 8.18 • L'outil pensé pour le terrain.</div>
         </div>
     </div>
 </div>
@@ -1485,7 +1485,7 @@ function renderBureauList() {
                 <span class="badge" style="background:#E2E8F0; color:#0F172A;">${lotName}</span>
             </div>
             <div style="flex:1; padding-left:10px; min-width:0;">
-                <div style="font-weight:800; font-size:13px; color:var(--tx);">${x.ori} | ${shortMat}</div>
+                <div style="font-weight:800; font-size:13px; color:var(--tx);">${x.ori} | ${x.mat || ''}</div>
                 <div style="font-size:12px; color:var(--tx2);">Dim: ${x.l}x${x.h}m ${x.iso!=='Non' ? '| Iso: '+x.iso : ''}</div>
             </div>
             <button class="btn-xs" style="color:var(--dan); background:var(--dan-l); padding:6px 10px;" onclick="if(confirm('Supprimer ce mur ?')){db.murs=db.murs.filter(m=>m.id!==${x.id}); sauvegarderLocal(); renderBureauList();}">❌</button>
@@ -1493,7 +1493,7 @@ function renderBureauList() {
     }).join('');
 }
     // --- VARIABLES ET BASE ---
-    const APP_VERSION = '8.17';
+    const APP_VERSION = '8.18';
     if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js').catch(() => {}); }
     let db = {copro:{}, docs:[], vmc:{}, chaufCol:{}, ecsCol:{}, appts:[], chaufs:[], ecss:[], murs:[], fens:[], modelesFens:[], portes:[], plfs:[], plas:[]};
     let tempPhotos = { chauf: {}, ecs: {} }; 
@@ -1902,16 +1902,13 @@ function renderBureauList() {
             totalSurf += parseFloat(d.surf);
             html += '<tr>';
             html += `<td><strong>${d.aptNum}</strong></td>`;
-            if(cat === 'murs') html += `<td>${d.ori||''}</td><td>${(d.mat||'').substring(0,15)}...</td><td>${d.l||''}</td><td>${d.h||''}</td>`;
+            if(cat === 'murs') html += `<td>${d.ori||''}</td><td>${d.mat||''}</td><td>${d.l||''}</td><td>${d.h||''}</td>`;
             else if (cat === 'fens') {
                 let dimStr = d.type === 'Hublot' ? `Ø${d.diam}cm` : `${d.l}x${d.h}cm`;
-                let shortFenMat = (d.mat||'').replace("Menuiserie ", "");
-                if(shortFenMat === "métallique avec rupture de pont thermique") shortFenMat = "Métal (avec RPT)";
-                if(shortFenMat === "métallique sans rupture de pont thermique") shortFenMat = "Métal (sans RPT)";
-                html += `<td>${d.ori||''}</td><td>${(d.type||'').substring(0,10)}..</td><td>${shortFenMat.substring(0,12)}..</td><td>${dimStr}</td><td>${d.nb||'1'}</td>`;
+                html += `<td>${d.ori||''}</td><td>${d.type||''}</td><td>${d.mat||''}</td><td>${dimStr}</td><td>${d.nb||'1'}</td>`;
             }
-            else if (cat === 'portes') html += `<td>${(d.type||'').substring(0,15)}..</td><td>${d.mat||''}</td><td>${d.l||''}</td><td>${d.h||''}</td>`;
-            else html += `<td>${(d.type||'').substring(0,15)}..</td><td>${(d.donne||'').substring(0,15)}..</td><td>${d.l||''}</td><td>${d.larg||''}</td>`;
+            else if (cat === 'portes') html += `<td>${d.type||''}</td><td>${d.mat||''}</td><td>${d.l||''}</td><td>${d.h||''}</td>`;
+            else html += `<td>${d.type||''}</td><td>${d.donne||''}</td><td>${d.l||''}</td><td>${d.larg||''}</td>`;
             html += `<td style="font-weight:900; color:var(--acc);">${d.surf}</td>`;
             html += '</tr>';
         });
@@ -2658,7 +2655,8 @@ function getShortMat(mat) {
             let dimText = ""; let titleText = x.mat || x.type;
             if (type === 'fens') {
                 if (x.type === 'Hublot') { dimText = `Ø: ${x.diam||'?'}cm (Surf: ${x.surf||'?'}m²) | Lame: ${x.ep||'?'}mm | Qté: ${x.nb||1} (Motifs: ${x.motifs||1})`; } else { dimText = `Dim: ${x.l||'?'}x${x.h||'?'}cm | Lame: ${x.ep||'?'}mm | Qté: ${x.nb||1} (Motifs: ${x.motifs||1})`; }
-                let shortFenMat = (x.mat || '').replace("Menuiserie ", ""); if(shortFenMat === "métallique avec rupture de pont thermique") shortFenMat = "Métal (avec RPT)"; if(shortFenMat === "métallique sans rupture de pont thermique") shortFenMat = "Métal (sans RPT)"; shortFenMat = shortFenMat.charAt(0).toUpperCase() + shortFenMat.slice(1); titleText = `${x.nom ? x.nom + ' - ' : ''}${shortFenMat}`;
+                titleText = `${x.nom ? x.nom + ' - ' : ''}${x.type || ''}`;
+                dimText = `${x.mat || ''} | ${x.vit || ''}<br>Fermeture : ${x.fer || 'Absence'}<br>` + dimText;
             } else if (type === 'plfs' || type === 'plas') { if (x.s) dimText = `Surf: ${x.s}m²`; else dimText = `Dim: ${x.l||'?'} x ${x.larg||'?'}m`; if(x.iso && x.iso !== 'Non') dimText += ` | Iso: ${x.iso}${x.isoEp ? ' '+x.isoEp+'cm' : ''}`;
             } else if (type === 'murs') { dimText = `Dim: ${x.l||'?'} x ${x.h||'?'}m`; if(x.ep) dimText += ` | Ep: ${x.ep}cm`; if(x.iso && x.iso !== 'Non') dimText += ` | Iso: ${x.iso}${x.isoEp ? ' '+x.isoEp+'cm' : ''}`; if (x.vectX !== undefined) titleText = "Mur (Fermeture auto)";
             } else if (type === 'portes') { dimText = `Dim: ${x.l||'?'} x ${x.h||'?'}m | Iso: ${x.iso||'Non'} | Sas: ${x.sas||'Non'}`; titleText = `${x.type} (${x.mat || '?'})`; }
