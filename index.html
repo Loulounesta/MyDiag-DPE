@@ -11,6 +11,7 @@
     
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
     <link rel="icon" type="image/png" href="apple-touch-icon.png">
+    <link rel="manifest" href="manifest.json">
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/localforage/1.10.0/localforage.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -708,7 +709,7 @@
 <div class="hd">
     <div class="hd-title">
         <img src="apple-touch-icon.png" alt="Logo" style="width:28px; height:28px; border-radius:6px; object-fit:cover; border:1px solid rgba(255,255,255,0.2);">
-        MyDiag - DPE <span style="font-size:11px; color:#94A3B8; font-weight:600; margin-left:4px; opacity:0.8;">v8.16</span>
+        MyDiag - DPE <span style="font-size:11px; color:#94A3B8; font-weight:600; margin-left:4px; opacity:0.8;">v8.17</span>
     </div>
     <div style="display:flex; align-items:center; gap:12px;">
         <div id="voyant-save" style="width:12px; height:12px; border-radius:50%; background-color:#475569; box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);"></div>
@@ -725,7 +726,7 @@
     <div class="tab" onclick="goTab('portes')">🚪 Portes</div>
     <div class="tab" onclick="goTab('plafonds')">🔝 Plafonds</div>
     <div class="tab" onclick="goTab('planchers')">🔽 Planchers</div>
-    <div class="tab" onclick="goTab('bim')">🏗️ Synthèse BIM</div>
+    <div class="tab" onclick="goTab('bim')">🏗️ Schéma Bâtiment</div>
     <div class="tab" onclick="goTab('totaux')">🧮 Totaux</div>
     <div class="tab" onclick="goTab('bureau')">🖥️ Mode Bureau</div>
     <div class="tab" onclick="goTab('export')">📤 Export</div>
@@ -939,6 +940,7 @@
             <div style="font-size:12px; font-weight:900; color:var(--acc); margin-bottom:10px; text-transform:uppercase; letter-spacing:0.6px;">
                 Pignon, façade, rampant, surface habitable
             </div>
+            <div style="font-size:11px; color:var(--tx2); margin-bottom:10px;">⚠️ Calcul valable pour une toiture symétrique à deux pentes identiques.</div>
 
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; margin-bottom:12px;">
                 <input type="number" inputmode="decimal" step="any" class="calc-input" id="calc-L" placeholder="L (Façade)" style="border-left:4px solid #0D9488;" oninput="runCalc()">
@@ -1400,7 +1402,7 @@
 
         <div style="margin-top:40px; padding:20px; background:var(--tx); border-radius:16px; text-align:center;">
             <div style="color:white; font-weight:700; font-size:15px;">Prêt à révolutionner vos diagnostics ?</div>
-            <div style="color:#94A3B8; font-size:12px; margin-top:5px;">Version 8.16 • L'outil pensé pour le terrain.</div>
+            <div style="color:#94A3B8; font-size:12px; margin-top:5px;">Version 8.17 • L'outil pensé pour le terrain.</div>
         </div>
     </div>
 </div>
@@ -1486,11 +1488,13 @@ function renderBureauList() {
                 <div style="font-weight:800; font-size:13px; color:var(--tx);">${x.ori} | ${shortMat}</div>
                 <div style="font-size:12px; color:var(--tx2);">Dim: ${x.l}x${x.h}m ${x.iso!=='Non' ? '| Iso: '+x.iso : ''}</div>
             </div>
-            <button class="btn-xs" style="color:var(--dan); background:var(--dan-l); padding:6px 10px;" onclick="db.murs=db.murs.filter(m=>m.id!==${x.id}); sauvegarderLocal(); renderBureauList();">❌</button>
+            <button class="btn-xs" style="color:var(--dan); background:var(--dan-l); padding:6px 10px;" onclick="if(confirm('Supprimer ce mur ?')){db.murs=db.murs.filter(m=>m.id!==${x.id}); sauvegarderLocal(); renderBureauList();}">❌</button>
         </div>`;
     }).join('');
 }
     // --- VARIABLES ET BASE ---
+    const APP_VERSION = '8.17';
+    if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js').catch(() => {}); }
     let db = {copro:{}, docs:[], vmc:{}, chaufCol:{}, ecsCol:{}, appts:[], chaufs:[], ecss:[], murs:[], fens:[], modelesFens:[], portes:[], plfs:[], plas:[]};
     let tempPhotos = { chauf: {}, ecs: {} }; 
     let expAppts = {};
@@ -1507,12 +1511,16 @@ function renderBureauList() {
         setTimeout(() => el.classList.remove('show'), 2500);
     }
 
-    async function sauvegarderLocal() { 
-        try { 
-            await localforage.setItem('mydiag_v8_10', db); 
-            let v = document.getElementById('voyant-save');
-            if(v) { v.classList.remove('saved-blink'); void v.offsetWidth; v.classList.add('saved-blink'); }
-        } catch (err) {}
+    async function sauvegarderLocal() {
+        let v = document.getElementById('voyant-save');
+        try {
+            await localforage.setItem('mydiag_v8_10', db);
+            if(v) { v.style.backgroundColor = ''; v.style.boxShadow = ''; v.classList.remove('saved-blink'); void v.offsetWidth; v.classList.add('saved-blink'); }
+        } catch (err) {
+            console.error('Sauvegarde locale impossible :', err);
+            if(v) { v.classList.remove('saved-blink'); v.style.backgroundColor = '#EF4444'; v.style.boxShadow = '0 0 12px #EF4444'; }
+            toast("⚠️ SAUVEGARDE IMPOSSIBLE — stockage saturé ? Exportez un backup JSON !");
+        }
     }
 
     // --- DASHBOARD ---
@@ -1638,27 +1646,35 @@ function renderBureauList() {
     document.getElementById('global-uploader').onchange = function(e) {
         const file = e.target.files[0]; if(!file) return;
         const reader = new FileReader();
+        if (file.type === 'application/pdf') {
+            reader.onload = function(ev) { saveFileToTarget({ name: file.name, data: ev.target.result, isPdf: true }); };
+            reader.readAsDataURL(file);
+            e.target.value = '';
+            return;
+        }
         reader.onload = function(ev) {
             const img = new Image();
             img.onload = function() {
                 const canvas = document.createElement('canvas');
-                const MAX_DIM = 1024;
+                const MAX_DIM = 1600;
                 let w = img.width, h = img.height;
                 let scale = Math.min(MAX_DIM/w, MAX_DIM/h);
                 if(scale < 1) { w *= scale; h *= scale; }
                 canvas.width = w; canvas.height = h;
                 canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-                const b64 = canvas.toDataURL('image/png');
+                const b64 = canvas.toDataURL('image/jpeg', 0.75);
                 saveFileToTarget({ name: file.name, data: b64 });
             };
             img.src = ev.target.result;
         };
         reader.readAsDataURL(file);
+        e.target.value = '';
     };
 
     function saveFileToTarget(f) {
         const t = currentUploadTarget;
-        if(t.type === 'doc') { db.docs.push({ id: Date.now(), name: f.name, type: 'img', data: f.data }); renderDocs(); } 
+        if (f.isPdf && t.type !== 'doc') { toast("Les PDF ne sont acceptés que dans Documents 📂"); return; }
+        if(t.type === 'doc') { db.docs.push({ id: Date.now(), name: f.name, type: f.isPdf ? 'pdf' : 'img', data: f.data }); renderDocs(); }
         else if (t.type === 'chaufCol') { db.chaufCol.photo = f.data; renderCoproPhotos(); }
         else if (t.type === 'ecsCol') { db.ecsCol.photo = f.data; renderCoproPhotos(); }
         else if (t.type === 'chaufIndTemp') { tempPhotos.chauf[t.id] = f.data; renderApptsList(); }
@@ -1715,18 +1731,38 @@ function renderBureauList() {
     };
 
     window.suppPlanAppt = function(aptId, niv) {
+        if(!confirm("Retirer ce plan du lot ?")) return;
         const apt = db.appts.find(a => a.id === aptId); if(!apt || !apt.plans) return;
         delete apt.plans[niv];
         db.docs = db.docs.filter(d => d.name !== `Croquis_${apt.num}_N${niv}.png`);
         sauvegarderLocal(); renderDocs(); renderApptsList();
     };
 
+    function esc(s) { return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+    function dataURLtoBlob(dataURL) {
+        const parts = dataURL.split(',');
+        const mime = parts[0].match(/data:([^;]+)/)[1];
+        const bin = atob(parts[1]); const arr = new Uint8Array(bin.length);
+        for (let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+        return new Blob([arr], { type: mime });
+    }
+
+    window.ouvrirDoc = function(id) {
+        const d = db.docs.find(x => x.id == id); if(!d) return;
+        const url = URL.createObjectURL(dataURLtoBlob(d.data));
+        window.open(url, '_blank');
+        setTimeout(() => URL.revokeObjectURL(url), 60000);
+    };
+
     function renderDocs() {
         document.getElementById('list-docs').innerHTML = db.docs.map(d => `
             <div class="item-row" style="align-items:center;">
-                <img src="${d.data}" class="thumb" onclick="viewImage(this.src)">
-                <div style="flex:1; margin-left:12px; font-size:12px; font-weight:bold;">${d.name}</div>
-                <button class="btn-xs" style="color:red;" onclick="db.docs=db.docs.filter(x=>x.id!=${d.id}); renderDocs(); sauvegarderLocal();">X</button>
+                ${d.type === 'pdf'
+                    ? `<div class="thumb" style="display:flex; align-items:center; justify-content:center; font-size:20px; background:#FEF2F2; border-color:#FECACA; cursor:pointer;" onclick="ouvrirDoc(${d.id})">📄</div>`
+                    : `<img src="${d.data}" class="thumb" onclick="viewImage(this.src)">`}
+                <div style="flex:1; margin-left:12px; font-size:12px; font-weight:bold; word-break:break-all;">${esc(d.name)}</div>
+                <button class="btn-xs" style="color:red;" onclick="if(confirm('Supprimer ce document ?')){db.docs=db.docs.filter(x=>x.id!=${d.id}); renderDocs(); sauvegarderLocal();}">X</button>
             </div>
         `).join('');
     }
@@ -1954,6 +1990,7 @@ function renderBureauList() {
             
             html += `<div style="font-size:12px; color:var(--tx2); margin-top:12px;">Extrapolation estimée Bâtiment (Basée sur ${nbEtagesDeclares} niveaux)</div>`;
             html += `<div style="font-size:20px; font-weight:900; color:#D97706;">~ ${surfEstimee.toFixed(0)} m²</div>`;
+            html += `<div style="font-size:11px; color:#B45309; margin-top:6px;">⚠️ Estimation indicative (moyenne des niveaux saisis × étages déclarés) — ne pas utiliser comme valeur certifiée.</div>`;
             html += `</div></div>`;
         });
         cont.innerHTML = html;
@@ -1967,7 +2004,7 @@ function renderBureauList() {
         let proj = parseFloat(document.getElementById('calc-proj').value) || 0;
         let resDiv = document.getElementById('calc-res');
 
-        if(isNaN(L) || isNaN(l) || isNaN(h) || isNaN(H) || H < h || (proj * 2) > l) { resDiv.style.display = 'none'; return; }
+        if(isNaN(L) || isNaN(l) || isNaN(h) || isNaN(H) || L <= 0 || l <= 0 || h < 0 || H <= 0 || proj < 0 || H < h || (proj * 2) > l) { resDiv.style.display = 'none'; return; }
         
         let l_plat = l - (2 * proj);
         if (l_plat < 0) l_plat = 0;
@@ -2378,7 +2415,7 @@ function getShortMat(mat) {
     
     function clonerChauf(id) { const src = db.chaufs.find(x => x.id === id); if(!src) return; db.chaufs.push({...src, id: Date.now() + Math.random()}); sauvegarderLocal(); document.getElementById('chauf-list-'+src.aptId).innerHTML = buildChaufListHTML(src.aptId); updateApptBadges(src.aptId); toast("Chauffage cloné ✓"); }
     function editerChauf(aptId, chaufId) { const c = db.chaufs.find(x => x.id === chaufId); document.getElementById(`ifc-energie-${aptId}`).value = c.energie; updateChaufGen(`ifc-energie-${aptId}`, `ifc-gen-${aptId}`, `ifc-emetteur-${aptId}`); setTimeout(() => { document.getElementById(`ifc-gen-${aptId}`).value = c.gen; document.getElementById(`ifc-emetteur-${aptId}`).value = c.emetteur; document.getElementById(`ifc-annee-${aptId}`).value = c.annee || ''; document.getElementById(`ifc-puissance-${aptId}`).value = c.puissance || ''; const btn = document.getElementById(`btn-chauf-${aptId}`); btn.textContent = "Modifier ce chauffage"; btn.setAttribute('data-edit-id', chaufId); document.getElementById(`acc-chauf-${aptId}`).classList.add('open'); }, 50); window.scrollTo(0, document.getElementById(`acc-chauf-${aptId}`).offsetTop - 100); }
-    function suppChauf(id, aptId) { db.chaufs = db.chaufs.filter(c => c.id !== id); sauvegarderLocal(); document.getElementById('chauf-list-'+aptId).innerHTML = buildChaufListHTML(aptId); updateApptBadges(aptId); }
+    function suppChauf(id, aptId) { if(!confirm("Supprimer ce chauffage ?")) return; db.chaufs = db.chaufs.filter(c => c.id !== id); sauvegarderLocal(); document.getElementById('chauf-list-'+aptId).innerHTML = buildChaufListHTML(aptId); updateApptBadges(aptId); }
 
     function ajouterEcs(aptId) {
         const e = document.getElementById('ife-energie-'+aptId).value; const t = document.getElementById('ife-type-'+aptId).value;
@@ -2393,7 +2430,7 @@ function getShortMat(mat) {
     
     function clonerEcs(id) { const src = db.ecss.find(x => x.id === id); if(!src) return; db.ecss.push({...src, id: Date.now() + Math.random()}); sauvegarderLocal(); document.getElementById('ecs-list-'+src.aptId).innerHTML = buildEcsListHTML(src.aptId); updateApptBadges(src.aptId); toast("ECS clonée ✓"); }
     function editerEcs(aptId, ecsId) { const e = db.ecss.find(x => x.id === ecsId); document.getElementById(`ife-energie-${aptId}`).value = e.energie; updateEcsGen(`ife-energie-${aptId}`, `ife-type-${aptId}`); setTimeout(() => { document.getElementById(`ife-type-${aptId}`).value = e.type; document.getElementById(`ife-annee-${aptId}`).value = e.annee || ''; document.getElementById(`ife-vol-${aptId}`).value = e.vol || ''; const btn = document.getElementById(`btn-ecs-${aptId}`); btn.textContent = "Modifier cette ECS"; btn.setAttribute('data-edit-id', ecsId); document.getElementById(`acc-ecs-${aptId}`).classList.add('open'); }, 50); window.scrollTo(0, document.getElementById(`acc-ecs-${aptId}`).offsetTop - 100); }
-    function suppEcs(id, aptId) { db.ecss = db.ecss.filter(e => e.id !== id); sauvegarderLocal(); document.getElementById('ecs-list-'+aptId).innerHTML = buildEcsListHTML(aptId); updateApptBadges(aptId); }
+    function suppEcs(id, aptId) { if(!confirm("Supprimer cette ECS ?")) return; db.ecss = db.ecss.filter(e => e.id !== id); sauvegarderLocal(); document.getElementById('ecs-list-'+aptId).innerHTML = buildEcsListHTML(aptId); updateApptBadges(aptId); }
 
     function renderApptsList() {
         const cont = document.getElementById('appts-liste'); document.getElementById('appts-count-lbl').textContent = db.appts.length + " appartement(s)";
@@ -2610,7 +2647,7 @@ function getShortMat(mat) {
     }
 
     function clonerParoi(type, id) { const src = db[type].find(x => x.id === id); if(!src) return; const clone = {...src, id: Date.now() + Math.random(), nivInt: curNivInt}; db[type].push(clone); sauvegarderLocal(); renderElementsList(type); if(type === 'murs') drawCroquis(); toast("Élément cloné ✓"); }
-    function suppElement(type, id) { db[type] = db[type].filter(x => x.id !== id); sauvegarderLocal(); renderElementsList(type); if(type === 'murs') drawCroquis(); }
+    function suppElement(type, id) { if(!confirm("Supprimer cet élément ?")) return; db[type] = db[type].filter(x => x.id !== id); sauvegarderLocal(); renderElementsList(type); if(type === 'murs') drawCroquis(); }
     
     function renderElementsList(tabId) {
         if(!curAppt) curAppt = 'copro'; 
@@ -2647,7 +2684,16 @@ function getShortMat(mat) {
         if(type && lh && diam) { if(type.value === 'Hublot') { lh.style.display = 'none'; diam.style.display = 'block'; } else { lh.style.display = 'block'; diam.style.display = 'none'; } }
     }
 
-    function exportData() { const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(db)); const a = document.createElement('a'); a.setAttribute("href", dataStr); const d = new Date(); a.setAttribute("download", `MyDiag_Backup_${db.copro.ref||'Projet'}_${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}.json`); document.body.appendChild(a); a.click(); a.remove(); }
+    function exportData() {
+        const payload = { ...db, _meta: { app: "MyDiag-DPE", schemaVersion: 1, appVersion: APP_VERSION, exportDate: new Date().toISOString() } };
+        const blob = new Blob([JSON.stringify(payload)], { type: 'application/json' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        const d = new Date();
+        a.download = `MyDiag_Backup_${db.copro.ref||'Projet'}_${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}.json`;
+        document.body.appendChild(a); a.click(); a.remove();
+        setTimeout(() => URL.revokeObjectURL(a.href), 10000);
+    }
 
     window.importData = function() { document.getElementById('json-uploader').click(); };
     document.getElementById('json-uploader').onchange = function(e) {
@@ -2656,9 +2702,12 @@ function getShortMat(mat) {
         reader.onload = async function(ev) {
             try {
                 const data = JSON.parse(ev.target.result);
+                if (data && data._meta && data._meta.app && data._meta.app !== 'MyDiag-DPE') { alert("Ce fichier provient d'une autre application (" + data._meta.app + ")."); return; }
                 if (!data || typeof data !== 'object' || !Array.isArray(data.appts) || !Array.isArray(data.murs)) { alert("Fichier invalide : ce n'est pas un backup MyDiag."); return; }
                 const nomProjet = (data.copro && data.copro.nom) || (data.copro && data.copro.ref) || "Projet sans nom";
-                if (!confirm(`Restaurer ce backup ?\n\n📁 ${nomProjet} — ${data.appts.length} lot(s), ${data.murs.length} mur(s)\n\n⚠️ Les données actuellement sur cet appareil seront remplacées.`)) return;
+                const dateInfo = data._meta && data._meta.exportDate ? "\nExporté le : " + data._meta.exportDate.substring(0, 10) : "";
+                if (!confirm(`Restaurer ce backup ?\n\n📁 ${nomProjet} — ${data.appts.length} lot(s), ${data.murs.length} mur(s)${dateInfo}\n\n⚠️ Les données actuellement sur cet appareil seront remplacées.`)) return;
+                delete data._meta;
                 db = data;
                 await localforage.setItem('mydiag_v8_10', db);
                 location.reload();
@@ -2755,13 +2804,14 @@ if(fensData.length) XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(fe
     
     async function exportZip() {
         if (typeof JSZip === 'undefined') return alert("La bibliothèque JSZip n'est pas chargée."); toast("Préparation du ZIP en cours..."); let zip = new JSZip(); let hasPhotos = false;
-        if (db.docs && db.docs.length > 0) { let docFolder = zip.folder("Documents_Copro"); db.docs.forEach((d, i) => { if (d.data && d.data.includes('base64,')) { let b64 = d.data.split(',')[1]; let ext = d.type === 'img' ? '.png' : '.pdf'; docFolder.file(d.name || `doc_${i}${ext}`, b64, {base64: true}); hasPhotos = true; } }); }
+        const extIm = (d) => d.includes('application/pdf') ? '.pdf' : d.includes('image/jpeg') ? '.jpg' : '.png';
+        if (db.docs && db.docs.length > 0) { let docFolder = zip.folder("Documents_Copro"); db.docs.forEach((d, i) => { if (d.data && d.data.includes('base64,')) { let b64 = d.data.split(',')[1]; docFolder.file(d.name || `doc_${i}${extIm(d.data)}`, b64, {base64: true}); hasPhotos = true; } }); }
         let coproFolder = zip.folder("Systemes_Collectifs");
-        if (db.chaufCol && db.chaufCol.photo && db.chaufCol.photo.includes('base64,')) { coproFolder.file("Plaque_Chauffage_Collectif.png", db.chaufCol.photo.split(',')[1], {base64: true}); hasPhotos = true; }
-        if (db.ecsCol && db.ecsCol.photo && db.ecsCol.photo.includes('base64,')) { coproFolder.file("Plaque_ECS_Collective.png", db.ecsCol.photo.split(',')[1], {base64: true}); hasPhotos = true; }
+        if (db.chaufCol && db.chaufCol.photo && db.chaufCol.photo.includes('base64,')) { coproFolder.file("Plaque_Chauffage_Collectif" + extIm(db.chaufCol.photo), db.chaufCol.photo.split(',')[1], {base64: true}); hasPhotos = true; }
+        if (db.ecsCol && db.ecsCol.photo && db.ecsCol.photo.includes('base64,')) { coproFolder.file("Plaque_ECS_Collective" + extIm(db.ecsCol.photo), db.ecsCol.photo.split(',')[1], {base64: true}); hasPhotos = true; }
         let indFolder = zip.folder("Systemes_Individuels");
-        db.chaufs.forEach((c, i) => { if (c.photo && c.photo.includes('base64,')) { let apt = db.appts.find(a => a.id === c.aptId); let aNum = apt ? apt.num : "Inconnu"; indFolder.file(`Chauffage_${aNum}_${i+1}.png`, c.photo.split(',')[1], {base64: true}); hasPhotos = true; } });
-        db.ecss.forEach((e, i) => { if (e.photo && e.photo.includes('base64,')) { let apt = db.appts.find(a => a.id === e.aptId); let aNum = apt ? apt.num : "Inconnu"; indFolder.file(`ECS_${aNum}_${i+1}.png`, e.photo.split(',')[1], {base64: true}); hasPhotos = true; } });
+        db.chaufs.forEach((c, i) => { if (c.photo && c.photo.includes('base64,')) { let apt = db.appts.find(a => a.id === c.aptId); let aNum = apt ? apt.num : "Inconnu"; indFolder.file(`Chauffage_${aNum}_${i+1}` + extIm(c.photo), c.photo.split(',')[1], {base64: true}); hasPhotos = true; } });
+        db.ecss.forEach((e, i) => { if (e.photo && e.photo.includes('base64,')) { let apt = db.appts.find(a => a.id === e.aptId); let aNum = apt ? apt.num : "Inconnu"; indFolder.file(`ECS_${aNum}_${i+1}` + extIm(e.photo), e.photo.split(',')[1], {base64: true}); hasPhotos = true; } });
         if (!hasPhotos) { toast("Aucune photo à exporter."); return; }
         let content = await zip.generateAsync({type:"blob"}); let a = document.createElement("a"); a.href = URL.createObjectURL(content); let d = new Date(); a.download = `Photos_MyDiag_${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}.zip`; document.body.appendChild(a); a.click(); document.body.removeChild(a); toast("ZIP téléchargé !");
     }
