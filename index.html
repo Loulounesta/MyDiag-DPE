@@ -1419,7 +1419,7 @@ function renderBureauTarget() {
     let html = `<option value="copro">🏢 Parties Communes (Copro)</option>`;
     db.appts.forEach(a => {
         let typeText = a.type === 2 ? " (Duplex)" : a.type === 3 ? " (Triplex)" : "";
-        html += `<option value="${a.id}">Lot : ${a.num}${typeText}</option>`;
+        html += `<option value="${a.id}">Lot : ${esc(a.num)}${typeText}</option>`;
     });
     sel.innerHTML = html;
 }
@@ -1481,7 +1481,7 @@ function renderBureauList() {
 
     cont.innerHTML = sortedMurs.map(x => {
         let aptObj = db.appts.find(a => a.id === x.aid);
-        let lotName = x.aid === 'copro' ? '🏢 Communs' : `🚪 Lot ${aptObj ? aptObj.num : '?'}`;
+        let lotName = x.aid === 'copro' ? '🏢 Communs' : `🚪 Lot ${esc(aptObj ? aptObj.num : '?')}`;
 
         return `
         <div class="item-row" style="padding:10px; align-items:center;">
@@ -1489,8 +1489,8 @@ function renderBureauList() {
                 <span class="badge" style="background:#E2E8F0; color:#0F172A;">${lotName}</span>
             </div>
             <div style="flex:1; padding-left:10px; min-width:0;">
-                <div style="font-weight:800; font-size:13px; color:var(--tx);">${x.ori} | ${x.mat || ''}</div>
-                <div style="font-size:12px; color:var(--tx2);">Dim: ${x.l}x${x.h}m ${x.iso!=='Non' ? '| Iso: '+x.iso : ''}</div>
+                <div style="font-weight:800; font-size:13px; color:var(--tx);">${esc(x.ori)} | ${esc(x.mat || '')}</div>
+                <div style="font-size:12px; color:var(--tx2);">Dim: ${esc(x.l)}x${esc(x.h)}m ${x.iso!=='Non' ? '| Iso: '+esc(x.iso) : ''}</div>
             </div>
             <button class="btn-xs" style="color:var(--dan); background:var(--dan-l); padding:6px 10px;" onclick="if(confirm('Supprimer ce mur ?')){db.murs=db.murs.filter(m=>m.id!==${x.id}); sauvegarderLocal(); renderBureauList();}">❌</button>
         </div>`;
@@ -1950,14 +1950,14 @@ function renderBureauList() {
         data.forEach(d => {
             totalSurf += parseFloat(d.surf);
             html += '<tr>';
-            html += `<td><strong>${d.aptNum}</strong></td>`;
-            if(cat === 'murs') html += `<td>${d.ori||''}</td><td>${d.mat||''}</td><td>${d.l||''}</td><td>${d.h||''}</td>`;
+            html += `<td><strong>${esc(d.aptNum)}</strong></td>`;
+            if(cat === 'murs') html += `<td>${esc(d.ori||'')}</td><td>${esc(d.mat||'')}</td><td>${esc(d.l||'')}</td><td>${esc(d.h||'')}</td>`;
             else if (cat === 'fens') {
-                let dimStr = d.type === 'Hublot' ? `Ø${d.diam}cm` : `${d.l}x${d.h}cm`;
-                html += `<td>${d.ori||''}</td><td>${d.type||''}</td><td>${d.mat||''}</td><td>${dimStr}</td><td>${d.nb||'1'}</td>`;
+                let dimStr = d.type === 'Hublot' ? `Ø${esc(d.diam)}cm` : `${esc(d.l)}x${esc(d.h)}cm`;
+                html += `<td>${esc(d.ori||'')}</td><td>${esc(d.type||'')}</td><td>${esc(d.mat||'')}</td><td>${dimStr}</td><td>${esc(d.nb||'1')}</td>`;
             }
-            else if (cat === 'portes') html += `<td>${d.type||''}</td><td>${d.mat||''}</td><td>${d.l||''}</td><td>${d.h||''}</td>`;
-            else html += `<td>${d.type||''}</td><td>${d.donne||''}</td><td>${d.l||''}</td><td>${d.larg||''}</td>`;
+            else if (cat === 'portes') html += `<td>${esc(d.type||'')}</td><td>${esc(d.mat||'')}</td><td>${esc(d.l||'')}</td><td>${esc(d.h||'')}</td>`;
+            else html += `<td>${esc(d.type||'')}</td><td>${esc(d.donne||'')}</td><td>${esc(d.l||'')}</td><td>${esc(d.larg||'')}</td>`;
             html += `<td style="font-weight:900; color:var(--acc);">${d.surf}</td>`;
             html += '</tr>';
         });
@@ -2012,14 +2012,14 @@ function renderBureauList() {
 
             sortedFloors.forEach(f => {
                 html += `<div style="display:flex; gap:5px; width:100%; justify-content:center;">`;
-                html += `<div style="width:60px; font-weight:bold; font-size:12px; color:var(--tx2); display:flex; align-items:center; justify-content:flex-end; padding-right:10px;">${f}</div>`;
+                html += `<div style="width:60px; font-weight:bold; font-size:12px; color:var(--tx2); display:flex; align-items:center; justify-content:flex-end; padding-right:10px;">${esc(f)}</div>`;
                 html += `<div style="display:flex; gap:5px; flex:1; flex-wrap:wrap;">`;
                 floors[f].forEach(a => {
                     totSurf += parseFloat(a.surf || 0);
                     let w = Math.max(50, Math.min((parseFloat(a.surf || 40) * 1.5), 150)); 
                     html += `<div class="tetris-block" style="width:${w}px;">
-                        <div>${a.num}</div>
-                        <div style="font-size:9px; opacity:0.8;">${a.surf ? a.surf + 'm²' : ''}</div>
+                        <div>${esc(a.num)}</div>
+                        <div style="font-size:9px; opacity:0.8;">${a.surf ? esc(a.surf) + 'm²' : ''}</div>
                     </div>`;
                 });
                 html += `</div></div>`;
@@ -2231,7 +2231,7 @@ function getShortMat(mat) {
             ctx.beginPath(); ctx.setLineDash([5, 5]); ctx.moveTo(endPx, endPy); ctx.lineTo(startPx, startPy); ctx.strokeStyle = '#EF4444'; ctx.lineWidth = 2; ctx.stroke(); ctx.setLineDash([]);
         } else {
             let opts = `<option value="copro" ${curAppt === 'copro' ? 'selected' : ''}>🏢 Parties communes</option>`;
-            db.appts.forEach(a => { opts += `<option value="${a.id}" ${curAppt === a.id ? 'selected' : ''}>Lot ${a.num}</option>`; });
+            db.appts.forEach(a => { opts += `<option value="${a.id}" ${curAppt === a.id ? 'selected' : ''}>Lot ${esc(a.num)}</option>`; });
             txt = `<span style="color:var(--ok); font-size:14px; font-weight:800;">✅ Périmètre fermé</span><br><span style="font-size:15px; color:var(--tx);">Surface (Niveau ${curNivInt}) : <b>${area.toFixed(1)} m²</b></span>
                 <div style="display:flex; gap:8px; margin-top:12px; align-items:center; justify-content:center; flex-wrap:wrap;">
                     <select id="croquis-apply-target" style="padding:10px; border-radius:8px; border:1px solid var(--bor); font-weight:700; color:var(--tx); background:#fff; max-width:100%;">${opts}</select>
@@ -2286,9 +2286,9 @@ function getShortMat(mat) {
                 let repere = "F" + (index + 1); // Génère F1, F2, F3...
                 
                 // Formatage des infos pour que ce soit compact et lisible
-                let dimStr = m.type === 'Hublot' ? `Ø${m.diam}` : `${m.l}x${m.h}`;
-                let shortFer = m.fer && m.fer !== 'Absence' ? m.fer.substring(0, 14) + '...' : 'Sans volet';
-                let ori = m.ori ? m.ori.substring(0,1) : '-'; // N, S, E, O
+                let dimStr = m.type === 'Hublot' ? `Ø${esc(m.diam)}` : `${esc(m.l)}x${esc(m.h)}`;
+                let shortFer = m.fer && m.fer !== 'Absence' ? esc(m.fer.substring(0, 14)) + '...' : 'Sans volet';
+                let ori = m.ori ? esc(m.ori.substring(0,1)) : '-'; // N, S, E, O
                 
                 html += `
                 <div onclick="chargerModeleFen('${m.id}')" style="flex: 0 0 auto; background: var(--acc-l); border: 2px solid #BFDBFE; border-radius: 12px; padding: 12px; cursor: pointer; min-width: 140px; transition: 0.2s; box-shadow: 0 4px 10px rgba(37,99,235,0.05);">
@@ -2409,8 +2409,8 @@ function getShortMat(mat) {
         return myC.map((c, index) => `
             <div class="item-row" style="align-items:flex-start;">
                 <div style="flex:1; padding-right:12px; min-width:0;">
-                    <div style="font-weight:800; color:var(--tx); font-size:14px; margin-bottom:6px;">🔥 Chauff. ${aptNum} - ${index + 1}</div>
-                    <div style="color:var(--tx2); font-size:12px; line-height:1.4;">${c.energie} · ${c.gen}<br>${c.emetteur||''} | ${c.puissance?c.puissance+'kW':''} | ${c.annee?c.annee:''}</div>
+                    <div style="font-weight:800; color:var(--tx); font-size:14px; margin-bottom:6px;">🔥 Chauff. ${esc(aptNum)} - ${index + 1}</div>
+                    <div style="color:var(--tx2); font-size:12px; line-height:1.4;">${esc(c.energie)} · ${esc(c.gen)}<br>${esc(c.emetteur||'')} | ${c.puissance?esc(c.puissance)+'kW':''} | ${c.annee?esc(c.annee):''}</div>
                     <div style="margin-top:8px;">${c.photo ? `<img src="${c.photo}" class="thumb" style="margin:0;" onclick="viewImage('${c.photo}')">` : ''}</div>
                 </div>
                 <div style="display:flex; gap:6px; flex-wrap:wrap; width: 94px; justify-content:flex-start; flex-shrink:0;">
@@ -2427,8 +2427,8 @@ function getShortMat(mat) {
         return myE.map((e, index) => `
             <div class="item-row" style="align-items:flex-start;">
                 <div style="flex:1; padding-right:12px; min-width:0;">
-                    <div style="font-weight:800; color:var(--tx); font-size:14px; margin-bottom:6px;">🚿 ECS ${aptNum} - ${index + 1}</div>
-                    <div style="color:var(--tx2); font-size:12px; line-height:1.4;">${e.energie} · ${e.type}<br>${e.vol?e.vol+'L':''} | ${e.annee?e.annee:''}</div>
+                    <div style="font-weight:800; color:var(--tx); font-size:14px; margin-bottom:6px;">🚿 ECS ${esc(aptNum)} - ${index + 1}</div>
+                    <div style="color:var(--tx2); font-size:12px; line-height:1.4;">${esc(e.energie)} · ${esc(e.type)}<br>${e.vol?esc(e.vol)+'L':''} | ${e.annee?esc(e.annee):''}</div>
                     <div style="margin-top:8px;">${e.photo ? `<img src="${e.photo}" class="thumb" style="margin:0;" onclick="viewImage('${e.photo}')">` : ''}</div>
                 </div>
                 <div style="display:flex; gap:6px; flex-wrap:wrap; width: 94px; justify-content:flex-start; flex-shrink:0;">
@@ -2559,7 +2559,7 @@ function getShortMat(mat) {
             return `<div class="appt-card" style="background:var(--sur); border-radius:12px; border:1px solid var(--bor); margin-bottom:12px; overflow:hidden; ${isCur}">
                 <div class="appt-header" onclick="toggleAppt('${a.id}')" style="padding:16px; display:flex; justify-content:space-between; align-items:center; cursor:pointer;">
                     <div style="flex:1;">
-                        <div class="appt-num" style="font-weight:900; font-size:16px;">${a.num}${typeStr} <span style="font-size:13px; color:#64748b; font-weight:normal; margin-left:6px;">${a.surf?a.surf+'m²':''}</span></div>
+                        <div class="appt-num" style="font-weight:900; font-size:16px;">${esc(a.num)}${typeStr} <span style="font-size:13px; color:#64748b; font-weight:normal; margin-left:6px;">${a.surf?esc(a.surf)+'m²':''}</span></div>
                         <div id="badges-${a.id}" style="margin-top:6px; display:flex; gap:4px; flex-wrap:wrap;"></div>
                     </div>
                     <span style="color:var(--tx2); font-size:14px; padding-left:10px;">${isExp ? '▼' : '▶'}</span>
@@ -2703,13 +2703,13 @@ function getShortMat(mat) {
         cont.innerHTML = data.filter(x => x.aid === curAppt && (x.nivInt || 0) === curNivInt).map(x => {
             let dimText = ""; let titleText = x.mat || x.type;
             if (type === 'fens') {
-                if (x.type === 'Hublot') { dimText = `Ø: ${x.diam||'?'}cm (Surf: ${x.surf||'?'}m²) | Lame: ${x.ep||'?'}mm | Qté: ${x.nb||1} (Motifs: ${x.motifs||1})`; } else { dimText = `Dim: ${x.l||'?'}x${x.h||'?'}cm | Lame: ${x.ep||'?'}mm | Qté: ${x.nb||1} (Motifs: ${x.motifs||1})`; }
-                titleText = `${x.nom ? x.nom + ' - ' : ''}${x.type || ''}`;
-                dimText = `${x.mat || ''} | ${x.vit || ''}<br>Fermeture : ${x.fer || 'Absence'}<br>` + dimText;
-            } else if (type === 'plfs' || type === 'plas') { if (x.s) dimText = `Surf: ${x.s}m²`; else dimText = `Dim: ${x.l||'?'} x ${x.larg||'?'}m`; if(x.iso && x.iso !== 'Non') dimText += ` | Iso: ${x.iso}${x.isoEp ? ' '+x.isoEp+'cm' : ''}`;
-            } else if (type === 'murs') { dimText = `Dim: ${x.l||'?'} x ${x.h||'?'}m`; if(x.ep) dimText += ` | Ep: ${x.ep}cm`; if(x.iso && x.iso !== 'Non') dimText += ` | Iso: ${x.iso}${x.isoEp ? ' '+x.isoEp+'cm' : ''}`; if (x.vectX !== undefined) titleText = "Mur (Fermeture auto)";
-            } else if (type === 'portes') { dimText = `Dim: ${x.l||'?'} x ${x.h||'?'}m | Iso: ${x.iso||'Non'} | Sas: ${x.sas||'Non'}`; titleText = `${x.type} (${x.mat || '?'})`; }
-            const badgeText = type === 'fens' ? (x.ori || 'N/A') : (type === 'portes' ? 'Porte' : (x.ori || 'Surf.'));
+                if (x.type === 'Hublot') { dimText = `Ø: ${esc(x.diam||'?')}cm (Surf: ${esc(x.surf||'?')}m²) | Lame: ${esc(x.ep||'?')}mm | Qté: ${esc(x.nb||1)} (Motifs: ${esc(x.motifs||1)})`; } else { dimText = `Dim: ${esc(x.l||'?')}x${esc(x.h||'?')}cm | Lame: ${esc(x.ep||'?')}mm | Qté: ${esc(x.nb||1)} (Motifs: ${esc(x.motifs||1)})`; }
+                titleText = `${x.nom ? esc(x.nom) + ' - ' : ''}${esc(x.type || '')}`;
+                dimText = `${esc(x.mat || '')} | ${esc(x.vit || '')}<br>Fermeture : ${esc(x.fer || 'Absence')}<br>` + dimText;
+            } else if (type === 'plfs' || type === 'plas') { if (x.s) dimText = `Surf: ${esc(x.s)}m²`; else dimText = `Dim: ${esc(x.l||'?')} x ${esc(x.larg||'?')}m`; if(x.iso && x.iso !== 'Non') dimText += ` | Iso: ${esc(x.iso)}${x.isoEp ? ' '+esc(x.isoEp)+'cm' : ''}`; titleText = esc(titleText);
+            } else if (type === 'murs') { dimText = `Dim: ${esc(x.l||'?')} x ${esc(x.h||'?')}m`; if(x.ep) dimText += ` | Ep: ${esc(x.ep)}cm`; if(x.iso && x.iso !== 'Non') dimText += ` | Iso: ${esc(x.iso)}${x.isoEp ? ' '+esc(x.isoEp)+'cm' : ''}`; titleText = (x.vectX !== undefined) ? "Mur (Fermeture auto)" : esc(titleText);
+            } else if (type === 'portes') { dimText = `Dim: ${esc(x.l||'?')} x ${esc(x.h||'?')}m | Iso: ${esc(x.iso||'Non')} | Sas: ${esc(x.sas||'Non')}`; titleText = `${esc(x.type)} (${esc(x.mat || '?')})`; }
+            const badgeText = type === 'fens' ? esc(x.ori || 'N/A') : (type === 'portes' ? 'Porte' : esc(x.ori || 'Surf.'));
             return `
             <div class="item-row" style="align-items: flex-start;">
                 <div class="item-details" style="flex:1; padding-right:12px; min-width:0;">
