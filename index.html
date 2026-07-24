@@ -709,7 +709,7 @@
 <div class="hd">
     <div class="hd-title">
         <img src="apple-touch-icon.png" alt="Logo" style="width:28px; height:28px; border-radius:6px; object-fit:cover; border:1px solid rgba(255,255,255,0.2);">
-        MyDiag - DPE <span style="font-size:11px; color:#94A3B8; font-weight:600; margin-left:4px; opacity:0.8;">v8.18.1</span>
+        MyDiag - DPE <span style="font-size:11px; color:#94A3B8; font-weight:600; margin-left:4px; opacity:0.8;">v8.18.2</span>
     </div>
     <div style="display:flex; align-items:center; gap:12px;">
         <div id="voyant-save" style="width:12px; height:12px; border-radius:50%; background-color:#475569; box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);"></div>
@@ -1407,7 +1407,7 @@
 
         <div style="margin-top:24px; padding:20px; background:var(--tx); border-radius:16px; text-align:center;">
             <div style="color:white; font-weight:700; font-size:15px;">Prêt à révolutionner vos diagnostics ?</div>
-            <div style="color:#94A3B8; font-size:12px; margin-top:5px;">Version 8.18.1 • L'outil pensé pour le terrain.</div>
+            <div style="color:#94A3B8; font-size:12px; margin-top:5px;">Version 8.18.2 • L'outil pensé pour le terrain.</div>
         </div>
     </div>
 </div>
@@ -1497,7 +1497,7 @@ function renderBureauList() {
     }).join('');
 }
     // --- VARIABLES ET BASE ---
-    const APP_VERSION = '8.18.1';
+    const APP_VERSION = '8.18.2';
     const CACHE_VERSION = 'mydiag-v8-18-1';
     let swReady = false;
     if ('serviceWorker' in navigator) {
@@ -1640,11 +1640,13 @@ function renderBureauList() {
         if (tabEl) tabEl.classList.add('on');
         
         if(tabId === 'accueil') updateDashboard();
+        if(tabId === 'appts') renderApptsList();
         if(tabId === 'aide') majStatutHorsLigne();
         if(tabId === 'bim') renderBIM();
         if(tabId === 'totaux') renderTotauxTable();
         if(tabId === 'bureau') { renderBureauTarget(); renderBureauList(); }
         if(['murs','fen','portes','plafonds','planchers'].includes(tabId)) {
+            resetEditParoi();
             verifierAptActif(tabId);
             renderElementsList(tabId);
             if(tabId === 'murs') drawCroquis();
@@ -2086,10 +2088,15 @@ function renderBureauList() {
     window.applyHabSurface = function() {
         if(!curAppt || curAppt === 'copro') return alert("Sélectionnez un appartement !");
         if(!lastCalc.sHab) return;
-        updateApptField(curAppt, 'surf', lastCalc.sHab);
-        let surfInput = document.querySelector(`#vw-appts input[value="${lastCalc.sHab}"]`);
-        if(surfInput) surfInput.value = lastCalc.sHab;
-        toast("Surface habitable (" + lastCalc.sHab + " m²) appliquée au lot !");
+        const apt = db.appts.find(a => a.id === curAppt); if(!apt) return;
+        if(!apt.surfs) apt.surfs = {};
+        apt.surfs[curNivInt] = parseFloat(lastCalc.sHab);
+        let tot = 0; for(let k in apt.surfs) tot += apt.surfs[k];
+        apt.surf = tot.toFixed(1);
+        sauvegarderLocal();
+        renderApptsList();
+        updateDashboard();
+        toast(`Surface habitable N${curNivInt} (${lastCalc.sHab} m²) appliquée au lot ${apt.num} · Total : ${apt.surf} m²`);
     };
 
     function addCalc(type) {
@@ -2603,6 +2610,7 @@ function getShortMat(mat) {
     }
     
     window.changeTargetApt = function(val, tab) {
+        resetEditParoi();
         curAppt = val;
         curNivInt = 0;
         verifierAptActif(tab);
@@ -2611,15 +2619,24 @@ function getShortMat(mat) {
     };
 
     function setNivInt(i, tab) {
+        resetEditParoi();
         curNivInt = i;
         verifierAptActif(tab);
         renderElementsList(tab);
         if(tab === 'murs') drawCroquis();
     }
 
+    function resetEditParoi() {
+        editParoiId = null;
+        const labels = { 'btn-save-murs':'Enregistrer ce mur', 'btn-save-fens':'Enregistrer', 'btn-save-portes':'Enregistrer', 'btn-save-plfs':'Enregistrer', 'btn-save-plas':'Enregistrer' };
+        for (const id in labels) { const b = document.getElementById(id); if(b) b.textContent = labels[id]; }
+    }
+
     function sauverParoi(type) {
         if(!curAppt) curAppt = 'copro';
-        let el = editParoiId ? db[type].find(x => x.id === editParoiId) : { id: Date.now(), aid: curAppt }; el.nivInt = curNivInt; 
+        let el = editParoiId ? db[type].find(x => x.id === editParoiId) : null;
+        if (!el) { el = { id: Date.now(), aid: curAppt }; editParoiId = null; } // mode édition orphelin -> nouvelle paroi
+        el.nivInt = curNivInt;
         if(type === 'murs') { 
             let oldOri = el.ori; el.ori = document.getElementById('m-ori').value; el.donne = document.getElementById('m-donne').value; el.mat = document.getElementById('m-mat').value; el.l = document.getElementById('m-l').value; el.h = document.getElementById('m-h').value; el.ep = document.getElementById('m-ep').value; el.doub = document.getElementById('m-doub').value; el.iso = document.getElementById('m-iso').value; el.isoEp = document.getElementById('m-iso-ep').value; 
             if (el.vectX !== undefined && oldOri !== el.ori) { delete el.vectX; delete el.vectY; }
