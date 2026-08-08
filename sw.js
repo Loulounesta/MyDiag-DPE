@@ -1,14 +1,14 @@
 // Service worker MyDiag-DPE — stratégie "réseau d'abord, cache en secours"
 // pour rester à jour en ligne tout en fonctionnant hors connexion sur chantier.
-const CACHE = 'mydiag-v8-18-1';
+const CACHE = 'mydiag-v8-19';
 const ASSETS = [
   './',
   './index.html',
   './apple-touch-icon.png',
   './manifest.json',
-  'https://cdnjs.cloudflare.com/ajax/libs/localforage/1.10.0/localforage.min.js',
-  'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js',
-  'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js'
+  './lib/localforage.min.js',
+  './lib/xlsx.full.min.js',
+  './lib/jszip.min.js'
 ];
 
 self.addEventListener('install', e => {

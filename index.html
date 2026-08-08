@@ -13,9 +13,11 @@
     <link rel="icon" type="image/png" href="apple-touch-icon.png">
     <link rel="manifest" href="manifest.json">
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/localforage/1.10.0/localforage.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <!-- Bibliothèques embarquées localement : démarrage garanti hors ligne,
+         aucune dépendance réseau (indispensable pour l'empaquetage natif). -->
+    <script src="lib/localforage.min.js"></script>
+    <script src="lib/xlsx.full.min.js"></script>
+    <script src="lib/jszip.min.js"></script>
 
     <style>
         :root {
@@ -709,7 +711,7 @@
 <div class="hd">
     <div class="hd-title">
         <img src="apple-touch-icon.png" alt="Logo" style="width:28px; height:28px; border-radius:6px; object-fit:cover; border:1px solid rgba(255,255,255,0.2);">
-        MyDiag - DPE <span style="font-size:11px; color:#94A3B8; font-weight:600; margin-left:4px; opacity:0.8;">v8.18.2</span>
+        MyDiag - DPE <span style="font-size:11px; color:#94A3B8; font-weight:600; margin-left:4px; opacity:0.8;">v8.19</span>
     </div>
     <div style="display:flex; align-items:center; gap:12px;">
         <div id="voyant-save" style="width:12px; height:12px; border-radius:50%; background-color:#475569; box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);"></div>
@@ -1407,7 +1409,7 @@
 
         <div style="margin-top:24px; padding:20px; background:var(--tx); border-radius:16px; text-align:center;">
             <div style="color:white; font-weight:700; font-size:15px;">Prêt à révolutionner vos diagnostics ?</div>
-            <div style="color:#94A3B8; font-size:12px; margin-top:5px;">Version 8.18.2 • L'outil pensé pour le terrain.</div>
+            <div style="color:#94A3B8; font-size:12px; margin-top:5px;">Version 8.19 • L'outil pensé pour le terrain.</div>
         </div>
     </div>
 </div>
@@ -1496,9 +1498,62 @@ function renderBureauList() {
         </div>`;
     }).join('');
 }
+    /* ==========================================================================
+       COUCHE PLATEFORME
+       Unique point de contact avec le système (fichiers, appareil photo).
+       En navigateur : téléchargement classique.
+       Empaqueté en application native (Capacitor) : ces trois fonctions sont
+       les SEULES à remplacer — le reste de l'application reste inchangé.
+       ========================================================================== */
+    const Plateforme = {
+        estNatif() { return !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform()); },
+
+        // Enregistre un Blob sous le nom donné et retourne true si l'opération a abouti.
+        async enregistrerFichier(blob, nomFichier) {
+            try {
+                if (this.estNatif() && window.CapacitorPlugins && window.CapacitorPlugins.enregistrer) {
+                    return await window.CapacitorPlugins.enregistrer(blob, nomFichier);
+                }
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url; a.download = nomFichier;
+                document.body.appendChild(a); a.click(); a.remove();
+                setTimeout(() => URL.revokeObjectURL(url), 10000);
+                return true;
+            } catch (err) {
+                console.error('Enregistrement du fichier impossible :', err);
+                toast("⚠️ Enregistrement impossible : " + nomFichier);
+                return false;
+            }
+        },
+
+        // Ouvre un document (PDF, image) dans une nouvelle vue.
+        async ouvrirFichier(blob, nomFichier) {
+            try {
+                if (this.estNatif() && window.CapacitorPlugins && window.CapacitorPlugins.ouvrir) {
+                    return await window.CapacitorPlugins.ouvrir(blob, nomFichier);
+                }
+                const url = URL.createObjectURL(blob);
+                window.open(url, '_blank');
+                setTimeout(() => URL.revokeObjectURL(url), 60000);
+                return true;
+            } catch (err) {
+                console.error('Ouverture du fichier impossible :', err);
+                toast("⚠️ Ouverture impossible");
+                return false;
+            }
+        },
+
+        // Déclenche la prise de photo / sélection de fichier.
+        demanderFichier(inputId) {
+            const input = document.getElementById(inputId);
+            if (input) input.click();
+        }
+    };
+
     // --- VARIABLES ET BASE ---
-    const APP_VERSION = '8.18.2';
-    const CACHE_VERSION = 'mydiag-v8-18-1';
+    const APP_VERSION = '8.19';
+    const CACHE_VERSION = 'mydiag-v8-19';
     let swReady = false;
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('sw.js')
@@ -1674,7 +1729,7 @@ function renderBureauList() {
     // --- UPLOAD PHOTOS ---
     function triggerUpload(type, id = null) {
         currentUploadTarget = { type, id };
-        document.getElementById('global-uploader').click();
+        Plateforme.demanderFichier('global-uploader');
     }
 
     document.getElementById('global-uploader').onchange = function(e) {
@@ -1786,9 +1841,7 @@ function renderBureauList() {
 
     window.ouvrirDoc = function(id) {
         const d = db.docs.find(x => x.id == id); if(!d) return;
-        const url = URL.createObjectURL(dataURLtoBlob(d.data));
-        window.open(url, '_blank');
-        setTimeout(() => URL.revokeObjectURL(url), 60000);
+        Plateforme.ouvrirFichier(dataURLtoBlob(d.data), d.name);
     };
 
     function estimerPoidsMedias() {
@@ -2748,18 +2801,19 @@ function getShortMat(mat) {
         if(type && lh && diam) { if(type.value === 'Hublot') { lh.style.display = 'none'; diam.style.display = 'block'; } else { lh.style.display = 'block'; diam.style.display = 'none'; } }
     }
 
-    function exportData() {
-        const payload = { ...db, _meta: { app: "MyDiag-DPE", schemaVersion: 1, appVersion: APP_VERSION, exportDate: new Date().toISOString() } };
-        const blob = new Blob([JSON.stringify(payload)], { type: 'application/json' });
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
+    function horodatage() {
         const d = new Date();
-        a.download = `MyDiag_Backup_${db.copro.ref||'Projet'}_${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}.json`;
-        document.body.appendChild(a); a.click(); a.remove();
-        setTimeout(() => URL.revokeObjectURL(a.href), 10000);
+        return `${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}`;
     }
 
-    window.importData = function() { document.getElementById('json-uploader').click(); };
+    async function exportData() {
+        const payload = { ...db, _meta: { app: "MyDiag-DPE", schemaVersion: 1, appVersion: APP_VERSION, exportDate: new Date().toISOString() } };
+        const blob = new Blob([JSON.stringify(payload)], { type: 'application/json' });
+        const nom = `MyDiag_Backup_${db.copro.ref||'Projet'}_${horodatage()}.json`;
+        if (await Plateforme.enregistrerFichier(blob, nom)) toast("Backup JSON enregistré ✓");
+    }
+
+    window.importData = function() { Plateforme.demanderFichier('json-uploader'); };
     document.getElementById('json-uploader').onchange = function(e) {
         const file = e.target.files[0]; if(!file) return;
         const reader = new FileReader();
@@ -2835,7 +2889,7 @@ function getShortMat(mat) {
         return `${rep} ${typeAbr} ${ori} ${dim} ${matAbr} ${vitAbr} ${ferAbr}`.trim().replace(/\s+/g, ' ');
     }
     
-    function exportExcel() {
+    async function exportExcel() {
         if (typeof XLSX === 'undefined') return alert("La bibliothèque XLSX n'est pas chargée."); toast("Génération du fichier Excel..."); let wb = XLSX.utils.book_new(); 
         const getAptNum = (id) => { if(id === 'copro') return 'Communs'; let a = db.appts.find(x=>x.id===id); return a ? a.num : "Inconnu"; };
         let coproData = [{ "Référence": db.copro.ref || "", "Nom": db.copro.nom || "", "Adresse": db.copro.adresse || "", "Code Postal": db.copro.cp || "", "Ville": db.copro.ville || "", "Année constr.": db.copro.annee || "", "Bâtiments": db.copro.batiments || "", "Étages": db.copro.etages || "", "Surface Communs (m²)": db.copro.surfcommuns || "", "VMC Type": db.vmc.type || "", "VMC Période": db.vmc.periode || "", "Chauff Col. Energie": db.chaufCol.energie || "", "Chauff Col. Générateur": db.chaufCol.gen || "", "Chauff Col. Emetteur": db.chaufCol.emetteur || "", "Chauff Col. Année": db.chaufCol.annee || "", "Chauff Col. Puissance": db.chaufCol.puissance || "", "ECS Col. Energie": db.ecsCol.energie || "", "ECS Col. Type": db.ecsCol.type || "", "ECS Col. Année": db.ecsCol.annee || "", "ECS Col. Volume": db.ecsCol.vol || "" }]; XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(coproData), "Copro");        let apptsData = db.appts.map(a => ({ "Lot": a.num, "Bâtiment": a.bat || "", "Type": a.type === 2 ? "Duplex" : a.type === 3 ? "Triplex" : "Plain-pied", "Étage": a.etage || "", "Niveau ADN": a.niveau || "", "Surface (m²)": a.surf || "", "HSP (m)": a.hsp || "" })); if(apptsData.length) XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(apptsData), "Appartements");
@@ -2863,7 +2917,11 @@ if(fensData.length) XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(fe
         let plasData = db.plas.map(p => ({ "Lot": getAptNum(p.aid), "Niveau": p.nivInt || 0, "Type ADN": p.type || "", "Donne sur": p.donne || "", "Longueur (m)": p.l || "", "Largeur (m)": p.larg || "", "Surface (m²)": p.s || "", "Isolant": p.iso || "", "Ép. Isolant (cm)": p.isoEp || "" })); if(plasData.length) XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(plasData), "Planchers");
         let chaufsData = db.chaufs.map(c => ({ "Lot": getAptNum(c.aptId), "Énergie": c.energie || "", "Générateur": c.gen || "", "Émetteur": c.emetteur || "", "Année": c.annee || "", "Puissance (kW)": c.puissance || "" })); if(chaufsData.length) XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(chaufsData), "Chauffages");
         let ecsData = db.ecss.map(e => ({ "Lot": getAptNum(e.aptId), "Énergie": e.energie || "", "Type/Générateur": e.type || "", "Année": e.annee || "", "Volume (L)": e.vol || "" })); if(ecsData.length) XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(ecsData), "ECS");
-        let d = new Date(); let fName = `Export_MyDiag_${db.copro.ref||'Projet'}_${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}.xlsx`; XLSX.writeFile(wb, fName);
+        const fName = `Export_MyDiag_${db.copro.ref||'Projet'}_${horodatage()}.xlsx`;
+        // Génération en mémoire puis passage par la couche plateforme (compatible natif).
+        const buf = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+        const blob = new Blob([buf], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+        if (await Plateforme.enregistrerFichier(blob, fName)) toast("Fichier Excel enregistré ✓");
     }
     
     async function exportZip() {
@@ -2877,7 +2935,8 @@ if(fensData.length) XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(fe
         db.chaufs.forEach((c, i) => { if (c.photo && c.photo.includes('base64,')) { let apt = db.appts.find(a => a.id === c.aptId); let aNum = apt ? apt.num : "Inconnu"; indFolder.file(`Chauffage_${aNum}_${i+1}` + extIm(c.photo), c.photo.split(',')[1], {base64: true}); hasPhotos = true; } });
         db.ecss.forEach((e, i) => { if (e.photo && e.photo.includes('base64,')) { let apt = db.appts.find(a => a.id === e.aptId); let aNum = apt ? apt.num : "Inconnu"; indFolder.file(`ECS_${aNum}_${i+1}` + extIm(e.photo), e.photo.split(',')[1], {base64: true}); hasPhotos = true; } });
         if (!hasPhotos) { toast("Aucune photo à exporter."); return; }
-        let content = await zip.generateAsync({type:"blob"}); let a = document.createElement("a"); a.href = URL.createObjectURL(content); let d = new Date(); a.download = `Photos_MyDiag_${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}.zip`; document.body.appendChild(a); a.click(); document.body.removeChild(a); toast("ZIP téléchargé !");
+        const content = await zip.generateAsync({type:"blob"});
+        if (await Plateforme.enregistrerFichier(content, `Photos_MyDiag_${horodatage()}.zip`)) toast("ZIP enregistré ✓");
     }
     // --- EMAILS ---
     window.envoyerMailExport = function() {
