@@ -14,12 +14,13 @@ endroit du code.
 | Prérequis | État |
 |---|---|
 | Bibliothèques embarquées localement (`lib/`) | ✅ fait |
+| Code séparé : `index.html`, `css/app.css`, `js/app.js` | ✅ fait |
 | Aucun appel à un CDN externe | ✅ fait |
 | Accès système regroupés dans l'objet `Plateforme` | ✅ fait |
 | Manifeste et icône d'application | ✅ fait |
 | Fonctionnement hors connexion | ✅ fait |
 
-L'objet **`Plateforme`** (au début du `<script>` de `index.html`) est le
+L'objet **`Plateforme`** (section 1 de `js/app.js`) est le
 seul point à adapter. Il expose trois fonctions :
 
 - `enregistrerFichier(blob, nom)` — export Excel, ZIP, backup JSON
@@ -69,7 +70,7 @@ npx cap open android  # ouvre Android Studio
 ## 4. Brancher les fonctions natives
 
 Créer un fichier `native.js`, puis l'ajouter dans `index.html`
-**avant** le `<script>` principal :
+**avant** le `<script src="js/app.js" defer>` principal :
 
 ```html
 <script type="module" src="native.js"></script>
@@ -143,12 +144,15 @@ Pour une meilleure ergonomie, on pourra plus tard utiliser le module
 - **Avantage majeur du natif :** les données deviennent des données
   d'application (sauvegardées avec iCloud / Google, jamais purgées),
   contrairement au stockage navigateur qui peut être effacé par le système.
+- **Les photos sont stockées dans un store IndexedDB séparé** (`mydiag-medias`) ;
+  le backup JSON les ré-intègre automatiquement, rien à faire côté natif.
 - **Le service worker (`sw.js`) est inutile en natif** — les fichiers sont
   déjà embarqués. Il reste indispensable pour la version web.
 - **Validation Apple :** compter 1 à 7 jours par version. Prévoir une
   politique de confidentialité (les données restent sur l'appareil).
 - **Numéro de version :** à incrémenter dans Xcode et Android Studio à
-  chaque publication, en plus de `APP_VERSION` dans `index.html`.
+  chaque publication, en plus de `APP_VERSION` dans `js/app.js` et
+  du nom de cache dans `sw.js`.
 
 ---
 
